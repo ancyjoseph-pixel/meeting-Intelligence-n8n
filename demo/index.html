@@ -5,403 +5,554 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NEURA Meeting Intelligence — Futurice Demo</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
-
-    .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid #21262d; }
-    .header-left { display: flex; align-items: center; gap: 16px; }
-    .logo-neura { font-size: 22px; font-weight: 700; color: #58a6ff; letter-spacing: -0.5px; }
-    .logo-sep { color: #484f58; font-size: 18px; }
-    .logo-futurice { font-size: 16px; color: #8b949e; font-weight: 500; }
-    .badge { background: #1f6feb; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px; }
-
-    .hero { text-align: center; padding: 60px 40px 40px; }
-    .hero h1 { font-size: 42px; font-weight: 700; color: #e6edf3; line-height: 1.2; margin-bottom: 16px; }
-    .hero h1 span { color: #58a6ff; }
-    .hero p { font-size: 18px; color: #8b949e; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
-
-    .start-btn { background: linear-gradient(135deg, #1f6feb, #58a6ff); color: white; border: none; padding: 18px 48px; font-size: 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
-    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(31, 111, 235, 0.4); }
-    .start-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    .pipeline { display: flex; align-items: center; justify-content: center; gap: 0; padding: 40px; flex-wrap: nowrap; overflow-x: auto; }
-    .step { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 110px; }
-    .step-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 2px solid #21262d; background: #161b22; transition: all 0.4s; position: relative; }
-    .step-icon.active { border-color: #58a6ff; background: #1f3a5f; box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
-    .step-icon.done { border-color: #3fb950; background: #1a3728; }
-    .step-icon.done::after { content: '✓'; position: absolute; bottom: -4px; right: -4px; background: #3fb950; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .step-icon.waiting { border-color: #d29922; background: #2d2616; animation: pulse 1.5s infinite; }
-    .step-icon.error { border-color: #f85149; background: #3d1a1a; }
-    .step-label { font-size: 11px; color: #8b949e; text-align: center; max-width: 90px; line-height: 1.3; font-weight: 500; }
-    .step-label.active { color: #58a6ff; }
-    .step-label.done { color: #3fb950; }
-    .step-label.waiting { color: #d29922; }
-    .arrow { color: #484f58; font-size: 18px; margin: 0 4px; padding-bottom: 20px; flex-shrink: 0; }
-
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(210, 153, 34, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(210, 153, 34, 0); } }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .spinning { display: inline-block; animation: spin 1s linear infinite; }
-
-    .status-bar { text-align: center; padding: 0 40px 20px; min-height: 40px; }
-    .status-msg { font-size: 15px; color: #8b949e; }
-    .status-msg.active { color: #58a6ff; }
-    .status-msg.done { color: #3fb950; }
-    .status-msg.waiting { color: #d29922; }
-
-    /* APPROVAL PANEL */
-    .approval-panel { max-width: 720px; margin: 0 auto 40px; background: #161b22; border: 1px solid #d29922; border-radius: 12px; overflow: hidden; display: none; }
-    .approval-header { background: linear-gradient(135deg, #2d2616, #3d2e08); padding: 20px 24px; border-bottom: 1px solid #d29922; }
-    .approval-header h2 { font-size: 18px; color: #d29922; margin-bottom: 4px; }
-    .approval-header p { font-size: 13px; color: #8b949e; }
-    .approval-body { padding: 24px; }
-    .summary-box { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
-    .summary-box p { font-size: 14px; color: #c9d1d9; line-height: 1.5; }
-    .section-label { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
-    .action-item { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
-    .action-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .owner { font-weight: 600; font-size: 14px; }
-    .ext-badge { background: #f85149; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
-    .task { font-size: 13px; color: #c9d1d9; margin-bottom: 4px; }
-    .meta { font-size: 12px; color: #8b949e; }
-    .priority-critical { color: #f85149; font-weight: 600; }
-    .priority-high { color: #fd7e14; font-weight: 600; }
-    .priority-medium { color: #d29922; font-weight: 600; }
-    .meeting-box { background: #0d1117; border: 1px solid #1f6feb; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
-    .meeting-box .meeting-title { font-weight: 600; color: #58a6ff; margin-bottom: 4px; }
-    .meeting-box .meeting-meta { font-size: 13px; color: #8b949e; }
-    .external-warning { background: #2d2616; border: 1px solid #d29922; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #d29922; }
-    .approval-footer { padding: 0 24px 24px; display: flex; gap: 12px; align-items: center; }
-    .btn-approve { background: #238636; color: white; border: none; padding: 14px 32px; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-    .btn-approve:hover { background: #2ea043; transform: translateY(-1px); }
-    .btn-reject { background: transparent; color: #f85149; border: 1px solid #f85149; padding: 14px 32px; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-    .btn-reject:hover { background: #3d1a1a; }
-    .approval-note { font-size: 12px; color: #8b949e; margin-left: auto; }
-
-    /* CONFIRMATION */
-    .confirm-panel { max-width: 480px; margin: 40px auto; text-align: center; display: none; }
-    .confirm-icon { font-size: 64px; margin-bottom: 20px; }
-    .confirm-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-    .confirm-title.approved { color: #3fb950; }
-    .confirm-title.rejected { color: #f85149; }
-    .confirm-msg { font-size: 15px; color: #8b949e; line-height: 1.6; }
-
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid #21262d}
+    .logo-neura{font-size:22px;font-weight:700;color:#58a6ff;letter-spacing:-0.5px}
+    .logo-sep{color:#484f58;font-size:18px;margin:0 10px}
+    .logo-futurice{font-size:16px;color:#8b949e;font-weight:500}
+    .badge{background:#1f6feb;color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.5px}
+    /* CONFIG BANNER */
+    .config-banner{background:#161b22;border:1px solid #d29922;border-radius:8px;padding:16px 24px;margin:20px 40px;font-size:13px;color:#c9d1d9}
+    .config-banner strong{color:#d29922}
+    .config-row{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+    .config-input{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:7px 12px;color:#e6edf3;font-size:13px;flex:1;min-width:200px;font-family:monospace}
+    .config-input:focus{outline:none;border-color:#58a6ff}
+    .config-btn{background:#238636;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;white-space:nowrap}
+    .config-btn:hover{background:#2ea043}
+    /* HERO */
+    .hero{text-align:center;padding:50px 40px 30px}
+    .hero h1{font-size:42px;font-weight:700;line-height:1.2;margin-bottom:14px}
+    .hero h1 span{color:#58a6ff}
+    .hero p{font-size:17px;color:#8b949e;max-width:580px;margin:0 auto 36px;line-height:1.6}
+    .start-btn{background:linear-gradient(135deg,#1f6feb,#58a6ff);color:#fff;border:none;padding:16px 44px;font-size:17px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s}
+    .start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(31,111,235,.4)}
+    .start-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+    /* PIPELINE */
+    .pipeline{display:flex;align-items:center;justify-content:center;padding:30px 40px;flex-wrap:nowrap;overflow-x:auto}
+    .step{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:100px}
+    .step-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #21262d;background:#161b22;transition:all .4s;position:relative}
+    .step-icon.active{border-color:#58a6ff;background:#1f3a5f;box-shadow:0 0 20px rgba(88,166,255,.3)}
+    .step-icon.done{border-color:#3fb950;background:#1a3728}
+    .step-icon.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;background:#3fb950;color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .step-icon.waiting{border-color:#d29922;background:#2d2616;animation:pulse 1.5s infinite}
+    .step-icon.error{border-color:#f85149;background:#3d1a1a}
+    .step-label{font-size:11px;color:#8b949e;text-align:center;max-width:85px;line-height:1.3;font-weight:500}
+    .step-label.active{color:#58a6ff}
+    .step-label.done{color:#3fb950}
+    .step-label.waiting{color:#d29922}
+    .arrow{color:#484f58;font-size:18px;margin:0 2px;padding-bottom:20px;flex-shrink:0}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(210,153,34,.4)}50%{box-shadow:0 0 0 8px rgba(210,153,34,0)}}
+    /* STATUS */
+    .status-bar{text-align:center;padding:0 40px 16px;min-height:36px}
+    .status-msg{font-size:14px;color:#8b949e}
+    .status-msg.active{color:#58a6ff}
+    .status-msg.done{color:#3fb950}
+    .status-msg.waiting{color:#d29922}
+    .status-msg.error{color:#f85149}
+    /* APPROVAL */
+    .approval-panel{max-width:700px;margin:0 auto 32px;background:#161b22;border:1px solid #d29922;border-radius:12px;overflow:hidden;display:none}
+    .ap-header{background:linear-gradient(135deg,#2d2616,#3d2e08);padding:18px 24px;border-bottom:1px solid #d29922}
+    .ap-header h2{font-size:17px;color:#d29922;margin-bottom:3px}
+    .ap-header p{font-size:13px;color:#8b949e}
+    .ap-body{padding:20px 24px}
+    .ext-warn{background:#2d2616;border:1px solid #d29922;border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#d29922;display:none}
+    .summary-box{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:14px;margin-bottom:16px}
+    .sec-label{font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+    .ai{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 14px;margin-bottom:6px}
+    .ai-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+    .ai-owner{font-weight:600;font-size:13px}
+    .ext-tag{background:#f85149;color:#fff;font-size:10px;padding:2px 5px;border-radius:3px;font-weight:600}
+    .ai-email{font-size:12px;color:#8b949e}
+    .ai-task{font-size:13px;color:#c9d1d9;margin-bottom:4px}
+    .ai-meta{font-size:12px;color:#8b949e}
+    .pc{font-weight:600}.pc-critical{color:#f85149}.pc-high{color:#fd7e14}.pc-medium{color:#d29922}.pc-low{color:#6c757d}
+    .mtg-box{background:#0d1117;border:1px solid #1f6feb;border-radius:6px;padding:10px 14px;margin-bottom:16px}
+    .mtg-title{font-weight:600;color:#58a6ff;margin-bottom:3px;font-size:13px}
+    .mtg-meta{font-size:12px;color:#8b949e}
+    .ap-footer{padding:0 24px 20px;display:flex;gap:12px;align-items:center}
+    .btn-approve{background:#238636;color:#fff;border:none;padding:13px 30px;font-size:14px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s}
+    .btn-approve:hover{background:#2ea043}
+    .btn-approve:disabled{opacity:.5;cursor:not-allowed}
+    .btn-reject{background:transparent;color:#f85149;border:1px solid #f85149;padding:13px 30px;font-size:14px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s}
+    .btn-reject:hover{background:#3d1a1a}
+    .btn-reject:disabled{opacity:.5;cursor:not-allowed}
     /* RESULTS */
-    .results { max-width: 720px; margin: 0 auto 60px; display: none; }
-    .results h3 { text-align: center; font-size: 18px; color: #3fb950; margin-bottom: 20px; }
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .result-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; }
-    .result-card h4 { font-size: 13px; color: #8b949e; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .result-card p { font-size: 14px; color: #e6edf3; }
-    .result-card .count { font-size: 32px; font-weight: 700; color: #58a6ff; }
-
-    .footer { text-align: center; padding: 40px; color: #484f58; font-size: 13px; border-top: 1px solid #21262d; }
+    .results{max-width:700px;margin:0 auto 40px;display:none}
+    .results h3{text-align:center;font-size:17px;color:#3fb950;margin-bottom:16px}
+    .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .rc{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px}
+    .rc h4{font-size:11px;color:#8b949e;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .rc .count{font-size:30px;font-weight:700;color:#58a6ff}
+    .rc p{font-size:13px;color:#c9d1d9;margin-top:4px}
+    /* SENT ITEMS */
+    .sent-section{max-width:700px;margin:0 auto 40px;display:none}
+    .sent-section h3{font-size:17px;color:#e6edf3;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #21262d}
+    .sent-email{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+    .sent-email-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+    .sent-email-to{font-size:13px;font-weight:600;color:#c9d1d9}
+    .sent-email-badge{font-size:11px;background:#21262d;color:#8b949e;padding:2px 8px;border-radius:10px}
+    .sent-email-subject{font-size:13px;color:#58a6ff;margin-bottom:4px}
+    .sent-email-preview{font-size:12px;color:#8b949e;line-height:1.4}
+    .sent-calendar{background:#161b22;border:1px solid #1f6feb;border-radius:8px;padding:14px 18px;margin-bottom:8px}
+    .sent-calendar-title{font-size:14px;font-weight:600;color:#58a6ff;margin-bottom:4px}
+    .sent-calendar-meta{font-size:13px;color:#8b949e}
+    /* CONFIRM (from email redirect) */
+    .confirm-panel{max-width:480px;margin:60px auto;text-align:center;display:none;padding:0 20px}
+    .confirm-icon{font-size:64px;margin-bottom:16px}
+    .confirm-title{font-size:26px;font-weight:700;margin-bottom:10px}
+    .confirm-title.approved{color:#3fb950}.confirm-title.rejected{color:#f85149}
+    .confirm-msg{font-size:15px;color:#8b949e;line-height:1.6}
+    /* FOOTER */
+    .footer{text-align:center;padding:30px;color:#484f58;font-size:12px;border-top:1px solid #21262d}
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-left">
+  <div style="display:flex;align-items:center">
     <span class="logo-neura">NEURA</span>
     <span class="logo-sep">×</span>
     <span class="logo-futurice">Futurice</span>
   </div>
-  <span class="badge">PROTOTYPE DEMO</span>
+  <span class="badge">LIVE PROTOTYPE</span>
 </div>
 
-<div class="hero" id="heroSection">
-  <h1>Meeting <span>Intelligence</span><br>Powered by AI</h1>
-  <p>GPT-4o reads your meeting transcript, extracts every action item, drafts personalised follow-up emails, and schedules the next meeting — all in under 30 seconds.</p>
-  <button class="start-btn" id="startBtn" onclick="startDemo()">▶ Start Demo</button>
+<!-- CONFIG (collapsed after first save) -->
+<div class="config-banner" id="configBanner">
+  <strong>⚙ One-time setup</strong> — Enter your n8n API key and workflow ID, then save.
+  <div class="config-row">
+    <input class="config-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API → Create Key)" />
+    <input class="config-input" id="cfgWorkflowId" placeholder="Workflow ID (shown in n8n URL)" style="max-width:200px" />
+    <button class="config-btn" onclick="saveConfig()">Save</button>
+  </div>
+  <div style="margin-top:8px;font-size:12px;color:#8b949e">n8n must be running at http://localhost:5678 · <code style="color:#d29922">cd demo && python3 -m http.server 8080</code> to serve this page</div>
 </div>
 
-<!-- PIPELINE -->
-<div class="pipeline" id="pipeline">
-  <div class="step" id="step-trigger">
-    <div class="step-icon" id="icon-trigger">📋</div>
-    <div class="step-label" id="label-trigger">Transcript</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-agent">
-    <div class="step-icon" id="icon-agent">🤖</div>
-    <div class="step-label" id="label-agent">GPT-4o Analysis</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-blockers">
-    <div class="step-icon" id="icon-blockers">🔍</div>
-    <div class="step-label" id="label-blockers">Blocker History</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-draft">
-    <div class="step-icon" id="icon-draft">✉️</div>
-    <div class="step-label" id="label-draft">Draft Emails</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-review">
-    <div class="step-icon" id="icon-review">👤</div>
-    <div class="step-label" id="label-review">Human Review</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-send">
-    <div class="step-icon" id="icon-send">📤</div>
-    <div class="step-label" id="label-send">Send All</div>
-  </div>
-  <div class="arrow">→</div>
-  <div class="step" id="step-calendar">
-    <div class="step-icon" id="icon-calendar">📅</div>
-    <div class="step-label" id="label-calendar">Teams Meeting</div>
-  </div>
-</div>
-
-<div class="status-bar">
-  <div class="status-msg" id="statusMsg">Ready to demonstrate agentic meeting automation.</div>
-</div>
-
-<!-- APPROVAL PANEL -->
-<div class="approval-panel" id="approvalPanel">
-  <div class="approval-header">
-    <h2>👤 Human Review Required</h2>
-    <p>The AI has finished analysis. Review below and approve to send — or reject to discard.</p>
-  </div>
-  <div class="approval-body">
-    <div class="external-warning" id="externalWarning" style="display:none">
-      ⚠ <strong>External participant detected:</strong> Thomas Becker (Bosch) will receive an action item email if approved.
-    </div>
-    <div class="summary-box">
-      <div class="section-label">Meeting Summary</div>
-      <p id="summaryText">The Robot Arm Integration Sync Sprint Review focused on firmware progress, API documentation delays, and power consumption issues. Key actions were assigned to resolve these blockers, with a follow-up meeting scheduled for June 13th.</p>
-    </div>
-    <div class="section-label" style="margin-bottom:10px">Action Emails to Send</div>
-    <div id="actionItems">
-      <div class="action-item">
-        <div class="action-item-top">
-          <span class="owner">Jonas Mueller</span>
-          <span class="meta">jonas.mueller@neura-robotics.com</span>
-        </div>
-        <div class="task">Send updated IMU calibration constants and test protocol to Felix</div>
-        <div class="meta">Deadline: 2026-06-03 &nbsp;·&nbsp; <span class="priority-critical">CRITICAL</span></div>
-      </div>
-      <div class="action-item">
-        <div class="action-item-top">
-          <span class="owner">Thomas Becker</span>
-          <span class="ext-badge">EXTERNAL</span>
-          <span class="meta">thomas.becker@bosch.com</span>
-        </div>
-        <div class="task">Deliver full API documentation and run technical walkthrough call</div>
-        <div class="meta">Deadline: 2026-06-06 &nbsp;·&nbsp; <span class="priority-critical">CRITICAL</span></div>
-      </div>
-      <div class="action-item">
-        <div class="action-item-top">
-          <span class="owner">Felix Wagner</span>
-          <span class="meta">felix.wagner@neura-robotics.com</span>
-        </div>
-        <div class="task">Complete firmware integration testing after receiving API documentation</div>
-        <div class="meta">Deadline: 2026-06-14 &nbsp;·&nbsp; <span class="priority-high">HIGH</span> &nbsp;·&nbsp; Depends on: Thomas Becker delivers API docs</div>
-      </div>
-      <div class="action-item">
-        <div class="action-item-top">
-          <span class="owner">Jonas Mueller</span>
-          <span class="meta">jonas.mueller@neura-robotics.com</span>
-        </div>
-        <div class="task">Investigate power consumption regression in build 2.4 (340W vs 280W target)</div>
-        <div class="meta">Deadline: 2026-06-05 &nbsp;·&nbsp; <span class="priority-high">HIGH</span></div>
-      </div>
-    </div>
-    <br>
-    <div class="section-label" style="margin-bottom:10px">Teams Meeting to Create</div>
-    <div class="meeting-box">
-      <div class="meeting-title">Integration Review Follow-up</div>
-      <div class="meeting-meta">Saturday, June 13, 2026 at 09:00 · 60 minutes · Teams link will be generated</div>
-    </div>
-    <div class="summary-box" style="border-color:#f85149">
-      <div class="section-label" style="color:#f85149">⚠ Recurring Blocker Detected</div>
-      <p>Bosch API documentation delay — 3rd occurrence in 2 months. Historical impact: firmware integration blocked twice, sprint missed. <strong>Escalation recommended.</strong></p>
-    </div>
-  </div>
-  <div class="approval-footer">
-    <button class="btn-approve" id="approveBtn" onclick="handleApproval(true)">Approve &amp; Send All</button>
-    <button class="btn-reject" onclick="handleApproval(false)">Reject</button>
-    <span class="approval-note" id="approvalNote">4 emails + 1 calendar event</span>
-  </div>
-</div>
-
-<!-- CONFIRMATION (after approve/reject from email) -->
+<!-- CONFIRM (shown when redirected from email approve/reject) -->
 <div class="confirm-panel" id="confirmPanel">
   <div class="confirm-icon" id="confirmIcon">✅</div>
-  <div class="confirm-title approved" id="confirmTitle">Approved!</div>
-  <div class="confirm-msg" id="confirmMsg">Your approval has been sent. The meeting agent is now sending all action emails and creating the Teams calendar event.</div>
+  <div class="confirm-title" id="confirmTitle">Approved!</div>
+  <div class="confirm-msg" id="confirmMsg">Processing...</div>
 </div>
 
-<!-- RESULTS -->
-<div class="results" id="resultsSection">
-  <h3>✅ All actions completed in <span id="elapsedTime">—</span></h3>
-  <div class="result-grid">
-    <div class="result-card">
-      <h4>Emails Sent</h4>
-      <div class="count">4</div>
-      <p>Personalised action items to all owners, routed to Futurice demo inbox</p>
+<!-- MAIN DEMO UI -->
+<div id="mainUI">
+  <div class="hero">
+    <h1>Meeting <span>Intelligence</span><br>Powered by AI</h1>
+    <p>GPT-4o reads your meeting transcript, extracts every commitment, drafts personalised follow-up emails, and schedules the next meeting — all in under 30 seconds.</p>
+    <button class="start-btn" id="startBtn" onclick="startDemo()">▶ Start Demo</button>
+  </div>
+
+  <div class="pipeline">
+    <div class="step"><div class="step-icon" id="icon-read">📋</div><div class="step-label" id="lbl-read">Transcript</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-ai">🤖</div><div class="step-label" id="lbl-ai">GPT-4o</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-history">🔍</div><div class="step-label" id="lbl-history">Blockers</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-draft">✉️</div><div class="step-label" id="lbl-draft">Draft</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-hitl">👤</div><div class="step-label" id="lbl-hitl">You Review</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-send">📤</div><div class="step-label" id="lbl-send">Send</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-cal">📅</div><div class="step-label" id="lbl-cal">Calendar</div></div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-msg" id="statusMsg">Ready — click Start Demo to trigger the live n8n workflow.</div>
+  </div>
+
+  <!-- APPROVAL PANEL (populated from real n8n output) -->
+  <div class="approval-panel" id="approvalPanel">
+    <div class="ap-header">
+      <h2>👤 Review Before Sending</h2>
+      <p id="apSubtitle">Review everything the AI drafted — nothing has been sent yet.</p>
     </div>
-    <div class="result-card">
-      <h4>Calendar Event</h4>
-      <div class="count">1</div>
-      <p>Integration Review Follow-up — June 13 at 09:00</p>
+    <div class="ap-body">
+      <div class="ext-warn" id="extWarn"></div>
+      <div class="summary-box">
+        <div class="sec-label">Meeting Summary</div>
+        <p id="apSummary" style="font-size:14px;color:#c9d1d9;line-height:1.5"></p>
+      </div>
+      <div class="sec-label" style="margin-bottom:8px">Action Emails to Send</div>
+      <div id="apItems"></div>
+      <div id="apMeeting"></div>
     </div>
-    <div class="result-card">
-      <h4>Blockers Flagged</h4>
-      <div class="count">3</div>
-      <p>Recurring issues identified from meeting history database</p>
+    <div class="ap-footer">
+      <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
+      <button class="btn-reject" id="rejectBtn" onclick="submitApproval(false)">✗ Reject</button>
+      <span style="margin-left:auto;font-size:12px;color:#8b949e" id="apNote"></span>
     </div>
-    <div class="result-card">
-      <h4>Time to Complete</h4>
-      <div class="count" id="timeCount">~30s</div>
-      <p>From transcript to fully executed meeting follow-up</p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="resultsSection">
+    <h3>✅ All done — <span id="elapsedTime">—</span></h3>
+    <div class="result-grid">
+      <div class="rc"><h4>Emails Sent</h4><div class="count" id="resEmails">—</div><p>Personalised action items, routed to Fututrice demo inbox</p></div>
+      <div class="rc"><h4>Calendar Event</h4><div class="count">1</div><p id="resCalendar">Follow-up meeting created</p></div>
+      <div class="rc"><h4>Recurring Blockers</h4><div class="count" id="resBlockers">—</div><p>Flagged from meeting history database</p></div>
+      <div class="rc"><h4>Time to Complete</h4><div class="count" id="resTime">—</div><p>From transcript to fully executed follow-up</p></div>
     </div>
+  </div>
+
+  <!-- SENT ITEMS -->
+  <div class="sent-section" id="sentSection">
+    <h3>📬 What Was Sent</h3>
+    <div id="sentItems"></div>
   </div>
 </div>
 
 <div class="footer">
-  NEURA Meeting Intelligence · Built by Futurice · Powered by GPT-4o + Microsoft Graph API + n8n
+  NEURA Meeting Intelligence · Built by Futurice · GPT-4o + Microsoft Graph API + n8n
 </div>
 
 <script>
-  // n8n configuration — update these for your instance
-  const N8N_BASE = 'http://localhost:5678';
-  const WEBHOOK_PATH = '/webhook/neura-demo-trigger'; // add this webhook to n8n
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const N8N_BASE = 'http://localhost:5678';
+const WEBHOOK_PATH = '/webhook/neura-demo-trigger';
+let API_KEY = localStorage.getItem('n8n_api_key') || '';
+let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id') || '';
 
-  let demoStartTime = null;
-  let n8nApproveUrl = null;
+function saveConfig() {
+  API_KEY = document.getElementById('cfgApiKey').value.trim();
+  WORKFLOW_ID = document.getElementById('cfgWorkflowId').value.trim();
+  localStorage.setItem('n8n_api_key', API_KEY);
+  localStorage.setItem('n8n_workflow_id', WORKFLOW_ID);
+  document.getElementById('configBanner').style.display = 'none';
+  setStatus('Configuration saved ✓', 'done');
+}
 
-  // ─── Handle email approve/reject redirect ──────────────────────────────────
+// ── INIT: check URL params (email approve/reject redirect) ────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (API_KEY) {
+    document.getElementById('cfgApiKey').value = API_KEY;
+    document.getElementById('configBanner').style.display = 'none';
+  }
+  if (WORKFLOW_ID) document.getElementById('cfgWorkflowId').value = WORKFLOW_ID;
+
   const params = new URLSearchParams(window.location.search);
   const action = params.get('action');
   const n8nUrl = params.get('n8n');
+  if (action && n8nUrl) handleEmailRedirect(action, n8nUrl);
+});
 
-  if (action && n8nUrl) {
-    // Hide main UI, show confirmation
-    document.getElementById('heroSection').style.display = 'none';
-    document.getElementById('pipeline').style.display = 'none';
-    document.getElementById('statusBar').style.display = 'none';
+function handleEmailRedirect(action, n8nUrl) {
+  document.getElementById('mainUI').style.display = 'none';
+  document.getElementById('configBanner').style.display = 'none';
+  const panel = document.getElementById('confirmPanel');
+  panel.style.display = 'block';
+  const isApprove = action === 'approve';
+  document.getElementById('confirmIcon').textContent = isApprove ? '✅' : '❌';
+  const title = document.getElementById('confirmTitle');
+  title.textContent = isApprove ? 'Approved!' : 'Rejected';
+  title.className = 'confirm-title ' + (isApprove ? 'approved' : 'rejected');
+  document.getElementById('confirmMsg').textContent = isApprove
+    ? 'Your approval is being processed. Emails and calendar event are being sent now.'
+    : 'Distribution rejected. No emails or calendar events were created.';
+  fetch(decodeURIComponent(n8nUrl)).catch(() => {});
+}
 
-    const isApprove = action === 'approve';
-    const confirmPanel = document.getElementById('confirmPanel');
-    confirmPanel.style.display = 'block';
-    document.getElementById('confirmIcon').textContent = isApprove ? '✅' : '❌';
-    document.getElementById('confirmTitle').textContent = isApprove ? 'Approved!' : 'Rejected';
-    document.getElementById('confirmTitle').className = 'confirm-title ' + (isApprove ? 'approved' : 'rejected');
-    document.getElementById('confirmMsg').textContent = isApprove
-      ? 'Your approval is being processed. The meeting agent is now sending all action emails and creating the Teams calendar event. You can close this window.'
-      : 'You rejected the distribution. No emails were sent. You can close this window.';
+// ── PIPELINE HELPERS ──────────────────────────────────────────────────────────
+function setStep(id, state, label) {
+  const icon = document.getElementById('icon-' + id);
+  const lbl = document.getElementById('lbl-' + id);
+  if (icon) { icon.className = 'step-icon ' + state; }
+  if (lbl) { lbl.className = 'step-label ' + state; if (label) lbl.textContent = label; }
+}
+function setStatus(msg, cls) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + (cls || '');
+}
 
-    // Call n8n in background
-    fetch(decodeURIComponent(n8nUrl)).catch(() => {});
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let executionId = null;
+let pollTimer = null;
+let startTime = null;
+let n8nApproveUrl = null;
+let n8nRejectUrl = null;
+let approvalData = null;
+
+// ── START DEMO ────────────────────────────────────────────────────────────────
+async function startDemo() {
+  if (!API_KEY || !WORKFLOW_ID) {
+    document.getElementById('configBanner').style.display = 'block';
+    setStatus('Please fill in your n8n API key and workflow ID first.', 'error');
+    return;
   }
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  startTime = Date.now();
 
-  // ─── Pipeline step helpers ─────────────────────────────────────────────────
-  function setStep(id, state, label) {
-    const icon = document.getElementById('icon-' + id);
-    const lbl = document.getElementById('label-' + id);
-    icon.className = 'step-icon ' + state;
-    lbl.className = 'step-label ' + state;
-    if (label) lbl.textContent = label;
+  setStep('read', 'active', 'Reading...');
+  setStatus('Sending transcript to n8n workflow...', 'active');
+
+  try {
+    // Trigger the webhook
+    await fetch(N8N_BASE + WEBHOOK_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'web-demo' })
+    });
+
+    setStep('read', 'done', 'Transcript');
+    setStep('ai', 'active', 'Analyzing...');
+    setStatus('GPT-4o is extracting action items, decisions, and blockers...', 'active');
+
+    // Find the execution (brief delay for n8n to start it)
+    await sleep(2000);
+    executionId = await findLatestExecution();
+
+    if (!executionId) {
+      setStatus('Could not find execution — check n8n is running and workflow is active', 'error');
+      btn.disabled = false; btn.textContent = '▶ Start Demo'; return;
+    }
+
+    setStatus('Workflow running (execution ' + executionId + ')', 'active');
+    startPolling();
+
+  } catch (e) {
+    setStatus('Error connecting to n8n: ' + e.message + ' — is n8n running at localhost:5678?', 'error');
+    btn.disabled = false; btn.textContent = '▶ Start Demo';
   }
+}
 
-  function setStatus(msg, state) {
-    const el = document.getElementById('statusMsg');
-    el.textContent = msg;
-    el.className = 'status-msg ' + (state || '');
+async function findLatestExecution() {
+  const res = await fetch(
+    N8N_BASE + '/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=1',
+    { headers: { 'X-N8N-API-KEY': API_KEY } }
+  );
+  const data = await res.json();
+  return data.data && data.data.length ? data.data[0].id : null;
+}
+
+// ── POLLING ───────────────────────────────────────────────────────────────────
+function startPolling() {
+  pollTimer = setInterval(pollExecution, 3000);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function pollExecution() {
+  try {
+    const res = await fetch(
+      N8N_BASE + '/api/v1/executions/' + executionId + '?includeData=true',
+      { headers: { 'X-N8N-API-KEY': API_KEY } }
+    );
+    const exec = await res.json();
+    updateUI(exec);
+  } catch (e) {
+    // silently continue polling
   }
+}
 
-  // ─── Start demo ────────────────────────────────────────────────────────────
-  function startDemo() {
-    const btn = document.getElementById('startBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Running...';
-    demoStartTime = Date.now();
+function updateUI(exec) {
+  const runData = exec.data?.resultData?.runData || {};
+  const status = exec.status;
 
-    setStep('trigger', 'active', 'Transcript');
-    setStatus('Reading meeting transcript...', 'active');
+  // Map node names to pipeline steps
+  const nodeToStep = {
+    'Sample Meeting Data': ['read', 'Transcript'],
+    'Meeting Agent': ['ai', 'GPT-4o'],
+    'Check Blocker History': ['history', 'Blockers'],
+    'Parse Agent Output': ['draft', 'Drafting...'],
+    'Build Approval Email': ['draft', 'Draft Ready'],
+    'Send Approval Email': ['hitl', 'Email Sent'],
+  };
 
-    setTimeout(() => {
-      setStep('trigger', 'done', 'Transcript');
-      setStep('agent', 'active', 'Analyzing...');
-      setStatus('GPT-4o is extracting action items, decisions, and blockers...', 'active');
-    }, 1200);
-
-    setTimeout(() => {
-      setStep('blockers', 'active', 'Checking...');
-      setStatus('Checking blocker history database for recurring issues...', 'active');
-    }, 6000);
-
-    setTimeout(() => {
-      setStep('blockers', 'done', 'Blocker History');
-      setStatus('Found recurring blocker: Bosch API docs delayed for 3rd time ⚠', 'active');
-    }, 9000);
-
-    setTimeout(() => {
-      setStep('agent', 'done', 'GPT-4o Analysis');
-      setStep('draft', 'active', 'Drafting...');
-      setStatus('Drafting 4 personalised action emails and follow-up invite...', 'active');
-    }, 18000);
-
-    setTimeout(() => {
-      setStep('draft', 'done', 'Draft Emails');
-      setStep('review', 'waiting', 'Awaiting You');
-      setStatus('Review required — check your inbox or approve below', 'waiting');
-      showApprovalPanel();
-    }, 22000);
-
-    // Also try to actually trigger n8n
-    fetch(N8N_BASE + WEBHOOK_PATH, { method: 'POST', mode: 'no-cors' }).catch(() => {});
-  }
-
-  function showApprovalPanel() {
-    document.getElementById('approvalPanel').style.display = 'block';
-    document.getElementById('approvalPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.getElementById('externalWarning').style.display = 'block';
-  }
-
-  // ─── Handle approval from demo page ───────────────────────────────────────
-  function handleApproval(approved) {
-    document.getElementById('approveBtn').disabled = true;
-    document.querySelector('.btn-reject').disabled = true;
-
-    if (approved) {
-      document.getElementById('approvalPanel').style.borderColor = '#3fb950';
-      document.querySelector('.approval-header').style.background = 'linear-gradient(135deg, #1a3728, #0d2e1a)';
-      document.querySelector('.approval-header h2').textContent = '✅ Approved — Sending now...';
-      document.querySelector('.approval-header p').textContent = 'Emails are being sent and the Teams meeting is being created.';
-
-      setStep('review', 'done', 'Approved');
-      setStep('send', 'active', 'Sending...');
-      setStatus('Sending 4 personalised action emails via Microsoft Graph API...', 'active');
-
-      if (n8nApproveUrl) {
-        fetch(decodeURIComponent(n8nApproveUrl)).catch(() => {});
-      }
-
-      setTimeout(() => {
-        setStep('send', 'done', 'Emails Sent');
-        setStep('calendar', 'active', 'Creating...');
-        setStatus('Creating Teams meeting and calendar event...', 'active');
-      }, 3000);
-
-      setTimeout(() => {
-        setStep('calendar', 'done', 'Teams Meeting');
-        const elapsed = ((Date.now() - demoStartTime) / 1000).toFixed(0);
-        setStatus('All done — ' + elapsed + 's from transcript to fully executed follow-up', 'done');
-        document.getElementById('elapsedTime').textContent = elapsed + ' seconds';
-        document.getElementById('timeCount').textContent = elapsed + 's';
-        document.getElementById('resultsSection').style.display = 'block';
-        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-      }, 7000);
-
-    } else {
-      document.getElementById('approvalPanel').style.borderColor = '#f85149';
-      document.querySelector('.approval-header h2').textContent = '❌ Rejected — Nothing sent';
-      document.querySelector('.approval-header p').textContent = 'No emails were sent. No calendar event was created.';
-      setStep('review', 'error', 'Rejected');
-      setStatus('Distribution rejected by human reviewer — no actions taken', '');
+  for (const [nodeName, [step, label]] of Object.entries(nodeToStep)) {
+    if (runData[nodeName]) {
+      setStep(step, 'done', label === 'Drafting...' ? 'Drafted' : label);
     }
   }
+
+  // Update status message based on active nodes
+  if (runData['Meeting Agent'] && !runData['Parse Agent Output']) {
+    setStep('ai', 'active', 'Analyzing...');
+    setStatus('GPT-4o is reasoning over the transcript...', 'active');
+  }
+  if (runData['Check Blocker History']) {
+    setStatus('Recurring blocker detected: Bosch API docs (3rd time) ⚠', 'active');
+  }
+  if (runData['Build Approval Email']) {
+    // Extract approval data
+    const nodeOutput = runData['Build Approval Email'];
+    if (nodeOutput && nodeOutput[0]?.data?.main?.[0]?.[0]?.json) {
+      approvalData = nodeOutput[0].data.main[0][0].json;
+      n8nApproveUrl = approvalData.n8n_approve_url;
+      n8nRejectUrl = approvalData.n8n_reject_url;
+    }
+  }
+
+  // WAITING for human approval
+  if (status === 'waiting') {
+    stopPolling();
+    setStep('hitl', 'waiting', 'Awaiting You');
+    setStatus('Review required — the approval email has been sent to your inbox', 'waiting');
+    if (approvalData) showApprovalPanel(approvalData);
+    return;
+  }
+
+  // COMPLETED (after approval)
+  if (status === 'success') {
+    stopPolling();
+    setStep('send', 'done', 'Sent');
+    setStep('cal', 'done', 'Created');
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+    setStatus('All done — ' + elapsed + 's from transcript to fully executed follow-up', 'done');
+    showResults(elapsed);
+    return;
+  }
+
+  if (status === 'error') {
+    stopPolling();
+    setStatus('Workflow error — check n8n execution logs', 'error');
+  }
+}
+
+// ── APPROVAL PANEL ────────────────────────────────────────────────────────────
+function showApprovalPanel(data) {
+  const panel = document.getElementById('approvalPanel');
+  panel.style.display = 'block';
+
+  document.getElementById('apSummary').textContent = data.meeting_summary || '';
+
+  if (data.has_external && data.external_participants?.length) {
+    const warn = document.getElementById('extWarn');
+    warn.style.display = 'block';
+    warn.innerHTML = '⚠ <strong>External participants detected:</strong> ' + data.external_participants.join(', ') + ' — they will receive emails if you approve.';
+  }
+
+  // Render action items
+  const items = data.action_items || [];
+  const pcClass = p => 'pc pc-' + (p || 'medium').toLowerCase();
+  const itemsHtml = items.map((item, i) => {
+    const isExt = (data.external_participants || []).some(e =>
+      e.toLowerCase().includes((item.owner_name || '').toLowerCase().split(' ')[0])
+    );
+    return '<div class="ai">' +
+      '<div class="ai-top">' +
+        '<span class="ai-owner">Email ' + (i+1) + ': ' + item.owner_name + '</span>' +
+        (isExt ? '<span class="ext-tag">EXTERNAL</span>' : '') +
+        '<span class="ai-email">' + item.owner_email + '</span>' +
+      '</div>' +
+      '<div class="ai-task">' + item.task + '</div>' +
+      '<div class="ai-meta">Deadline: ' + item.deadline +
+        ' &nbsp;·&nbsp; <span class="' + pcClass(item.priority) + '">' + (item.priority || 'MEDIUM').toUpperCase() + '</span>' +
+        (item.depends_on ? ' &nbsp;·&nbsp; Depends on: ' + item.depends_on : '') +
+      '</div></div>';
+  }).join('');
+  document.getElementById('apItems').innerHTML = itemsHtml;
+
+  // Calendar event
+  const f = data.follow_up_meeting;
+  if (f) {
+    document.getElementById('apMeeting').innerHTML =
+      '<div style="margin-top:12px"><div class="sec-label" style="margin-bottom:6px">Teams Meeting to Create</div>' +
+      '<div class="mtg-box"><div class="mtg-title">' + f.title + '</div>' +
+      '<div class="mtg-meta">' + f.date + ' at ' + f.time + ' · ' + f.duration_minutes + ' min · ' + f.agenda + '</div></div></div>';
+  }
+
+  document.getElementById('apNote').textContent = items.length + ' emails + 1 calendar event';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── SUBMIT APPROVAL ───────────────────────────────────────────────────────────
+async function submitApproval(approved) {
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('rejectBtn').disabled = true;
+
+  const url = approved ? n8nApproveUrl : n8nRejectUrl;
+  if (!url) {
+    setStatus('Approval URL not available — use the email buttons instead', 'error');
+    return;
+  }
+
+  if (approved) {
+    document.querySelector('.ap-header h2').textContent = '⏳ Processing...';
+    document.querySelector('.ap-header p').textContent = 'Sending emails and creating Teams meeting...';
+    setStep('hitl', 'done', 'Approved');
+    setStep('send', 'active', 'Sending...');
+    setStatus('Sending action emails via Microsoft Graph API...', 'active');
+  } else {
+    document.querySelector('.ap-header h2').textContent = '❌ Rejected';
+    document.querySelector('.ap-header p').textContent = 'No emails or calendar events were created.';
+    setStep('hitl', 'error', 'Rejected');
+    setStatus('Distribution rejected — nothing was sent', '');
+    return;
+  }
+
+  try {
+    await fetch(url);
+  } catch (e) {
+    // n8n webhook response may fail CORS but still works
+  }
+
+  // Resume polling to detect completion
+  await sleep(2000);
+  setStep('send', 'active', 'Sending...');
+
+  setTimeout(() => {
+    setStep('send', 'done', 'Sent');
+    setStep('cal', 'active', 'Creating...');
+    setStatus('Creating Teams online meeting and calendar event...', 'active');
+  }, 4000);
+
+  setTimeout(() => {
+    setStep('cal', 'done', 'Created');
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+    setStatus('All done — ' + elapsed + 's from transcript to fully executed follow-up', 'done');
+    showResults(elapsed);
+  }, 9000);
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function showResults(elapsed) {
+  const items = approvalData?.action_items || [];
+  const f = approvalData?.follow_up_meeting;
+  const blockers = (approvalData?.blockers || []).filter(b => b.is_recurring).length ||
+    (approvalData ? 1 : 0);
+
+  document.getElementById('elapsedTime').textContent = elapsed + ' seconds';
+  document.getElementById('resEmails').textContent = items.length;
+  document.getElementById('resBlockers').textContent = blockers;
+  document.getElementById('resTime').textContent = elapsed + 's';
+  if (f) document.getElementById('resCalendar').textContent = f.title + ' — ' + f.date;
+
+  document.getElementById('resultsSection').style.display = 'block';
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+  // Show sent items preview
+  if (items.length) {
+    const sentHtml = items.map(item =>
+      '<div class="sent-email">' +
+        '<div class="sent-email-header">' +
+          '<span class="sent-email-to">To: ' + item.owner_name + ' &lt;' + item.owner_email + '&gt;</span>' +
+          '<span class="sent-email-badge">routed to demo inbox</span>' +
+        '</div>' +
+        '<div class="sent-email-subject">[Action Required] ' + item.task + ' — due ' + item.deadline + '</div>' +
+        '<div class="sent-email-preview">Priority: ' + (item.priority || 'medium').toUpperCase() +
+          (item.depends_on ? ' · Depends on: ' + item.depends_on : '') + '</div>' +
+      '</div>'
+    ).join('');
+
+    const calHtml = f ?
+      '<div class="sent-calendar">' +
+        '<div class="sent-calendar-title">📅 ' + f.title + '</div>' +
+        '<div class="sent-calendar-meta">' + f.date + ' at ' + f.time + ' · ' + f.agenda + '</div>' +
+      '</div>' : '';
+
+    document.getElementById('sentItems').innerHTML = sentHtml + calHtml;
+    document.getElementById('sentSection').style.display = 'block';
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>

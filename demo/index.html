@@ -113,10 +113,22 @@
     .done-icon{font-size:64px;margin-bottom:16px}
     .done-title{font-size:28px;font-weight:700;color:#3fb950;margin-bottom:10px}
     .done-sub{font-size:16px;color:#8b949e;margin-bottom:28px;line-height:1.6}
-    .done-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;max-width:520px;margin:0 auto}
+    .done-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;max-width:520px;margin:0 auto 32px}
     .done-card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px}
     .done-card-num{font-size:32px;font-weight:700;color:#58a6ff}
     .done-card-label{font-size:12px;color:#8b949e;margin-top:2px}
+    /* SENT LIST */
+    .sent-list{max-width:700px;margin:0 auto;text-align:left}
+    .sent-list-title{font-size:15px;font-weight:600;color:#e6edf3;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #21262d}
+    .sent-item{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+    .sent-item:hover{border-color:#388bfd}
+    .sent-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+    .sent-item-to{font-size:13px;font-weight:600;color:#c9d1d9}
+    .sent-item-badge{font-size:11px;background:#21262d;color:#8b949e;padding:2px 8px;border-radius:10px}
+    .sent-item-subject{font-size:13px;color:#58a6ff;margin-bottom:3px}
+    .sent-item-hint{font-size:11px;color:#484f58}
+    .sent-cal-item{background:#161b22;border:1px solid #1f6feb;border-radius:8px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+    .sent-cal-item:hover{border-color:#58a6ff}
 
     /* REJECTED */
     .rejected-section{max-width:480px;margin:0 auto 60px;text-align:center;display:none;padding:0 24px}
@@ -141,6 +153,63 @@
 
     /* FOOTER */
     .footer{text-align:center;padding:28px;color:#30363d;font-size:12px;border-top:1px solid #21262d;margin-top:40px}
+    /* LIGHT MODE */
+    body.light{background:#f6f8fa;color:#1f2328}
+    body.light .header{border-color:#d0d7de;background:#fff}
+    body.light .logo-neura{color:#0969da}
+    body.light .logo-futurice{color:#57606a}
+    body.light .gear-btn{border-color:#d0d7de;color:#57606a}
+    body.light .gear-btn:hover{border-color:#0969da;color:#0969da}
+    body.light .hero p{color:#57606a}
+    body.light .transcript-box{background:#fff;border-color:#d0d7de}
+    body.light .transcript-header:hover{background:#f6f8fa}
+    body.light .transcript-title{color:#1f2328}
+    body.light .transcript-body{color:#57606a;border-color:#d0d7de}
+    body.light .step-icon{background:#fff;border-color:#d0d7de}
+    body.light .step-icon.active{background:#ddf4ff;border-color:#0969da;box-shadow:0 0 20px rgba(9,105,218,.2)}
+    body.light .step-icon.done{background:#dafbe1;border-color:#1a7f37}
+    body.light .step-icon.done::after{background:#1a7f37}
+    body.light .step-icon.waiting{background:#fff8c5;border-color:#9a6700}
+    body.light .step-label{color:#57606a}
+    body.light .step-label.active{color:#0969da}
+    body.light .step-label.done{color:#1a7f37}
+    body.light .step-label.waiting{color:#9a6700}
+    body.light .arrow{color:#d0d7de}
+    body.light .status-msg{color:#57606a}
+    body.light .status-msg.active{color:#0969da}
+    body.light .status-msg.done{color:#1a7f37}
+    body.light .status-msg.waiting{color:#9a6700}
+    body.light .ap{border-color:#9a6700;background:#fff}
+    body.light .ap-head{background:linear-gradient(135deg,#fff8c5,#fef3c7)}
+    body.light .ap-head h2{color:#9a6700}
+    body.light .ap-head p{color:#57606a}
+    body.light .ext-warn{background:#fff8c5;color:#9a6700;border-color:#d4a72c}
+    body.light .summary-box,.light .ai,.light .mtg-box{background:#f6f8fa;border-color:#d0d7de}
+    body.light .sec-label{color:#57606a}
+    body.light .ai-summary:hover{background:#eaeef2}
+    body.light .ai-owner{color:#1f2328}
+    body.light .ai-email{color:#57606a}
+    body.light .ai-task{color:#1f2328}
+    body.light .ai-meta{color:#57606a}
+    body.light .ai-preview{background:#eaeef2;border-color:#d0d7de}
+    body.light .ai-preview pre{color:#57606a}
+    body.light .mtg-title{color:#0969da}
+    body.light .done-section{color:#1f2328}
+    body.light .done-card{background:#fff;border-color:#d0d7de}
+    body.light .done-card-label{color:#57606a}
+    body.light .sent-list-title{color:#1f2328;border-color:#d0d7de}
+    body.light .sent-item{background:#fff;border-color:#d0d7de}
+    body.light .sent-item:hover{border-color:#0969da}
+    body.light .sent-item-to{color:#1f2328}
+    body.light .sent-item-badge{background:#eaeef2;color:#57606a}
+    body.light .sent-item-hint{color:#8c959f}
+    body.light .sent-cal-item{background:#fff;border-color:#0969da}
+    body.light .cfg-box{background:#fff;border-color:#d0d7de}
+    body.light .cfg-input{background:#f6f8fa;border-color:#d0d7de;color:#1f2328}
+    body.light .modal{background:#fff;border-color:#d0d7de}
+    body.light .modal-value{color:#1f2328}
+    body.light .modal-label{color:#57606a}
+    body.light .footer{color:#8c959f;border-color:#d0d7de}
   </style>
 </head>
 <body>
@@ -187,6 +256,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="badge">LIVE PROTOTYPE</span>
+      <button class="gear-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode">🌙</button>
       <button class="gear-btn" onclick="openCfg()" title="Settings">⚙</button>
     </div>
   </div>
@@ -304,6 +374,10 @@ All: Agreed.</div>
     <div class="done-title">All done!</div>
     <div class="done-sub" id="doneSub">Personalised emails sent to every action item owner.<br>Follow-up meeting created in Teams calendar.</div>
     <div class="done-cards" id="doneCards"></div>
+    <div class="sent-list" id="sentList" style="display:none">
+      <div class="sent-list-title">📬 What was sent — click any item to see the full content</div>
+      <div id="sentListItems"></div>
+    </div>
   </div>
 
   <!-- REJECTED -->
@@ -323,6 +397,20 @@ const N8N_DIRECT = 'http://127.0.0.1:5678';
 const WEBHOOK_PATH = '/webhook/neura-demo-trigger';
 let API_KEY = localStorage.getItem('n8n_api_key') || '';
 let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id') || '';
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = isLight ? '🌑' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+// Apply saved theme on load
+if (localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light');
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('themeBtn');
+    if (btn) btn.textContent = '🌑';
+  });
+}
 
 function openCfg() {
   document.getElementById('cfgApiKey').value = API_KEY;
@@ -564,6 +652,31 @@ function showDone() {
   document.getElementById('doneCards').innerHTML =
     '<div class="done-card"><div class="done-card-num">' + items.length + '</div><div class="done-card-label">Emails delivered</div></div>' +
     '<div class="done-card"><div class="done-card-num">1</div><div class="done-card-label">Teams meeting created</div></div>';
+
+  // Build sent list
+  const emailCards = items.map((item, i) =>
+    '<div class="sent-item" onclick="openEmailModal(' + i + ')">' +
+      '<div class="sent-item-top">' +
+        '<span class="sent-item-to">✉ ' + item.owner_name + ' &lt;' + item.owner_email + '&gt;</span>' +
+        '<span class="sent-item-badge">sent to demo inbox</span>' +
+      '</div>' +
+      '<div class="sent-item-subject">' + item.task + ' — due ' + item.deadline + '</div>' +
+      '<div class="sent-item-hint">Click to read full email ›</div>' +
+    '</div>'
+  ).join('');
+
+  const calCard = f ?
+    '<div class="sent-cal-item" onclick="openCalModal()">' +
+      '<div class="sent-item-top">' +
+        '<span class="sent-item-to" style="color:#58a6ff">📅 ' + f.title + '</span>' +
+        '<span class="sent-item-badge" style="color:#58a6ff">Teams meeting</span>' +
+      '</div>' +
+      '<div style="font-size:13px;color:#8b949e">' + f.date + ' at ' + f.time + ' · ' + f.duration_minutes + ' min</div>' +
+      '<div class="sent-item-hint">Click to see meeting details ›</div>' +
+    '</div>' : '';
+
+  document.getElementById('sentListItems').innerHTML = emailCards + calCard;
+  document.getElementById('sentList').style.display = 'block';
 
   document.getElementById('doneSection').style.display = 'block';
   document.getElementById('doneSection').scrollIntoView({ behavior: 'smooth' });

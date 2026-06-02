@@ -1,0 +1,25 @@
+# Secrets — never commit
+credentials.env
+*.env
+.env.*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Rich text directories (binary assets)
+*.rtfd/
+
+# PDFs and large binaries
+*.pdf
+
+# Root-level workflow files (use workflows/ instead)
+neura_meeting_agent.json
+neura_meeting_agent_v2.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/

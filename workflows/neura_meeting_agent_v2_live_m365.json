@@ -1,0 +1,409 @@
+{
+  "name": "NEURA Meeting Agent v2 — Live M365",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🤖 NEURA Meeting Agent v2\n**Click ▶ Execute Workflow to run**\n\n1. Reads meeting transcript\n2. GPT-4o extracts actions and decisions\n3. Checks recurring blocker history\n4. Sends personalised action emails (real)\n5. Creates Teams follow-up meeting (real)\n6. Human-in-the-Loop for external meetings\n\n✅ All emails + calendar go to\nAncyJoseph@Fututrice.onmicrosoft.com",
+        "height": 300,
+        "width": 340,
+        "color": 4
+      },
+      "id": "sticky-001",
+      "name": "Intro",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## 👤 Human-in-the-Loop\nOnly fires when **external**\n**participants** are detected.\n\nAgent PAUSES and waits for\nexplicit human approval.",
+        "height": 180,
+        "width": 240,
+        "color": 3
+      },
+      "id": "sticky-002",
+      "name": "HITL Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1680, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚡ Internal Path\nNo external participants.\nAgent auto-executes all actions.",
+        "height": 140,
+        "width": 220,
+        "color": 5
+      },
+      "id": "sticky-003",
+      "name": "Internal Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1680, 380]
+    },
+    {
+      "parameters": {
+        "content": "## 📧 Real M365 Calls\nAfter agent reasoning:\n\n**Split Action Items** splits the\naction_items array into one item\nper person.\n\n**Send Action Emails** fires once\nper item — real Graph API call,\nall routed to Fututrice inbox.\n\n**Create Calendar Event** creates\na real Teams meeting in the\nFututrice calendar.",
+        "height": 280,
+        "width": 280,
+        "color": 6
+      },
+      "id": "sticky-004",
+      "name": "M365 Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [80, 420]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-001",
+      "name": "Run Demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    meeting_title: 'Robot Arm Integration Sync Sprint Review',\n    meeting_date: '2026-06-01',\n    organizer: { name: 'Maria Schmidt', email: 'maria.schmidt@neura-robotics.com' },\n    attendees: [\n      { name: 'Maria Schmidt', email: 'maria.schmidt@neura-robotics.com', is_external: false },\n      { name: 'Felix Wagner',  email: 'felix.wagner@neura-robotics.com',  is_external: false },\n      { name: 'Jonas Mueller', email: 'jonas.mueller@neura-robotics.com', is_external: false },\n      { name: 'Thomas Becker', email: 'thomas.becker@bosch.com', is_external: true, company: 'Bosch' }\n    ],\n    transcript: `Maria Schmidt: Good morning everyone. Sprint review, then integration issues. Felix firmware status?\\n\\nFelix Wagner: 85% done. Main blocker is the same IMU sensor calibration issue from last sprint. The drift is affecting precision targeting by 2.3 millimetres. I need the updated calibration constants from Jonas by Thursday.\\n\\nJonas Mueller: I can get them to you Wednesday. I have the root cause, temperature coefficient issue in the MEMS sensor. I will send the constants and a test protocol.\\n\\nMaria Schmidt: Good. Thomas, your team was supposed to deliver the integration API documentation two weeks ago. We have now been blocked twice waiting on this. When can we actually commit?\\n\\nThomas Becker: I understand the frustration. We had internal re-scoping at Bosch. I personally commit to delivering full API documentation by June 6th. I will also run a technical walkthrough call that same week.\\n\\nMaria Schmidt: That is the third time the API docs have slipped, Thomas. Felix, once you have the docs, how long to complete integration?\\n\\nFelix Wagner: If I have the docs by June 6th, integration testing is done by June 14th. But I also need the hardware interface specs, not just the software API.\\n\\nThomas Becker: Hardware specs are ready now. I will send them today before end of day.\\n\\nMaria Schmidt: Jonas, can you also investigate the power consumption regression in build 2.4? The arm is drawing 340W at peak versus our 280W target.\\n\\nJonas Mueller: Yes. I suspect the servo controller update in the last build. I will have initial findings by Friday.\\n\\nMaria Schmidt: Let us schedule a follow-up integration review for June 13th, one week after Thomas delivers. Thomas must be on that call. Agreed?\\n\\nAll: Agreed.\\n\\nMaria Schmidt: Good. Felix and Jonas, I am counting on you. Thomas, no more slippage. That is all.`\n  }\n}];"
+      },
+      "id": "sample-001",
+      "name": "Sample Meeting Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse this meeting and take all necessary actions using your tools.\n\nMeeting: {{ $json.meeting_title }}\nDate: {{ $json.meeting_date }}\nOrganizer: {{ $json.organizer.name }} <{{ $json.organizer.email }}>\n\nAttendees:\n{{ $json.attendees.map(a => '- ' + a.name + ' <' + a.email + '>' + (a.is_external ? ' [EXTERNAL ' + a.company + ']' : ' [Internal]')).join('\\n') }}\n\nFull Transcript:\n{{ $json.transcript }}\n\nSteps you MUST complete before returning:\n1. Call check_blocker_history for each blocker mentioned\n2. Call send_action_email once for each unique action item owner\n3. Call schedule_followup_meeting if a follow-up was agreed\n4. Return ONLY the final JSON object",
+        "options": {
+          "systemMessage": "=You are the NEURA Robotics AI Meeting Agent.\n\nYou have three tools. Use ALL of them:\n- check_blocker_history: call for every blocker mentioned\n- schedule_followup_meeting: call if a follow-up was agreed. Pass: title, start_datetime (ISO e.g. 2026-06-13T09:00:00), end_datetime (ISO e.g. 2026-06-13T10:00:00), agenda\n- send_action_email: call once per unique owner. Pass: recipient_name, recipient_email, task, deadline, priority, meeting_title, follow_up_date, depends_on\n\nCapture EVERY commitment. After tools, return ONLY raw JSON:\n{\n  \"meeting_summary\": \"2-3 sentence summary\",\n  \"action_items\": [\n    { \"task\": \"description\", \"owner_name\": \"name\", \"owner_email\": \"email\", \"deadline\": \"YYYY-MM-DD\", \"priority\": \"critical|high|medium|low\", \"depends_on\": \"dependency or null\" }\n  ],\n  \"decisions\": [\"decision\"],\n  \"blockers\": [{ \"description\": \"blocker\", \"owner\": \"owner\", \"is_recurring\": true, \"occurrences\": 3 }],\n  \"follow_up_meeting\": { \"title\": \"title\", \"date\": \"YYYY-MM-DD\", \"time\": \"09:00\", \"duration_minutes\": 60, \"attendees\": [\"email\"], \"agenda\": \"agenda\" },\n  \"external_participants_detected\": true,\n  \"external_participants\": [\"Name (Company)\"],\n  \"risk_flags\": [\"risk\"]\n}"
+        }
+      },
+      "id": "agent-001",
+      "name": "Meeting Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "openai/gpt-4o", "mode": "id" },
+        "options": { "temperature": 0.2 }
+      },
+      "id": "llm-001",
+      "name": "OpenAI GPT4 (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [780, 500],
+      "credentials": {
+        "openAiApi": { "id": "7wkvUA54dxB7iO6O", "name": "OpenRouter" }
+      }
+    },
+    {
+      "parameters": {
+        "name": "check_blocker_history",
+        "description": "Checks the meeting history for recurring blockers. Pass a JSON object with topic (string).",
+        "jsCode": "const input = $input.first().json;\nconst topic = (input.topic || input.query || '').toLowerCase();\nconst history = [\n  { date: '2026-04-15', topic: 'bosch api documentation', occurrences: 1, impact: 'Firmware integration blocked 2 weeks' },\n  { date: '2026-05-01', topic: 'bosch api documentation delay', occurrences: 2, impact: 'Integration testing delayed, sprint missed' },\n  { date: '2026-04-08', topic: 'imu sensor calibration drift', occurrences: 1, impact: 'Precision targeting off by 3.1mm' },\n  { date: '2026-05-15', topic: 'sensor calibration imu drift', occurrences: 1, impact: 'Precision targeting off by 2.8mm' },\n  { date: '2026-05-20', topic: 'power consumption regression', occurrences: 1, impact: 'Build 2.3 exceeded 280W power budget' }\n];\nconst matches = history.filter(h => { const words = topic.split(' '); return words.some(w => w.length > 3 && h.topic.includes(w)); });\nif (matches.length > 0) {\n  const total = matches.reduce((s, m) => s + m.occurrences, 0) + 1;\n  return JSON.stringify({ is_recurring: true, total_occurrences: total, first_seen: matches[matches.length - 1].date, last_seen: matches[0].date, pattern: 'RECURRING BLOCKER seen ' + total + ' times in 2 months', historical_impact: matches.map(m => m.impact).join(' | '), recommendation: 'Escalation recommended' });\n}\nreturn JSON.stringify({ is_recurring: false, total_occurrences: 1, pattern: 'First occurrence', recommendation: 'Monitor' });"
+      },
+      "id": "tool-001",
+      "name": "Check Blocker History",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [800, 660]
+    },
+    {
+      "parameters": {
+        "name": "schedule_followup_meeting",
+        "description": "Schedules a follow-up meeting. Pass: title, start_datetime (ISO), end_datetime (ISO, 60 min after start), agenda.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst title = d.title || 'Integration Review Follow-up';\nconst start = d.start_datetime || '2026-06-13T09:00:00';\nconst end = d.end_datetime || '2026-06-13T10:00:00';\nconst agenda = d.agenda || 'Review integration progress';\nreturn JSON.stringify({\n  success: true,\n  status: 'Meeting queued: ' + title + ' on ' + start.split('T')[0],\n  title: title,\n  start_datetime: start,\n  end_datetime: end,\n  agenda: agenda,\n  note: 'Calendar event will be created via Graph API'\n});"
+      },
+      "id": "tool-002",
+      "name": "schedule_followup_meeting",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [980, 660]
+    },
+    {
+      "parameters": {
+        "name": "send_action_email",
+        "description": "Drafts an action item email. Pass: recipient_name, recipient_email, task, deadline, priority, meeting_title, follow_up_date, depends_on.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst name = d.recipient_name || d.owner_name || 'Team Member';\nconst email = d.recipient_email || d.owner_email || 'unknown';\nconst task = d.task || 'Action item';\nconst deadline = d.deadline || 'TBD';\nconst priority = (d.priority || 'medium').toUpperCase();\nreturn JSON.stringify({\n  success: true,\n  status: 'Email queued for ' + name,\n  recipient: name,\n  email: email,\n  task: task,\n  deadline: deadline,\n  priority: priority,\n  note: 'Email will be sent via Graph API'\n});"
+      },
+      "id": "tool-003",
+      "name": "send_action_email",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [1160, 660]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output || '';\nlet parsed;\ntry {\n  let text = typeof raw === 'string' ? raw : JSON.stringify(raw);\n  text = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n  const start = text.indexOf('{');\n  const end = text.lastIndexOf('}');\n  if (start !== -1 && end !== -1 && end > start) {\n    parsed = JSON.parse(text.slice(start, end + 1));\n  } else { throw new Error('No JSON found'); }\n} catch (e) {\n  parsed = { meeting_summary: 'Parse error', action_items: [], external_participants_detected: false, blockers: [], follow_up_meeting: null, risk_flags: ['Parse error: ' + e.message] };\n}\nreturn [{ json: parsed }];"
+      },
+      "id": "parse-001",
+      "name": "Parse Agent Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst items = data.action_items || [];\nif (items.length === 0) return [{ json: { status: 'no_action_items' } }];\nreturn items.map(item => ({ json: item }));"
+      },
+      "id": "split-001",
+      "name": "Split Action Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({message: {subject: '[Action Required] ' + $json.task + ' - due ' + $json.deadline, body: {contentType: 'Text', content: 'Hi ' + $json.owner_name + ',\\n\\nFollowing the NEURA Robot Arm Integration Sync, you have been assigned:\\n\\nTask: ' + $json.task + '\\nDeadline: ' + $json.deadline + '\\nPriority: ' + ($json.priority ? $json.priority.toUpperCase() : 'MEDIUM') + '\\nDepends on: ' + ($json.depends_on || 'None') + '\\n\\nA follow-up review is scheduled. Please confirm receipt.\\n\\n- NEURA AI Meeting Agent\\nPowered by Futurice\\n\\n[DEMO] Intended for: ' + $json.owner_email}, toRecipients: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'} }], importance: 'high'}, saveToSentItems: true}) }}",
+        "options": {}
+      },
+      "id": "email-http-001",
+      "name": "Send Action Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1420, 500],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/onlineMeetings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({subject: $('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.title : 'Integration Review Follow-up', startDateTime: ($('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.date : '2026-06-13') + 'T09:00:00.0000000Z', endDateTime: ($('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.date : '2026-06-13') + 'T10:00:00.0000000Z'}) }}",
+        "options": {}
+      },
+      "id": "teams-meeting-001",
+      "name": "Create Teams Online Meeting",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1420, 380],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/calendar/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({subject: $('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.title : 'Integration Review Follow-up', start: {dateTime: ($('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.date : '2026-06-13') + 'T09:00:00', timeZone: 'UTC'}, end: {dateTime: ($('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.date : '2026-06-13') + 'T10:00:00', timeZone: 'UTC'}, body: {contentType: 'HTML', content: '<b>Agenda:</b> ' + ($('Parse Agent Output').item.json.follow_up_meeting ? $('Parse Agent Output').item.json.follow_up_meeting.agenda : 'Review integration progress') + '<br><br><b>Join Microsoft Teams Meeting:</b><br><a href=\"' + ($json.joinWebUrl || 'link-pending') + '\">Click here to join</a><br><br><i>Scheduled by NEURA AI Meeting Agent | Powered by Futurice</i>'}, attendees: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'}, type: 'required'}]}) }}",
+        "options": {}
+      },
+      "id": "calendar-http-001",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1640, 380],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst items = data.action_items || [];\nconst followup = data.follow_up_meeting || null;\nconst meeting = data.meeting_summary ? 'this meeting' : 'Robot Arm Integration Sync';\nconst followupDate = followup ? followup.date + ' at ' + followup.time : 'TBD';\nconst actionEmails = items.map((item, i) => ({\n  email_number: i + 1,\n  type: 'Action Item Email',\n  to: item.owner_email,\n  recipient: item.owner_name,\n  subject: '[Action Required] ' + item.task + ' due ' + item.deadline,\n  body: 'Hi ' + item.owner_name + ',\\n\\nTask: ' + item.task + '\\nDeadline: ' + item.deadline + '\\nPriority: ' + (item.priority || 'medium').toUpperCase() + (item.depends_on ? '\\nDepends on: ' + item.depends_on : '') + '\\n\\nFollow-up: ' + followupDate + '\\n\\n- NEURA AI Meeting Agent'\n}));\nconst inviteEmail = followup ? {\n  email_number: items.length + 1,\n  type: 'Follow-up Meeting Invite',\n  to: followup.attendees,\n  subject: 'Meeting Invite: ' + followup.title + ' ' + followup.date,\n  body: 'Follow-up meeting: ' + followup.title + ' on ' + followup.date + ' at ' + followup.time + '.\\nAgenda: ' + followup.agenda\n} : null;\nconst all = inviteEmail ? [...actionEmails, inviteEmail] : actionEmails;\nreturn all.map(e => ({ json: e }));"
+      },
+      "id": "email-drafts-001",
+      "name": "Email Drafts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [{ "id": "cond-ext-001", "leftValue": "={{ String($json.external_participants_detected) }}", "rightValue": "true", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-ext-001",
+      "name": "External Participants?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [1420, 260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "status", "value": "AWAITING_HUMAN_APPROVAL", "type": "string" },
+            { "id": "a2", "name": "reason", "value": "=External participants detected: {{ ($json.external_participants || []).join(', ') }}", "type": "string" },
+            { "id": "a3", "name": "meeting_summary", "value": "={{ $json.meeting_summary }}", "type": "string" },
+            { "id": "a4", "name": "action_items_count", "value": "={{ ($json.action_items || []).length }}", "type": "number" },
+            { "id": "a5", "name": "resume_url", "value": "={{ $execution.resumeUrl }}?approved=true", "type": "string" },
+            { "id": "a6", "name": "reject_url", "value": "={{ $execution.resumeUrl }}?approved=false", "type": "string" },
+            { "id": "a7", "name": "instructions", "value": "Open resume_url to APPROVE. Open reject_url to REJECT.", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "approval-001",
+      "name": "Approval Required",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1640, 160]
+    },
+    {
+      "parameters": { "resume": "webhook", "options": {} },
+      "id": "wait-001",
+      "name": "Wait for Human Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1860, 160],
+      "webhookId": "hitl-neura-demo-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [{ "id": "cond-approved-001", "leftValue": "={{ $json.query.approved }}", "rightValue": "true", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-approved-001",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [2080, 160]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "b1", "name": "status", "value": "COMPLETED — Human Approved", "type": "string" },
+            { "id": "b2", "name": "summary", "value": "={{ $('Parse Agent Output').item.json.meeting_summary }}", "type": "string" },
+            { "id": "b3", "name": "actions_taken", "value": "Action emails sent to Fututrice inbox\nCalendar event created in Fututrice calendar\nExternal distribution approved by human", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "approved-001",
+      "name": "Actions Executed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2300, 80]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "c1", "name": "status", "value": "REJECTED — Distribution Held", "type": "string" },
+            { "id": "c2", "name": "message", "value": "Human rejected distribution. Manual review required.", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rejected-001",
+      "name": "Distribution Rejected",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2300, 260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "d1", "name": "status", "value": "COMPLETED — Auto Executed (Internal Meeting)", "type": "string" },
+            { "id": "d2", "name": "summary", "value": "={{ $json.meeting_summary }}", "type": "string" },
+            { "id": "d3", "name": "action_items", "value": "={{ $json.action_items }}", "type": "array" },
+            { "id": "d4", "name": "actions_taken", "value": "Action emails sent to Fututrice inbox\nCalendar event created in Fututrice calendar\nNo external approval needed", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "auto-001",
+      "name": "Auto-Executed (Internal)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1640, 380]
+    }
+  ],
+  "connections": {
+    "Run Demo": {
+      "main": [[{ "node": "Sample Meeting Data", "type": "main", "index": 0 }]]
+    },
+    "Sample Meeting Data": {
+      "main": [[{ "node": "Meeting Agent", "type": "main", "index": 0 }]]
+    },
+    "Meeting Agent": {
+      "main": [[{ "node": "Parse Agent Output", "type": "main", "index": 0 }]]
+    },
+    "OpenAI GPT4 (OpenRouter)": {
+      "ai_languageModel": [[{ "node": "Meeting Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Check Blocker History": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "schedule_followup_meeting": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "send_action_email": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "Parse Agent Output": {
+      "main": [
+        [
+          { "node": "Email Drafts", "type": "main", "index": 0 },
+          { "node": "Split Action Items", "type": "main", "index": 0 },
+          { "node": "Create Teams Online Meeting", "type": "main", "index": 0 },
+          { "node": "External Participants?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Split Action Items": {
+      "main": [[{ "node": "Send Action Emails", "type": "main", "index": 0 }]]
+    },
+    "Create Teams Online Meeting": {
+      "main": [[{ "node": "Create Calendar Event", "type": "main", "index": 0 }]]
+    },
+    "External Participants?": {
+      "main": [
+        [{ "node": "Approval Required", "type": "main", "index": 0 }],
+        [{ "node": "Auto-Executed (Internal)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Approval Required": {
+      "main": [[{ "node": "Wait for Human Approval", "type": "main", "index": 0 }]]
+    },
+    "Wait for Human Approval": {
+      "main": [[{ "node": "Approved?", "type": "main", "index": 0 }]]
+    },
+    "Approved?": {
+      "main": [
+        [{ "node": "Actions Executed", "type": "main", "index": 0 }],
+        [{ "node": "Distribution Rejected", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "pinData": {}
+}

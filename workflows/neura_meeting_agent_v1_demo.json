@@ -1,0 +1,338 @@
+{
+  "name": "NEURA Meeting Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🤖 NEURA Meeting Agent\n**Click ▶ Test Workflow to run**\n\n1. Reads meeting transcript\n2. GPT-4o reasons over content\n3. Checks for recurring blockers\n4. Schedules follow-up meeting\n5. Sends personalised action emails\n6. Human-in-the-Loop for external meetings\n\n⚠️ To approve after pause:\nCopy `resume_url` from the\nApproval Required node output\nand open it in your browser",
+        "height": 280,
+        "width": 320,
+        "color": 4
+      },
+      "id": "sticky-001",
+      "name": "Intro",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## 👤 Human-in-the-Loop\nOnly fires when **external**\n**participants** are detected.\n\nAgent PAUSES and waits for\nexplicit human approval before\ndistributing anything outside\nthe organisation.",
+        "height": 200,
+        "width": 260,
+        "color": 3
+      },
+      "id": "sticky-002",
+      "name": "HITL Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1560, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚡ Internal Path\nNo external participants detected.\nAgent auto-executes all actions\nwithout human intervention.",
+        "height": 160,
+        "width": 240,
+        "color": 5
+      },
+      "id": "sticky-003",
+      "name": "Internal Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1560, 380]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-001",
+      "name": "Run Demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ─── SAMPLE MEETING: Robot Arm Integration Sync ───\n// Change the transcript here to demo different scenarios\n\nreturn [{\n  json: {\n    meeting_title: 'Robot Arm Integration Sync — Sprint Review',\n    meeting_date: '2026-06-01',\n    organizer: {\n      name: 'Maria Schmidt',\n      email: 'maria.schmidt@neura-robotics.com'\n    },\n    attendees: [\n      { name: 'Maria Schmidt', email: 'maria.schmidt@neura-robotics.com', is_external: false },\n      { name: 'Felix Wagner',  email: 'felix.wagner@neura-robotics.com',  is_external: false },\n      { name: 'Jonas Müller',  email: 'jonas.mueller@neura-robotics.com', is_external: false },\n      { name: 'Thomas Becker', email: 'thomas.becker@bosch.com',          is_external: true, company: 'Bosch' }\n    ],\n    transcript: `Maria Schmidt: Good morning everyone. Sprint review, then integration issues. Felix — firmware status?\n\nFelix Wagner: 85% done. Main blocker is the same IMU sensor calibration issue from last sprint. The drift is affecting precision targeting by 2.3 millimetres. I need the updated calibration constants from Jonas by Thursday.\n\nJonas Müller: I can get them to you Wednesday. I have the root cause — temperature coefficient issue in the MEMS sensor. I will send the constants and a test protocol.\n\nMaria Schmidt: Good. Thomas — your team was supposed to deliver the integration API documentation two weeks ago. We have now been blocked twice waiting on this. When can we actually commit?\n\nThomas Becker: I understand the frustration. We had internal re-scoping at Bosch. I personally commit to delivering full API documentation by June 6th. I will also run a technical walkthrough call that same week.\n\nMaria Schmidt: That is the third time the API docs have slipped, Thomas. Felix — once you have the docs, how long to complete integration?\n\nFelix Wagner: If I have the docs by June 6th, integration testing is done by June 14th. But I also need the hardware interface specs, not just the software API.\n\nThomas Becker: Hardware specs are ready now. I will send them today before end of day.\n\nMaria Schmidt: Jonas — can you also investigate the power consumption regression in build 2.4? The arm is drawing 340W at peak versus our 280W target.\n\nJonas Müller: Yes. I suspect the servo controller update in the last build. I will have initial findings by Friday.\n\nMaria Schmidt: Let us schedule a follow-up integration review for June 13th — one week after Thomas delivers. Thomas must be on that call. Agreed?\n\nAll: Agreed.\n\nMaria Schmidt: Good. Felix and Jonas — I am counting on you. Thomas — no more slippage. That is all.`\n  }\n}];"
+      },
+      "id": "sample-001",
+      "name": "Sample Meeting Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse this meeting and take all necessary actions using your tools.\n\nMeeting: {{ $json.meeting_title }}\nDate: {{ $json.meeting_date }}\nOrganizer: {{ $json.organizer.name }} <{{ $json.organizer.email }}>\n\nAttendees:\n{{ $json.attendees.map(a => '- ' + a.name + ' <' + a.email + '>' + (a.is_external ? ' [EXTERNAL — ' + a.company + ']' : ' [Internal]')).join('\\n') }}\n\nFull Transcript:\n{{ $json.transcript }}\n\nSteps you MUST complete before returning:\n1. Call check_blocker_history for each blocker mentioned\n2. Call send_action_email once for each unique action item owner\n3. Call schedule_followup_meeting if a follow-up was agreed\n4. Return ONLY the final JSON object — no intro text",
+        "options": {
+          "systemMessage": "=You are the NEURA Robotics AI Meeting Agent — an enterprise agent that turns meeting transcripts into structured actions.\n\nYou have three tools. Use ALL of them before responding:\n- check_blocker_history: call for every blocker or delay mentioned\n- schedule_followup_meeting: call if a follow-up meeting was agreed\n- send_action_email: call once per unique action item owner. Pass: recipient_name, recipient_email, task, deadline, priority, meeting_title, follow_up_date\n\nIMPORTANT — capturing action items:\n- Capture EVERY commitment made by any attendee, including implied ones\n- If someone says 'I will do X once I receive Y', that is an action item with a depends_on\n- If someone says 'once you have X, how long for Y?' and gets a deadline answer, that is an action item\n- Do NOT miss any person who made a commitment\n- For depends_on: write the specific dependency (e.g. 'Thomas Becker delivers API documentation by 2026-06-06') or null if none\n\nAfter using your tools, return ONLY a raw JSON object. No markdown. No explanation. No intro text. Start with { and end with }.\n\nUse exactly this structure:\n{\n  \"meeting_summary\": \"2-3 sentence executive summary\",\n  \"action_items\": [\n    {\n      \"task\": \"specific task description\",\n      \"owner_name\": \"full name\",\n      \"owner_email\": \"email address\",\n      \"deadline\": \"YYYY-MM-DD\",\n      \"priority\": \"critical|high|medium|low\",\n      \"depends_on\": \"dependency description or null\"\n    }\n  ],\n  \"decisions\": [\"decision 1\", \"decision 2\"],\n  \"blockers\": [\n    {\n      \"description\": \"what is blocked\",\n      \"owner\": \"who resolves it\",\n      \"is_recurring\": true,\n      \"occurrences\": 3\n    }\n  ],\n  \"follow_up_meeting\": {\n    \"title\": \"meeting title\",\n    \"date\": \"YYYY-MM-DD\",\n    \"time\": \"09:00\",\n    \"duration_minutes\": 60,\n    \"attendees\": [\"email1\", \"email2\"],\n    \"agenda\": \"one sentence agenda\"\n  },\n  \"external_participants_detected\": true,\n  \"external_participants\": [\"Name (Company)\"],\n  \"risk_flags\": [\"risk description\"]\n}"
+        }
+      },
+      "id": "agent-001",
+      "name": "Meeting Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-4o",
+          "mode": "id"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "llm-001",
+      "name": "OpenAI GPT4 (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [560, 500],
+      "credentials": {
+        "openAiApi": {
+          "id": "7wkvUA54dxB7iO6O",
+          "name": "OpenRouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "check_blocker_history",
+        "description": "Checks the meeting history database for recurring blockers. Call this for each blocker or delay mentioned in the meeting. Pass a JSON object with 'topic' (string) describing the blocker.",
+        "jsCode": "const input = $input.first().json;\nconst topic = (input.topic || input.query || '').toLowerCase();\n\nconst history = [\n  { date: '2026-04-15', topic: 'bosch api documentation', occurrences: 1, impact: 'Firmware integration blocked 2 weeks' },\n  { date: '2026-05-01', topic: 'bosch api documentation delay', occurrences: 2, impact: 'Integration testing delayed, sprint missed' },\n  { date: '2026-04-08', topic: 'imu sensor calibration drift', occurrences: 1, impact: 'Precision targeting off by 3.1mm' },\n  { date: '2026-05-15', topic: 'sensor calibration imu drift', occurrences: 1, impact: 'Precision targeting off by 2.8mm' },\n  { date: '2026-05-20', topic: 'power consumption regression', occurrences: 1, impact: 'Build 2.3 exceeded 280W power budget' }\n];\n\nconst matches = history.filter(h => {\n  const words = topic.split(' ');\n  return words.some(w => w.length > 3 && h.topic.includes(w));\n});\n\nif (matches.length > 0) {\n  const total = matches.reduce((s, m) => s + m.occurrences, 0) + 1;\n  return JSON.stringify({\n    is_recurring: true,\n    total_occurrences: total,\n    first_seen: matches[matches.length - 1].date,\n    last_seen: matches[0].date,\n    pattern: 'RECURRING BLOCKER — seen ' + total + ' times in the past 2 months',\n    historical_impact: matches.map(m => m.impact).join(' | '),\n    recommendation: 'Escalation recommended — assign dedicated owner with hard deadline'\n  });\n}\n\nreturn JSON.stringify({\n  is_recurring: false,\n  total_occurrences: 1,\n  pattern: 'First occurrence',\n  recommendation: 'Monitor — flag if it appears again next sprint'\n});"
+      },
+      "id": "tool-001",
+      "name": "Check Blocker History",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [560, 660]
+    },
+    {
+      "parameters": {
+        "name": "schedule_followup_meeting",
+        "description": "Schedules a follow-up meeting. Call this when the transcript confirms a follow-up is needed. Pass JSON with: title, date (YYYY-MM-DD), time (HH:MM), duration_minutes, attendees (array of emails), agenda.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst id = 'MTG-' + Math.random().toString(36).substr(2, 6).toUpperCase();\nconst title = d.title || d.meeting_title || 'Follow-up Meeting';\nconst date = d.date || d.meeting_date || 'TBD';\nconst time = d.time || '09:00';\nconst duration = d.duration_minutes || 60;\nconst attendees = d.attendees || [];\nconst agenda = d.agenda || 'Review action items and progress.';\n\nconst inviteEmail = {\n  subject: 'Meeting Invite: ' + title + ' — ' + date,\n  body: 'Hi,\\n\\nYou are invited to the following follow-up meeting:\\n\\nTitle: ' + title + '\\nDate: ' + date + ' at ' + time + '\\nDuration: ' + duration + ' minutes\\nAgenda: ' + agenda + '\\n\\nAttendees:\\n' + attendees.join('\\n') + '\\n\\n[DEMO] In production a real Teams calendar invite would be sent via Microsoft Graph API.',\n  to: attendees\n};\n\nreturn JSON.stringify({\n  success: true,\n  meeting_id: id,\n  title: title,\n  scheduled_for: date + ' at ' + time,\n  duration: duration + ' minutes',\n  attendees: attendees,\n  agenda: agenda,\n  teams_join_url: 'https://teams.microsoft.com/l/meetup-join/demo/' + id,\n  invite_email: inviteEmail,\n  status: 'Meeting details generated: ' + title + ' on ' + date,\n  note: '[DEMO] In production: Graph API POST /me/calendar/events — invite email would be sent to all attendees'\n});"
+      },
+      "id": "tool-002",
+      "name": "Schedule Follow-up Meeting",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [740, 660]
+    },
+    {
+      "parameters": {
+        "name": "send_action_email",
+        "description": "Sends a personalised action item email. Call once per unique owner. Pass JSON with: recipient_name, recipient_email, task, deadline, priority, meeting_title, follow_up_date.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\n\n// Accept any parameter name the LLM might use\nconst name     = d.recipient_name  || d.owner_name  || d.name  || 'Team Member';\nconst email    = d.recipient_email || d.owner_email || d.email || 'unknown@neura-robotics.com';\nconst task     = d.task            || d.action      || d.description || 'Action item';\nconst deadline = d.deadline        || d.due_date    || d.due   || 'TBD';\nconst priority = (d.priority || 'medium').toUpperCase();\nconst meeting  = d.meeting_title   || d.meeting     || 'today\\'s meeting';\nconst followup = d.follow_up_date  || d.followup_date || d.follow_up || 'TBD';\nconst depends  = d.depends_on || null;\n\nconst msgId = 'MSG-' + Math.random().toString(36).substr(2, 8).toUpperCase();\n\nconst subject = '[Action Required] ' + task + ' — due ' + deadline;\n\nconst body = 'Hi ' + name + ',\\n\\n' +\n  'Following ' + meeting + ', you have been assigned the following action item:\\n\\n' +\n  '📌 Task: ' + task + '\\n' +\n  '⏰ Deadline: ' + deadline + '\\n' +\n  '🎯 Priority: ' + priority + '\\n' +\n  (depends ? '🔗 Depends on: ' + depends + '\\n' : '') +\n  '\\nA follow-up review has been scheduled for ' + followup + ' to track progress.\\n\\n' +\n  'Please confirm receipt and flag any blockers as soon as possible.\\n\\n' +\n  'This email was generated by the NEURA AI Meeting Agent.\\n' +\n  '[DEMO] In production this would be sent via Microsoft Graph API (POST /me/sendMail)';\n\nreturn JSON.stringify({\n  success: true,\n  message_id: msgId,\n  to: email,\n  recipient: name,\n  subject: subject,\n  body: body,\n  priority: priority,\n  deadline: deadline,\n  status: 'Email ready for ' + name + ' <' + email + '>',\n  note: '[DEMO] Not sent — M365 connection pending'\n});"
+      },
+      "id": "tool-003",
+      "name": "Send Action Email",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [920, 660]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output || '';\nlet parsed;\n\ntry {\n  let text = typeof raw === 'string' ? raw : JSON.stringify(raw);\n  // Strip markdown fences\n  text = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n  // Find outermost JSON object\n  const start = text.indexOf('{');\n  const end = text.lastIndexOf('}');\n  if (start !== -1 && end !== -1 && end > start) {\n    parsed = JSON.parse(text.slice(start, end + 1));\n  } else {\n    throw new Error('No JSON found in output: ' + text.substring(0, 120));\n  }\n} catch (e) {\n  parsed = {\n    meeting_summary: 'Agent returned unstructured output — see raw_output',\n    action_items: [],\n    external_participants_detected: false,\n    blockers: [],\n    follow_up_meeting: null,\n    risk_flags: ['Parse error: ' + e.message],\n    raw_output: String(raw).substring(0, 800)\n  };\n}\n\nreturn [{ json: parsed }];"
+      },
+      "id": "parse-001",
+      "name": "Parse Agent Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "cond-ext-001",
+              "leftValue": "={{ String($json.external_participants_detected) }}",
+              "rightValue": "true",
+              "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-ext-001",
+      "name": "External Participants?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [1180, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "status",             "value": "AWAITING_HUMAN_APPROVAL", "type": "string" },
+            { "id": "a2", "name": "reason",             "value": "=External participants detected: {{ ($json.external_participants || []).join(', ') }}", "type": "string" },
+            { "id": "a3", "name": "meeting_summary",    "value": "={{ $json.meeting_summary }}", "type": "string" },
+            { "id": "a4", "name": "action_items_count", "value": "={{ ($json.action_items || []).length }}", "type": "number" },
+            { "id": "a5", "name": "resume_url",         "value": "={{ $execution.resumeUrl }}?approved=true", "type": "string" },
+            { "id": "a6", "name": "reject_url",         "value": "={{ $execution.resumeUrl }}?approved=false", "type": "string" },
+            { "id": "a7", "name": "instructions",       "value": "Open resume_url in your browser to APPROVE. Open reject_url to REJECT.", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "approval-001",
+      "name": "Approval Required",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1400, 160]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "id": "wait-001",
+      "name": "Wait for Human Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1620, 160],
+      "webhookId": "hitl-neura-demo-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "cond-approved-001",
+              "leftValue": "={{ $json.query.approved }}",
+              "rightValue": "true",
+              "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-approved-001",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [1840, 160]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "b1", "name": "status",        "value": "COMPLETED — Human Approved", "type": "string" },
+            { "id": "b2", "name": "summary",       "value": "={{ $('Parse Agent Output').item.json.meeting_summary }}", "type": "string" },
+            { "id": "b3", "name": "action_items",  "value": "={{ $('Parse Agent Output').item.json.action_items }}", "type": "array" },
+            { "id": "b4", "name": "follow_up",     "value": "={{ $('Parse Agent Output').item.json.follow_up_meeting }}", "type": "object" },
+            { "id": "b5", "name": "risk_flags",    "value": "={{ $('Parse Agent Output').item.json.risk_flags }}", "type": "array" },
+            { "id": "b6", "name": "actions_taken", "value": "✅ Minutes distributed to all participants\n✅ Action emails sent to all owners\n✅ Follow-up meeting scheduled in Teams\n✅ External participants notified with approved summary", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "approved-001",
+      "name": "Actions Executed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2060, 80]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "c1", "name": "status",      "value": "REJECTED — Distribution Held", "type": "string" },
+            { "id": "c2", "name": "message",     "value": "Human reviewer rejected distribution. Minutes saved as draft. Manual review required before sending to external participants.", "type": "string" },
+            { "id": "c3", "name": "next_action", "value": "Edit minutes manually and re-trigger when ready.", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rejected-001",
+      "name": "Distribution Rejected",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2060, 260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "d1", "name": "status",        "value": "COMPLETED — Auto Executed (Internal Meeting)", "type": "string" },
+            { "id": "d2", "name": "summary",       "value": "={{ $json.meeting_summary }}", "type": "string" },
+            { "id": "d3", "name": "action_items",  "value": "={{ $json.action_items }}", "type": "array" },
+            { "id": "d4", "name": "decisions",     "value": "={{ $json.decisions }}", "type": "array" },
+            { "id": "d5", "name": "follow_up",     "value": "={{ $json.follow_up_meeting }}", "type": "object" },
+            { "id": "d6", "name": "blockers",      "value": "={{ $json.blockers }}", "type": "array" },
+            { "id": "d7", "name": "risk_flags",    "value": "={{ $json.risk_flags }}", "type": "array" },
+            { "id": "d8", "name": "actions_taken", "value": "✅ Minutes auto-distributed (internal — no approval needed)\n✅ Action emails sent to all owners\n✅ Follow-up meeting scheduled in Teams\n✅ Blocker history updated", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "auto-001",
+      "name": "Auto-Executed (Internal)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1400, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst items = data.action_items || [];\nconst followup = data.follow_up_meeting || null;\nconst meeting = 'Robot Arm Integration Sync — Sprint Review';\nconst followupDate = followup ? followup.date + ' at ' + followup.time : 'TBD';\n\nconst divider = '─'.repeat(60);\n\n// Action item emails\nconst actionEmails = items.map((item, i) => {\n  return {\n    email_number: i + 1,\n    type: 'Action Item Email',\n    to: item.owner_email,\n    recipient: item.owner_name,\n    subject: '[Action Required] ' + item.task + ' — due ' + item.deadline,\n    body: [\n      'Hi ' + item.owner_name + ',',\n      '',\n      'Following today\\'s ' + meeting + ', you have been assigned the following action item:',\n      '',\n      '📌  Task:      ' + item.task,\n      '⏰  Deadline:  ' + item.deadline,\n      '🎯  Priority:  ' + item.priority.toUpperCase(),\n      item.depends_on ? '🔗  Depends on: ' + item.depends_on : null,\n      '',\n      'A follow-up review has been scheduled for ' + followupDate + ' to track progress.',\n      '',\n      'Please confirm receipt and flag any blockers as soon as possible.',\n      '',\n      '— NEURA AI Meeting Agent',\n      '[DEMO — not sent. In production: Microsoft Graph API POST /me/sendMail]'\n    ].filter(l => l !== null).join('\\n')\n  };\n});\n\n// Follow-up invite email\nconst inviteEmail = followup ? {\n  email_number: items.length + 1,\n  type: 'Follow-up Meeting Invite',\n  to: followup.attendees,\n  subject: 'Meeting Invite: ' + followup.title + ' — ' + followup.date,\n  body: [\n    'Hi all,',\n    '',\n    'A follow-up meeting has been scheduled. Please add it to your calendar.',\n    '',\n    '📅  Title:     ' + followup.title,\n    '🗓   Date:      ' + followup.date + ' at ' + followup.time,\n    '⏱   Duration:  ' + followup.duration_minutes + ' minutes',\n    '📋  Agenda:    ' + followup.agenda,\n    '',\n    'Attendees:',\n    followup.attendees.map(a => '  • ' + a).join('\\n'),\n    '',\n    '🔗  Teams Link: [Generated by Graph API in production]',\n    '',\n    '— NEURA AI Meeting Agent',\n    '[DEMO — not sent. In production: Microsoft Graph API POST /me/calendar/events]'\n  ].join('\\n')\n} : null;\n\nconst all = inviteEmail ? [...actionEmails, inviteEmail] : actionEmails;\n\nreturn all.map(e => ({ json: e }));"
+      },
+      "id": "email-drafts-001",
+      "name": "Email Drafts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 560]
+    }
+  ],
+  "connections": {
+    "Run Demo": {
+      "main": [[{ "node": "Sample Meeting Data", "type": "main", "index": 0 }]]
+    },
+    "Sample Meeting Data": {
+      "main": [[{ "node": "Meeting Agent", "type": "main", "index": 0 }]]
+    },
+    "Meeting Agent": {
+      "main": [[{ "node": "Parse Agent Output", "type": "main", "index": 0 }]]
+    },
+    "Parse Agent Output": {
+      "main": [[{ "node": "External Participants?", "type": "main", "index": 0 }], [{ "node": "Email Drafts", "type": "main", "index": 0 }]]
+    },
+    "External Participants?": {
+      "main": [
+        [{ "node": "Approval Required", "type": "main", "index": 0 }],
+        [{ "node": "Auto-Executed (Internal)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Approval Required": {
+      "main": [[{ "node": "Wait for Human Approval", "type": "main", "index": 0 }]]
+    },
+    "Wait for Human Approval": {
+      "main": [[{ "node": "Approved?", "type": "main", "index": 0 }]]
+    },
+    "Approved?": {
+      "main": [
+        [{ "node": "Actions Executed", "type": "main", "index": 0 }],
+        [{ "node": "Distribution Rejected", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI GPT4 (OpenRouter)": {
+      "ai_languageModel": [[{ "node": "Meeting Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Check Blocker History": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "Schedule Follow-up Meeting": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "Send Action Email": {
+      "ai_tool": [[{ "node": "Meeting Agent", "type": "ai_tool", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "pinData": {}
+}

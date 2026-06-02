@@ -271,12 +271,35 @@
       "position": [1640, 160]
     },
     {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({message: {subject: 'Action Required: NEURA Meeting Agent needs your approval', body: {contentType: 'HTML', content: '<div style=\"font-family:Arial,sans-serif;max-width:600px\"><h2 style=\"color:#1a1a2e\">NEURA AI Meeting Agent</h2><h3 style=\"color:#e63946\">Human Approval Required</h3><p>External participants were detected in this meeting. Please review the summary below and approve or reject distribution.</p><hr><h4>Meeting Summary</h4><p>' + $json.meeting_summary + '</p><p><b>Action Items:</b> ' + $json.action_items_count + '</p><p><b>External Participants:</b> ' + $json.reason + '</p><hr><br><table><tr><td><a href=\"' + $json.resume_url + '\" style=\"background-color:#28a745;color:white;padding:14px 32px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;display:inline-block\">Approve Distribution</a></td><td style=\"width:20px\"></td><td><a href=\"' + $json.reject_url + '\" style=\"background-color:#dc3545;color:white;padding:14px 32px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;display:inline-block\">Reject</a></td></tr></table><br><hr><p style=\"color:#666;font-size:12px\"><i>Sent by NEURA AI Meeting Agent | Powered by Futurice</i></p></div>'}, toRecipients: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'} }], importance: 'high'}, saveToSentItems: true}) }}",
+        "options": {}
+      },
+      "id": "approval-email-001",
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1860, 160],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
       "parameters": { "resume": "webhook", "options": {} },
       "id": "wait-001",
       "name": "Wait for Human Approval",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [1860, 160],
+      "position": [2080, 160],
       "webhookId": "hitl-neura-demo-001"
     },
     {
@@ -292,7 +315,7 @@
       "name": "Approved?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.1,
-      "position": [2080, 160]
+      "position": [2300, 160]
     },
     {
       "parameters": {
@@ -391,6 +414,9 @@
       ]
     },
     "Approval Required": {
+      "main": [[{ "node": "Send Approval Email", "type": "main", "index": 0 }]]
+    },
+    "Send Approval Email": {
       "main": [[{ "node": "Wait for Human Approval", "type": "main", "index": 0 }]]
     },
     "Wait for Human Approval": {

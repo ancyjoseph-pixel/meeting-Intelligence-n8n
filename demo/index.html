@@ -126,7 +126,7 @@
     <input class="config-input" id="cfgWorkflowId" placeholder="Workflow ID (shown in n8n URL)" style="max-width:200px" />
     <button class="config-btn" onclick="saveConfig()">Save</button>
   </div>
-  <div style="margin-top:8px;font-size:12px;color:#8b949e">n8n must be running at http://localhost:5678 · <code style="color:#d29922">cd demo && python3 -m http.server 8080</code> to serve this page</div>
+  <div style="margin-top:8px;font-size:12px;color:#8b949e">Start n8n with: <code style="color:#d29922">N8N_STATIC_FILES_PATH="/path/to/demo" n8n start</code> then open <code style="color:#58a6ff">localhost:5678/index.html</code> — no CORS issues</div>
 </div>
 
 <!-- CONFIRM (shown when redirected from email approve/reject) -->
@@ -211,7 +211,10 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const N8N_BASE = 'http://localhost:5678';
+// If served via N8N_STATIC_FILES_PATH (recommended), N8N_BASE should be empty
+// so all requests go to the same origin (no CORS issues).
+// If served via python3 -m http.server 8080, set N8N_BASE = 'http://localhost:5678'
+const N8N_BASE = window.location.port === '5678' ? '' : 'http://localhost:5678';
 const WEBHOOK_PATH = '/webhook/neura-demo-trigger';
 let API_KEY = localStorage.getItem('n8n_api_key') || '';
 let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id') || '';
@@ -292,10 +295,11 @@ async function startDemo() {
   setStatus('Sending transcript to n8n workflow...', 'active');
 
   try {
-    // Trigger the webhook
+    // Trigger the webhook (no-cors safe — we just need to fire it, not read response)
     await fetch(N8N_BASE + WEBHOOK_PATH, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: N8N_BASE ? 'no-cors' : 'same-origin',
+      headers: N8N_BASE ? {} : { 'Content-Type': 'application/json' },
       body: JSON.stringify({ source: 'web-demo' })
     });
 

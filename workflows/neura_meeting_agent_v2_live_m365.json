@@ -153,6 +153,22 @@
     {
       "parameters": {
         "method": "POST",
+        "url": "http://localhost:8080/hitl",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(({approve_url: $json.n8n_approve_url, reject_url: $json.n8n_reject_url, meeting_summary: $json.meeting_summary, action_items: $json.action_items, follow_up_meeting: $json.follow_up_meeting, external_participants: $json.external_participants, has_external: $json.has_external, item_count: $json.item_count})) }}",
+        "options": {}
+      },
+      "id": "notify-demo-001",
+      "name": "Notify Demo Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1640, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
         "url": "https://graph.microsoft.com/v1.0/me/sendMail",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "microsoftOAuth2Api",
@@ -165,7 +181,7 @@
       "name": "Send Approval Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1640, 300],
+      "position": [1860, 300],
       "credentials": {
         "microsoftOAuth2Api": {
           "id": "JpJTuimza9Db1j6c",
@@ -353,6 +369,9 @@
       ]
     },
     "Build Approval Email": {
+      "main": [[{ "node": "Notify Demo Page", "type": "main", "index": 0 }]]
+    },
+    "Notify Demo Page": {
       "main": [[{ "node": "Send Approval Email", "type": "main", "index": 0 }]]
     },
     "Send Approval Email": {

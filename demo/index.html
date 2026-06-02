@@ -126,7 +126,7 @@
     <input class="config-input" id="cfgWorkflowId" placeholder="Workflow ID (shown in n8n URL)" style="max-width:200px" />
     <button class="config-btn" onclick="saveConfig()">Save</button>
   </div>
-  <div style="margin-top:8px;font-size:12px;color:#8b949e">Start n8n with: <code style="color:#d29922">N8N_STATIC_FILES_PATH="/path/to/demo" n8n start</code> then open <code style="color:#58a6ff">localhost:5678/index.html</code> — no CORS issues</div>
+  <div style="margin-top:8px;font-size:12px;color:#8b949e">Run demo with: <code style="color:#d29922">cd demo && python3 proxy.py</code> then open <code style="color:#58a6ff">localhost:8080</code></div>
 </div>
 
 <!-- CONFIRM (shown when redirected from email approve/reject) -->
@@ -211,10 +211,10 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-// If served via N8N_STATIC_FILES_PATH (recommended), N8N_BASE should be empty
-// so all requests go to the same origin (no CORS issues).
-// If served via python3 -m http.server 8080, set N8N_BASE = 'http://localhost:5678'
-const N8N_BASE = window.location.port === '5678' ? '' : 'http://localhost:5678';
+// Served via proxy.py: all /n8n/* calls are forwarded to localhost:5678 with auth header.
+// Direct n8n webhook is called via full URL (no auth needed, just fire-and-forget).
+const PROXY_BASE  = '';                           // same origin via proxy.py
+const N8N_DIRECT  = 'http://localhost:5678';      // for webhook trigger only
 const WEBHOOK_PATH = '/webhook/neura-demo-trigger';
 let API_KEY = localStorage.getItem('n8n_api_key') || '';
 let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id') || '';
@@ -295,13 +295,8 @@ async function startDemo() {
   setStatus('Sending transcript to n8n workflow...', 'active');
 
   try {
-    // Trigger the webhook (no-cors safe — we just need to fire it, not read response)
-    await fetch(N8N_BASE + WEBHOOK_PATH, {
-      method: 'POST',
-      mode: N8N_BASE ? 'no-cors' : 'same-origin',
-      headers: N8N_BASE ? {} : { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: 'web-demo' })
-    });
+    // Trigger webhook directly (no auth header needed, fire-and-forget)
+    fetch(N8N_DIRECT + WEBHOOK_PATH, { method: 'POST', mode: 'no-cors' }).catch(() => {});
 
     setStep('read', 'done', 'Transcript');
     setStep('ai', 'active', 'Analyzing...');
@@ -320,15 +315,14 @@ async function startDemo() {
     startPolling();
 
   } catch (e) {
-    setStatus('Error connecting to n8n: ' + e.message + ' — is n8n running at localhost:5678?', 'error');
+    setStatus('Could not reach n8n — make sure n8n is running and the workflow is Published (active)', 'error');
     btn.disabled = false; btn.textContent = '▶ Start Demo';
   }
 }
 
 async function findLatestExecution() {
   const res = await fetch(
-    N8N_BASE + '/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=1',
-    { headers: { 'X-N8N-API-KEY': API_KEY } }
+    PROXY_BASE + '/n8n/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=1'
   );
   const data = await res.json();
   return data.data && data.data.length ? data.data[0].id : null;
@@ -345,8 +339,7 @@ function stopPolling() {
 async function pollExecution() {
   try {
     const res = await fetch(
-      N8N_BASE + '/api/v1/executions/' + executionId + '?includeData=true',
-      { headers: { 'X-N8N-API-KEY': API_KEY } }
+      PROXY_BASE + '/n8n/api/v1/executions/' + executionId + '?includeData=true'
     );
     const exec = await res.json();
     updateUI(exec);

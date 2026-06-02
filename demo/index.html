@@ -430,7 +430,7 @@ function showApprovalPanel(data) {
     'Priority: ' + (item.priority || 'medium').toUpperCase() + '\n' +
     (item.depends_on ? 'Depends on: ' + item.depends_on + '\n' : '') +
     '\nA follow-up review is scheduled for ' + followupDate + '.\n\n' +
-    'Please confirm receipt.\n\n— NEURA AI Meeting Agent\nPowered by Futurice';
+    '— NEURA AI Meeting Agent\nPowered by Futurice';
 
   const itemsHtml = items.map((item, i) => {
     const isExt = (data.external_participants || []).some(e =>
@@ -545,7 +545,7 @@ function showResults(elapsed) {
     'Priority: ' + (item.priority || 'medium').toUpperCase() + '\n' +
     (item.depends_on ? 'Depends on: ' + item.depends_on + '\n' : '') +
     '\nA follow-up review is scheduled for ' + (f ? f.date : 'TBD') + '.\n\n' +
-    'Please confirm receipt.\n\n— NEURA AI Meeting Agent\nPowered by Futurice\n\n[DEMO] Intended for: ' + item.owner_email;
+    '— NEURA AI Meeting Agent\nPowered by Futurice\n\n[DEMO] Intended for: ' + item.owner_email;
 
   const sentHtml = items.map((item, i) =>
     '<div class="sent-card" onclick="openEmailModal(' + i + ')">' +

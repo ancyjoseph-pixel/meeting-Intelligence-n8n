@@ -37,6 +37,7 @@
     },
     {
       "parameters": {
+        "httpMethod": "GET",
         "path": "neura-demo-trigger",
         "responseMode": "onReceived",
         "options": {

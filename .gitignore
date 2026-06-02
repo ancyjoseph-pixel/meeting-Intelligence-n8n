@@ -17,9 +17,6 @@ credentials.env
 neura_meeting_agent.json
 neura_meeting_agent_v2.json
 
-# Demo runtime cache
-demo/hitl_cache.json
-
 # Python
 __pycache__/
 *.pyc

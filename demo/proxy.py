@@ -6,27 +6,12 @@ Then open: http://localhost:8080
 """
 import http.server, urllib.request, urllib.parse, os, json
 
-N8N_BASE   = "http://localhost:5678"
-API_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ZGUxMDMwNS0xOTI3LTRlM2MtYTNjNS1jMzI4NDMzNmMyOWMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiMDg0YjY1NzYtODVjYi00ZmUwLWJhYjEtODFjZGQ5MjAwNWU2IiwiaWF0IjoxNzgwNDE0OTAxLCJleHAiOjE3ODI5NjQ4MDB9.sMwfvZsjFqFah-z7BeOXozp9fEMS7sbK89EHALtSS_Q"
-PORT       = 8080
-CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hitl_cache.json")
+N8N_BASE  = "http://localhost:5678"
+API_KEY   = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ZGUxMDMwNS0xOTI3LTRlM2MtYTNjNS1jMzI4NDMzNmMyOWMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiMDg0YjY1NzYtODVjYi00ZmUwLWJhYjEtODFjZGQ5MjAwNWU2IiwiaWF0IjoxNzgwNDE0OTAxLCJleHAiOjE3ODI5NjQ4MDB9.sMwfvZsjFqFah-z7BeOXozp9fEMS7sbK89EHALtSS_Q"
+PORT      = 8080
 
-# Load persisted HITL data from last run
-def _load_cache():
-    try:
-        with open(CACHE_FILE) as f: return json.load(f)
-    except Exception: return None
-
-def _save_cache(data):
-    try:
-        with open(CACHE_FILE, "w") as f: json.dump(data, f)
-    except Exception: pass
-
-def _clear_cache():
-    try: os.remove(CACHE_FILE)
-    except Exception: pass
-
-hitl_data = _load_cache()  # survives proxy restarts
+# Holds the latest HITL payload pushed by n8n
+hitl_data = None
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -50,14 +35,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             body = self.rfile.read(length)
             try:
                 hitl_data = json.loads(body)
-                _save_cache(hitl_data)   # persist to disk
             except Exception:
                 pass
             self.send_response(200); self._cors(); self.end_headers()
             self.wfile.write(b'{"ok":true}')
         elif self.path == "/hitl/clear":
             hitl_data = None
-            _clear_cache()               # remove from disk
             self.send_response(200); self._cors(); self.end_headers()
             self.wfile.write(b'{"ok":true}')
         else:

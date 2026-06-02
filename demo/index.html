@@ -411,29 +411,6 @@ function toggleTranscript() {
   t.textContent = b.classList.contains('open') ? '▼ collapse' : '▶ expand';
 }
 
-// On load: restore last run's state so no API calls needed for layout changes
-window.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const res = await fetch('/hitl');
-    const data = await res.json();
-    if (data && data.approve_url) {
-      approvalData = data;
-      n8nApproveUrl = data.approve_url;
-      n8nRejectUrl  = data.reject_url;
-      // Restore pipeline to the "waiting for approval" state
-      setStep('read', 'done', 'Transcript');
-      setStep('ai', 'done', 'AI Reads');
-      setStep('history', 'done', 'Checks History');
-      setStep('draft', 'done', 'Emails Ready');
-      setStep('hitl', 'waiting', 'Your Approval');
-      setStatus('Previous run restored — review emails below or click Start Demo for a fresh run.', 'waiting');
-      document.getElementById('startBtn').disabled = false;
-      document.getElementById('startBtn').textContent = '▶ Start Demo';
-      showApprovalPanel(data);
-    }
-  } catch(e) { /* proxy not running yet, that's fine */ }
-});
-
 // Email redirect
 window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(window.location.search);

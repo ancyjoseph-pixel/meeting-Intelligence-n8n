@@ -93,7 +93,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         pass  # suppress request logs
 
 if __name__ == "__main__":
-    with http.server.ThreadingHTTPServer(("", PORT), Handler) as srv:
+    with http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler) as srv:
         print(f"NEURA Demo running at http://localhost:{PORT}")
         print(f"Proxying n8n API calls to {N8N_BASE}")
         srv.serve_forever()

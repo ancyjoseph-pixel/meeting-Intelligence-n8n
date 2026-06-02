@@ -153,7 +153,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://localhost:8080/hitl",
+        "url": "http://127.0.0.1:8080/hitl",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify(({approve_url: $json.n8n_approve_url, reject_url: $json.n8n_reject_url, meeting_summary: $json.meeting_summary, action_items: $json.action_items, follow_up_meeting: $json.follow_up_meeting, external_participants: $json.external_participants, has_external: $json.has_external, item_count: $json.item_count})) }}",

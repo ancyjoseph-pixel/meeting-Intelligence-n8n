@@ -214,7 +214,7 @@
 // Served via proxy.py: all /n8n/* calls are forwarded to localhost:5678 with auth header.
 // Direct n8n webhook is called via full URL (no auth needed, just fire-and-forget).
 const PROXY_BASE  = '';                           // same origin via proxy.py
-const N8N_DIRECT  = 'http://localhost:5678';      // for webhook trigger only
+const N8N_DIRECT  = 'http://127.0.0.1:5678';     // for webhook trigger only
 const WEBHOOK_PATH = '/webhook/neura-demo-trigger';
 let API_KEY = localStorage.getItem('n8n_api_key') || '';
 let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id') || '';

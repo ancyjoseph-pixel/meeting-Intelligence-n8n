@@ -151,6 +151,18 @@
     .modal-field{margin-bottom:14px}
     .modal-label{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;font-weight:600}
     .modal-value{font-size:14px;color:#c9d1d9;line-height:1.7;white-space:pre-line}
+    /* EMAIL STYLE */
+    .email-header{margin-bottom:16px}
+    .email-from{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .email-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1f6feb,#58a6ff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+    .email-sender-name{font-size:14px;font-weight:600;color:#e6edf3}
+    .email-sender-meta{font-size:12px;color:#8b949e}
+    .email-meta-row{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid #21262d;font-size:13px}
+    .email-meta-key{color:#8b949e;min-width:60px;font-size:12px}
+    .email-meta-val{color:#e6edf3;font-weight:500}
+    .email-subject-row{font-size:16px;font-weight:600;color:#e6edf3;padding:12px 0 8px;border-bottom:1px solid #21262d;margin-bottom:14px}
+    .email-body-area{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:18px;font-size:14px;color:#c9d1d9;line-height:1.9;white-space:pre-line}
+    .email-footer-note{margin-top:12px;padding-top:10px;border-top:1px solid #21262d;font-size:11px;color:#484f58}
 
     /* FOOTER */
     .footer{text-align:center;padding:28px;color:#30363d;font-size:12px;border-top:1px solid #21262d;margin-top:40px}
@@ -212,8 +224,11 @@
     body.light .cfg-box{background:#fff;border-color:#d0d7de}
     body.light .cfg-input{background:#f6f8fa;border-color:#d0d7de;color:#1f2328}
     body.light .modal{background:#fff;border-color:#d0d7de}
+    body.light .modal h3{color:#1f2328}
     body.light .modal-value{color:#1f2328}
     body.light .modal-label{color:#57606a}
+    body.light .email-meta-row{border-color:#d0d7de}
+    body.light .email-body-area{background:#f6f8fa;border-color:#d0d7de;color:#1f2328}
     body.light .footer{color:#8c959f;border-color:#d0d7de}
   </style>
 </head>
@@ -691,14 +706,26 @@ function showDone() {
 function openEmailModal(i) {
   const item = window._sentItems[i];
   const body = window._draftBody(item);
-  document.getElementById('modalTitle').textContent = '✉ Email to ' + item.owner_name;
+  const initials = item.owner_name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  const pc = {'critical':'#f85149','high':'#fd7e14','medium':'#d29922','low':'#6c757d'};
+  const priorityColor = pc[(item.priority || 'medium').toLowerCase()] || '#8b949e';
+
+  document.getElementById('modalTitle').textContent = '';
   document.getElementById('modalBody').innerHTML =
-    mf('To', item.owner_name + ' <' + item.owner_email + '>') +
-    mf('Subject', item.task + ' — due ' + item.deadline) +
-    mf('Priority', (item.priority || 'medium').toUpperCase()) +
-    (item.depends_on ? mf('Depends on', item.depends_on) : '') +
-    mf('Email body', body) +
-    '<div style="margin-top:12px;font-size:12px;color:#484f58;border-top:1px solid #21262d;padding-top:10px">Routed to AncyJoseph@Fututrice.onmicrosoft.com · In production: ' + item.owner_email + '</div>';
+    '<div class="email-header">' +
+      '<div class="email-from">' +
+        '<div class="email-avatar">AI</div>' +
+        '<div>' +
+          '<div class="email-sender-name">NEURA AI Meeting Agent</div>' +
+          '<div class="email-sender-meta">via AncyJoseph@Fututrice.onmicrosoft.com</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="email-meta-row"><span class="email-meta-key">To</span><span class="email-meta-val">' + item.owner_name + ' &lt;' + item.owner_email + '&gt;</span></div>' +
+      '<div class="email-meta-row"><span class="email-meta-key">Priority</span><span class="email-meta-val" style="color:' + priorityColor + ';font-weight:700">' + (item.priority || 'medium').toUpperCase() + '</span></div>' +
+    '</div>' +
+    '<div class="email-subject-row">' + item.task + ' — due ' + item.deadline + '</div>' +
+    '<div class="email-body-area">' + body + '</div>' +
+    '<div class="email-footer-note">📤 Routed to AncyJoseph@Fututrice.onmicrosoft.com for demo &nbsp;·&nbsp; In production: ' + item.owner_email + '</div>';
   document.getElementById('modalOverlay').classList.add('open');
 }
 function openCalModal() {

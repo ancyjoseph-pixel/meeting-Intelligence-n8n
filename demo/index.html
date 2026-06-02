@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEURA Meeting Intelligence — Futurice Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid #21262d; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo-neura { font-size: 22px; font-weight: 700; color: #58a6ff; letter-spacing: -0.5px; }
+    .logo-sep { color: #484f58; font-size: 18px; }
+    .logo-futurice { font-size: 16px; color: #8b949e; font-weight: 500; }
+    .badge { background: #1f6feb; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px; }
+
+    .hero { text-align: center; padding: 60px 40px 40px; }
+    .hero h1 { font-size: 42px; font-weight: 700; color: #e6edf3; line-height: 1.2; margin-bottom: 16px; }
+    .hero h1 span { color: #58a6ff; }
+    .hero p { font-size: 18px; color: #8b949e; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+
+    .start-btn { background: linear-gradient(135deg, #1f6feb, #58a6ff); color: white; border: none; padding: 18px 48px; font-size: 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(31, 111, 235, 0.4); }
+    .start-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .pipeline { display: flex; align-items: center; justify-content: center; gap: 0; padding: 40px; flex-wrap: nowrap; overflow-x: auto; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 110px; }
+    .step-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 2px solid #21262d; background: #161b22; transition: all 0.4s; position: relative; }
+    .step-icon.active { border-color: #58a6ff; background: #1f3a5f; box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+    .step-icon.done { border-color: #3fb950; background: #1a3728; }
+    .step-icon.done::after { content: '✓'; position: absolute; bottom: -4px; right: -4px; background: #3fb950; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .step-icon.waiting { border-color: #d29922; background: #2d2616; animation: pulse 1.5s infinite; }
+    .step-icon.error { border-color: #f85149; background: #3d1a1a; }
+    .step-label { font-size: 11px; color: #8b949e; text-align: center; max-width: 90px; line-height: 1.3; font-weight: 500; }
+    .step-label.active { color: #58a6ff; }
+    .step-label.done { color: #3fb950; }
+    .step-label.waiting { color: #d29922; }
+    .arrow { color: #484f58; font-size: 18px; margin: 0 4px; padding-bottom: 20px; flex-shrink: 0; }
+
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(210, 153, 34, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(210, 153, 34, 0); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spinning { display: inline-block; animation: spin 1s linear infinite; }
+
+    .status-bar { text-align: center; padding: 0 40px 20px; min-height: 40px; }
+    .status-msg { font-size: 15px; color: #8b949e; }
+    .status-msg.active { color: #58a6ff; }
+    .status-msg.done { color: #3fb950; }
+    .status-msg.waiting { color: #d29922; }
+
+    /* APPROVAL PANEL */
+    .approval-panel { max-width: 720px; margin: 0 auto 40px; background: #161b22; border: 1px solid #d29922; border-radius: 12px; overflow: hidden; display: none; }
+    .approval-header { background: linear-gradient(135deg, #2d2616, #3d2e08); padding: 20px 24px; border-bottom: 1px solid #d29922; }
+    .approval-header h2 { font-size: 18px; color: #d29922; margin-bottom: 4px; }
+    .approval-header p { font-size: 13px; color: #8b949e; }
+    .approval-body { padding: 24px; }
+    .summary-box { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .summary-box p { font-size: 14px; color: #c9d1d9; line-height: 1.5; }
+    .section-label { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .action-item { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+    .action-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .owner { font-weight: 600; font-size: 14px; }
+    .ext-badge { background: #f85149; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+    .task { font-size: 13px; color: #c9d1d9; margin-bottom: 4px; }
+    .meta { font-size: 12px; color: #8b949e; }
+    .priority-critical { color: #f85149; font-weight: 600; }
+    .priority-high { color: #fd7e14; font-weight: 600; }
+    .priority-medium { color: #d29922; font-weight: 600; }
+    .meeting-box { background: #0d1117; border: 1px solid #1f6feb; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
+    .meeting-box .meeting-title { font-weight: 600; color: #58a6ff; margin-bottom: 4px; }
+    .meeting-box .meeting-meta { font-size: 13px; color: #8b949e; }
+    .external-warning { background: #2d2616; border: 1px solid #d29922; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #d29922; }
+    .approval-footer { padding: 0 24px 24px; display: flex; gap: 12px; align-items: center; }
+    .btn-approve { background: #238636; color: white; border: none; padding: 14px 32px; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .btn-approve:hover { background: #2ea043; transform: translateY(-1px); }
+    .btn-reject { background: transparent; color: #f85149; border: 1px solid #f85149; padding: 14px 32px; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .btn-reject:hover { background: #3d1a1a; }
+    .approval-note { font-size: 12px; color: #8b949e; margin-left: auto; }
+
+    /* CONFIRMATION */
+    .confirm-panel { max-width: 480px; margin: 40px auto; text-align: center; display: none; }
+    .confirm-icon { font-size: 64px; margin-bottom: 20px; }
+    .confirm-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+    .confirm-title.approved { color: #3fb950; }
+    .confirm-title.rejected { color: #f85149; }
+    .confirm-msg { font-size: 15px; color: #8b949e; line-height: 1.6; }
+
+    /* RESULTS */
+    .results { max-width: 720px; margin: 0 auto 60px; display: none; }
+    .results h3 { text-align: center; font-size: 18px; color: #3fb950; margin-bottom: 20px; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .result-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; }
+    .result-card h4 { font-size: 13px; color: #8b949e; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .result-card p { font-size: 14px; color: #e6edf3; }
+    .result-card .count { font-size: 32px; font-weight: 700; color: #58a6ff; }
+
+    .footer { text-align: center; padding: 40px; color: #484f58; font-size: 13px; border-top: 1px solid #21262d; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="logo-neura">NEURA</span>
+    <span class="logo-sep">×</span>
+    <span class="logo-futurice">Futurice</span>
+  </div>
+  <span class="badge">PROTOTYPE DEMO</span>
+</div>
+
+<div class="hero" id="heroSection">
+  <h1>Meeting <span>Intelligence</span><br>Powered by AI</h1>
+  <p>GPT-4o reads your meeting transcript, extracts every action item, drafts personalised follow-up emails, and schedules the next meeting — all in under 30 seconds.</p>
+  <button class="start-btn" id="startBtn" onclick="startDemo()">▶ Start Demo</button>
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline" id="pipeline">
+  <div class="step" id="step-trigger">
+    <div class="step-icon" id="icon-trigger">📋</div>
+    <div class="step-label" id="label-trigger">Transcript</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-agent">
+    <div class="step-icon" id="icon-agent">🤖</div>
+    <div class="step-label" id="label-agent">GPT-4o Analysis</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-blockers">
+    <div class="step-icon" id="icon-blockers">🔍</div>
+    <div class="step-label" id="label-blockers">Blocker History</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-draft">
+    <div class="step-icon" id="icon-draft">✉️</div>
+    <div class="step-label" id="label-draft">Draft Emails</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-review">
+    <div class="step-icon" id="icon-review">👤</div>
+    <div class="step-label" id="label-review">Human Review</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-send">
+    <div class="step-icon" id="icon-send">📤</div>
+    <div class="step-label" id="label-send">Send All</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" id="step-calendar">
+    <div class="step-icon" id="icon-calendar">📅</div>
+    <div class="step-label" id="label-calendar">Teams Meeting</div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-msg" id="statusMsg">Ready to demonstrate agentic meeting automation.</div>
+</div>
+
+<!-- APPROVAL PANEL -->
+<div class="approval-panel" id="approvalPanel">
+  <div class="approval-header">
+    <h2>👤 Human Review Required</h2>
+    <p>The AI has finished analysis. Review below and approve to send — or reject to discard.</p>
+  </div>
+  <div class="approval-body">
+    <div class="external-warning" id="externalWarning" style="display:none">
+      ⚠ <strong>External participant detected:</strong> Thomas Becker (Bosch) will receive an action item email if approved.
+    </div>
+    <div class="summary-box">
+      <div class="section-label">Meeting Summary</div>
+      <p id="summaryText">The Robot Arm Integration Sync Sprint Review focused on firmware progress, API documentation delays, and power consumption issues. Key actions were assigned to resolve these blockers, with a follow-up meeting scheduled for June 13th.</p>
+    </div>
+    <div class="section-label" style="margin-bottom:10px">Action Emails to Send</div>
+    <div id="actionItems">
+      <div class="action-item">
+        <div class="action-item-top">
+          <span class="owner">Jonas Mueller</span>
+          <span class="meta">jonas.mueller@neura-robotics.com</span>
+        </div>
+        <div class="task">Send updated IMU calibration constants and test protocol to Felix</div>
+        <div class="meta">Deadline: 2026-06-03 &nbsp;·&nbsp; <span class="priority-critical">CRITICAL</span></div>
+      </div>
+      <div class="action-item">
+        <div class="action-item-top">
+          <span class="owner">Thomas Becker</span>
+          <span class="ext-badge">EXTERNAL</span>
+          <span class="meta">thomas.becker@bosch.com</span>
+        </div>
+        <div class="task">Deliver full API documentation and run technical walkthrough call</div>
+        <div class="meta">Deadline: 2026-06-06 &nbsp;·&nbsp; <span class="priority-critical">CRITICAL</span></div>
+      </div>
+      <div class="action-item">
+        <div class="action-item-top">
+          <span class="owner">Felix Wagner</span>
+          <span class="meta">felix.wagner@neura-robotics.com</span>
+        </div>
+        <div class="task">Complete firmware integration testing after receiving API documentation</div>
+        <div class="meta">Deadline: 2026-06-14 &nbsp;·&nbsp; <span class="priority-high">HIGH</span> &nbsp;·&nbsp; Depends on: Thomas Becker delivers API docs</div>
+      </div>
+      <div class="action-item">
+        <div class="action-item-top">
+          <span class="owner">Jonas Mueller</span>
+          <span class="meta">jonas.mueller@neura-robotics.com</span>
+        </div>
+        <div class="task">Investigate power consumption regression in build 2.4 (340W vs 280W target)</div>
+        <div class="meta">Deadline: 2026-06-05 &nbsp;·&nbsp; <span class="priority-high">HIGH</span></div>
+      </div>
+    </div>
+    <br>
+    <div class="section-label" style="margin-bottom:10px">Teams Meeting to Create</div>
+    <div class="meeting-box">
+      <div class="meeting-title">Integration Review Follow-up</div>
+      <div class="meeting-meta">Saturday, June 13, 2026 at 09:00 · 60 minutes · Teams link will be generated</div>
+    </div>
+    <div class="summary-box" style="border-color:#f85149">
+      <div class="section-label" style="color:#f85149">⚠ Recurring Blocker Detected</div>
+      <p>Bosch API documentation delay — 3rd occurrence in 2 months. Historical impact: firmware integration blocked twice, sprint missed. <strong>Escalation recommended.</strong></p>
+    </div>
+  </div>
+  <div class="approval-footer">
+    <button class="btn-approve" id="approveBtn" onclick="handleApproval(true)">Approve &amp; Send All</button>
+    <button class="btn-reject" onclick="handleApproval(false)">Reject</button>
+    <span class="approval-note" id="approvalNote">4 emails + 1 calendar event</span>
+  </div>
+</div>
+
+<!-- CONFIRMATION (after approve/reject from email) -->
+<div class="confirm-panel" id="confirmPanel">
+  <div class="confirm-icon" id="confirmIcon">✅</div>
+  <div class="confirm-title approved" id="confirmTitle">Approved!</div>
+  <div class="confirm-msg" id="confirmMsg">Your approval has been sent. The meeting agent is now sending all action emails and creating the Teams calendar event.</div>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="resultsSection">
+  <h3>✅ All actions completed in <span id="elapsedTime">—</span></h3>
+  <div class="result-grid">
+    <div class="result-card">
+      <h4>Emails Sent</h4>
+      <div class="count">4</div>
+      <p>Personalised action items to all owners, routed to Futurice demo inbox</p>
+    </div>
+    <div class="result-card">
+      <h4>Calendar Event</h4>
+      <div class="count">1</div>
+      <p>Integration Review Follow-up — June 13 at 09:00</p>
+    </div>
+    <div class="result-card">
+      <h4>Blockers Flagged</h4>
+      <div class="count">3</div>
+      <p>Recurring issues identified from meeting history database</p>
+    </div>
+    <div class="result-card">
+      <h4>Time to Complete</h4>
+      <div class="count" id="timeCount">~30s</div>
+      <p>From transcript to fully executed meeting follow-up</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  NEURA Meeting Intelligence · Built by Futurice · Powered by GPT-4o + Microsoft Graph API + n8n
+</div>
+
+<script>
+  // n8n configuration — update these for your instance
+  const N8N_BASE = 'http://localhost:5678';
+  const WEBHOOK_PATH = '/webhook/neura-demo-trigger'; // add this webhook to n8n
+
+  let demoStartTime = null;
+  let n8nApproveUrl = null;
+
+  // ─── Handle email approve/reject redirect ──────────────────────────────────
+  const params = new URLSearchParams(window.location.search);
+  const action = params.get('action');
+  const n8nUrl = params.get('n8n');
+
+  if (action && n8nUrl) {
+    // Hide main UI, show confirmation
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('pipeline').style.display = 'none';
+    document.getElementById('statusBar').style.display = 'none';
+
+    const isApprove = action === 'approve';
+    const confirmPanel = document.getElementById('confirmPanel');
+    confirmPanel.style.display = 'block';
+    document.getElementById('confirmIcon').textContent = isApprove ? '✅' : '❌';
+    document.getElementById('confirmTitle').textContent = isApprove ? 'Approved!' : 'Rejected';
+    document.getElementById('confirmTitle').className = 'confirm-title ' + (isApprove ? 'approved' : 'rejected');
+    document.getElementById('confirmMsg').textContent = isApprove
+      ? 'Your approval is being processed. The meeting agent is now sending all action emails and creating the Teams calendar event. You can close this window.'
+      : 'You rejected the distribution. No emails were sent. You can close this window.';
+
+    // Call n8n in background
+    fetch(decodeURIComponent(n8nUrl)).catch(() => {});
+  }
+
+  // ─── Pipeline step helpers ─────────────────────────────────────────────────
+  function setStep(id, state, label) {
+    const icon = document.getElementById('icon-' + id);
+    const lbl = document.getElementById('label-' + id);
+    icon.className = 'step-icon ' + state;
+    lbl.className = 'step-label ' + state;
+    if (label) lbl.textContent = label;
+  }
+
+  function setStatus(msg, state) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.className = 'status-msg ' + (state || '');
+  }
+
+  // ─── Start demo ────────────────────────────────────────────────────────────
+  function startDemo() {
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Running...';
+    demoStartTime = Date.now();
+
+    setStep('trigger', 'active', 'Transcript');
+    setStatus('Reading meeting transcript...', 'active');
+
+    setTimeout(() => {
+      setStep('trigger', 'done', 'Transcript');
+      setStep('agent', 'active', 'Analyzing...');
+      setStatus('GPT-4o is extracting action items, decisions, and blockers...', 'active');
+    }, 1200);
+
+    setTimeout(() => {
+      setStep('blockers', 'active', 'Checking...');
+      setStatus('Checking blocker history database for recurring issues...', 'active');
+    }, 6000);
+
+    setTimeout(() => {
+      setStep('blockers', 'done', 'Blocker History');
+      setStatus('Found recurring blocker: Bosch API docs delayed for 3rd time ⚠', 'active');
+    }, 9000);
+
+    setTimeout(() => {
+      setStep('agent', 'done', 'GPT-4o Analysis');
+      setStep('draft', 'active', 'Drafting...');
+      setStatus('Drafting 4 personalised action emails and follow-up invite...', 'active');
+    }, 18000);
+
+    setTimeout(() => {
+      setStep('draft', 'done', 'Draft Emails');
+      setStep('review', 'waiting', 'Awaiting You');
+      setStatus('Review required — check your inbox or approve below', 'waiting');
+      showApprovalPanel();
+    }, 22000);
+
+    // Also try to actually trigger n8n
+    fetch(N8N_BASE + WEBHOOK_PATH, { method: 'POST', mode: 'no-cors' }).catch(() => {});
+  }
+
+  function showApprovalPanel() {
+    document.getElementById('approvalPanel').style.display = 'block';
+    document.getElementById('approvalPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('externalWarning').style.display = 'block';
+  }
+
+  // ─── Handle approval from demo page ───────────────────────────────────────
+  function handleApproval(approved) {
+    document.getElementById('approveBtn').disabled = true;
+    document.querySelector('.btn-reject').disabled = true;
+
+    if (approved) {
+      document.getElementById('approvalPanel').style.borderColor = '#3fb950';
+      document.querySelector('.approval-header').style.background = 'linear-gradient(135deg, #1a3728, #0d2e1a)';
+      document.querySelector('.approval-header h2').textContent = '✅ Approved — Sending now...';
+      document.querySelector('.approval-header p').textContent = 'Emails are being sent and the Teams meeting is being created.';
+
+      setStep('review', 'done', 'Approved');
+      setStep('send', 'active', 'Sending...');
+      setStatus('Sending 4 personalised action emails via Microsoft Graph API...', 'active');
+
+      if (n8nApproveUrl) {
+        fetch(decodeURIComponent(n8nApproveUrl)).catch(() => {});
+      }
+
+      setTimeout(() => {
+        setStep('send', 'done', 'Emails Sent');
+        setStep('calendar', 'active', 'Creating...');
+        setStatus('Creating Teams meeting and calendar event...', 'active');
+      }, 3000);
+
+      setTimeout(() => {
+        setStep('calendar', 'done', 'Teams Meeting');
+        const elapsed = ((Date.now() - demoStartTime) / 1000).toFixed(0);
+        setStatus('All done — ' + elapsed + 's from transcript to fully executed follow-up', 'done');
+        document.getElementById('elapsedTime').textContent = elapsed + ' seconds';
+        document.getElementById('timeCount').textContent = elapsed + 's';
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+      }, 7000);
+
+    } else {
+      document.getElementById('approvalPanel').style.borderColor = '#f85149';
+      document.querySelector('.approval-header h2').textContent = '❌ Rejected — Nothing sent';
+      document.querySelector('.approval-header p').textContent = 'No emails were sent. No calendar event was created.';
+      setStep('review', 'error', 'Rejected');
+      setStatus('Distribution rejected by human reviewer — no actions taken', '');
+    }
+  }
+</script>
+</body>
+</html>

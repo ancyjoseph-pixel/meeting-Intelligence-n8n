@@ -275,6 +275,7 @@ function setStatus(msg, cls) {
 let executionId = null;
 let pollTimer = null;
 let startTime = null;
+let triggerTime = null;
 let n8nApproveUrl = null;
 let n8nRejectUrl = null;
 let approvalData = null;
@@ -296,22 +297,23 @@ async function startDemo() {
 
   try {
     // Trigger webhook directly (no auth header needed, fire-and-forget)
+    triggerTime = Date.now();
     fetch(N8N_DIRECT + WEBHOOK_PATH, { method: 'POST', mode: 'no-cors' }).catch(() => {});
 
     setStep('read', 'done', 'Transcript');
     setStep('ai', 'active', 'Analyzing...');
     setStatus('GPT-4o is extracting action items, decisions, and blockers...', 'active');
 
-    // Find the execution (brief delay for n8n to start it)
-    await sleep(2000);
-    executionId = await findLatestExecution();
+    // Wait then find the NEW execution (not an old completed one)
+    await sleep(3000);
+    executionId = await findNewExecution();
 
     if (!executionId) {
-      setStatus('Could not find execution — check n8n is running and workflow is active', 'error');
+      setStatus('Could not find the new execution — make sure the workflow is Published in n8n', 'error');
       btn.disabled = false; btn.textContent = '▶ Start Demo'; return;
     }
 
-    setStatus('Workflow running (execution ' + executionId + ')', 'active');
+    setStatus('Workflow running (execution #' + executionId + ')', 'active');
     startPolling();
 
   } catch (e) {
@@ -320,10 +322,23 @@ async function startDemo() {
   }
 }
 
-async function findLatestExecution() {
-  const res = await fetch(
-    PROXY_BASE + '/n8n/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=1'
-  );
+async function findNewExecution() {
+  // Poll up to 15 seconds for an execution that started AFTER we triggered
+  for (let i = 0; i < 5; i++) {
+    const res = await fetch(PROXY_BASE + '/n8n/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=5');
+    const data = await res.json();
+    const execs = data.data || [];
+    // Find one that started within 30s of our trigger time
+    const fresh = execs.find(e => {
+      if (!e.startedAt) return false;
+      const started = new Date(e.startedAt).getTime();
+      return started >= (triggerTime - 5000); // 5s buffer
+    });
+    if (fresh) return fresh.id;
+    await sleep(3000);
+  }
+  // Fallback: return the most recent one
+  const res = await fetch(PROXY_BASE + '/n8n/api/v1/executions?workflowId=' + WORKFLOW_ID + '&limit=1');
   const data = await res.json();
   return data.data && data.data.length ? data.data[0].id : null;
 }
@@ -398,10 +413,19 @@ function updateUI(exec) {
   // COMPLETED (after approval)
   if (status === 'success') {
     stopPolling();
+    // If approvalData wasn't captured during waiting state, try to extract it now
+    if (!approvalData && runData['Build Approval Email']) {
+      const nd = runData['Build Approval Email'];
+      if (nd && nd[0]?.data?.main?.[0]?.[0]?.json) {
+        approvalData = nd[0].data.main[0][0].json;
+      }
+    }
+    setStep('hitl', 'done', 'Approved');
     setStep('send', 'done', 'Sent');
     setStep('cal', 'done', 'Created');
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
     setStatus('All done — ' + elapsed + 's from transcript to fully executed follow-up', 'done');
+    document.getElementById('approvalPanel').style.display = 'none';
     showResults(elapsed);
     return;
   }

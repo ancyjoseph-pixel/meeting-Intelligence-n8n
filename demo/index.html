@@ -59,13 +59,19 @@
     .ext-warn{background:#2d2616;border:1px solid #d29922;border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#d29922;display:none}
     .summary-box{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:14px;margin-bottom:16px}
     .sec-label{font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-    .ai{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 14px;margin-bottom:6px}
+    .ai{background:#0d1117;border:1px solid #21262d;border-radius:6px;margin-bottom:6px;overflow:hidden}
+    .ai-summary{padding:10px 14px;cursor:pointer;user-select:none}
+    .ai-summary:hover{background:#161b22}
     .ai-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
     .ai-owner{font-weight:600;font-size:13px}
     .ext-tag{background:#f85149;color:#fff;font-size:10px;padding:2px 5px;border-radius:3px;font-weight:600}
     .ai-email{font-size:12px;color:#8b949e}
     .ai-task{font-size:13px;color:#c9d1d9;margin-bottom:4px}
     .ai-meta{font-size:12px;color:#8b949e}
+    .ai-preview-toggle{font-size:11px;color:#58a6ff;margin-top:5px;display:inline-block}
+    .ai-preview{padding:12px 14px;border-top:1px solid #21262d;background:#0a0e14;display:none}
+    .ai-preview.open{display:block}
+    .ai-preview pre{font-size:12px;color:#8b949e;line-height:1.7;white-space:pre-wrap;font-family:'Segoe UI',Arial,sans-serif}
     .pc{font-weight:600}.pc-critical{color:#f85149}.pc-high{color:#fd7e14}.pc-medium{color:#d29922}.pc-low{color:#6c757d}
     .mtg-box{background:#0d1117;border:1px solid #1f6feb;border-radius:6px;padding:10px 14px;margin-bottom:16px}
     .mtg-title{font-weight:600;color:#58a6ff;margin-bottom:3px;font-size:13px}
@@ -414,21 +420,41 @@ function showApprovalPanel(data) {
   // Render action items
   const items = data.action_items || [];
   const pcClass = p => 'pc pc-' + (p || 'medium').toLowerCase();
+  const followupDate = data.follow_up_meeting ? data.follow_up_meeting.date : 'TBD';
+
+  const draftBody = (item) =>
+    'Hi ' + item.owner_name + ',\n\n' +
+    'Following the NEURA Robot Arm Integration Sync, you have been assigned:\n\n' +
+    'Task: ' + item.task + '\n' +
+    'Deadline: ' + item.deadline + '\n' +
+    'Priority: ' + (item.priority || 'medium').toUpperCase() + '\n' +
+    (item.depends_on ? 'Depends on: ' + item.depends_on + '\n' : '') +
+    '\nA follow-up review is scheduled for ' + followupDate + '.\n\n' +
+    'Please confirm receipt.\n\n— NEURA AI Meeting Agent\nPowered by Futurice';
+
   const itemsHtml = items.map((item, i) => {
     const isExt = (data.external_participants || []).some(e =>
       e.toLowerCase().includes((item.owner_name || '').toLowerCase().split(' ')[0])
     );
+    const previewId = 'preview-' + i;
     return '<div class="ai">' +
-      '<div class="ai-top">' +
-        '<span class="ai-owner">Email ' + (i+1) + ': ' + item.owner_name + '</span>' +
-        (isExt ? '<span class="ext-tag">EXTERNAL</span>' : '') +
-        '<span class="ai-email">' + item.owner_email + '</span>' +
+      '<div class="ai-summary" onclick="togglePreview(\'' + previewId + '\')">' +
+        '<div class="ai-top">' +
+          '<span class="ai-owner">Email ' + (i+1) + ': ' + item.owner_name + '</span>' +
+          (isExt ? '<span class="ext-tag">EXTERNAL</span>' : '') +
+          '<span class="ai-email">' + item.owner_email + '</span>' +
+        '</div>' +
+        '<div class="ai-task">' + item.task + '</div>' +
+        '<div class="ai-meta">Deadline: ' + item.deadline +
+          ' &nbsp;·&nbsp; <span class="' + pcClass(item.priority) + '">' + (item.priority || 'MEDIUM').toUpperCase() + '</span>' +
+          (item.depends_on ? ' &nbsp;·&nbsp; Depends on: ' + item.depends_on : '') +
+        '</div>' +
+        '<span class="ai-preview-toggle">▶ Preview draft email</span>' +
       '</div>' +
-      '<div class="ai-task">' + item.task + '</div>' +
-      '<div class="ai-meta">Deadline: ' + item.deadline +
-        ' &nbsp;·&nbsp; <span class="' + pcClass(item.priority) + '">' + (item.priority || 'MEDIUM').toUpperCase() + '</span>' +
-        (item.depends_on ? ' &nbsp;·&nbsp; Depends on: ' + item.depends_on : '') +
-      '</div></div>';
+      '<div class="ai-preview" id="' + previewId + '">' +
+        '<pre>' + draftBody(item) + '</pre>' +
+      '</div>' +
+    '</div>';
   }).join('');
   document.getElementById('apItems').innerHTML = itemsHtml;
 
@@ -549,6 +575,13 @@ function showResults(elapsed) {
   window._sentItems = items;
   window._followup = f;
   window._emailBody = emailBody;
+}
+
+function togglePreview(id) {
+  const el = document.getElementById(id);
+  const toggle = el.previousElementSibling.querySelector('.ai-preview-toggle');
+  el.classList.toggle('open');
+  toggle.textContent = el.classList.contains('open') ? '▼ Hide draft' : '▶ Preview draft email';
 }
 
 // ── MODALS ────────────────────────────────────────────────────────────────────

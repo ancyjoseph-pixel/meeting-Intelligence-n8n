@@ -83,6 +83,7 @@
     .ext-warn{background:#2d2616;border:1px solid #d29922;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#d29922}
     .summary-box{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:16px;margin-bottom:20px}
     .sec-label{font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.9px;margin-bottom:10px}
+    #apSummary{color:#c9d1d9}
     .ai{background:#0d1117;border:1px solid #21262d;border-radius:8px;margin-bottom:8px;overflow:hidden}
     .ai-summary{padding:12px 16px;cursor:pointer;user-select:none;transition:background .15s}
     .ai-summary:hover{background:#161b22}
@@ -184,8 +185,12 @@
     body.light .ap-head h2{color:#9a6700}
     body.light .ap-head p{color:#57606a}
     body.light .ext-warn{background:#fff8c5;color:#9a6700;border-color:#d4a72c}
-    body.light .summary-box,.light .ai,.light .mtg-box{background:#f6f8fa;border-color:#d0d7de}
-    body.light .sec-label{color:#57606a}
+    body.light .summary-box{background:#f6f8fa;border-color:#d0d7de}
+    body.light .ai{background:#f6f8fa;border-color:#d0d7de}
+    body.light .mtg-box{background:#ddf4ff;border-color:#0969da}
+    body.light .sec-label{color:#1f2328;font-weight:700}
+    body.light #apSummary{color:#1f2328}
+    body.light .done-sub{color:#1f2328}
     body.light .ai-summary:hover{background:#eaeef2}
     body.light .ai-owner{color:#1f2328}
     body.light .ai-email{color:#57606a}
@@ -355,7 +360,7 @@ All: Agreed.</div>
       <div class="ext-warn" id="extWarn" style="display:none"></div>
       <div class="summary-box">
         <div class="sec-label">What happened in this meeting</div>
-        <p id="apSummary" style="font-size:14px;color:#c9d1d9;line-height:1.6"></p>
+        <p id="apSummary" style="font-size:14px;line-height:1.6"></p>
       </div>
       <div class="sec-label" style="margin-bottom:10px">Emails ready to send — click any to preview</div>
       <div id="apItems"></div>

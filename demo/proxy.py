@@ -17,7 +17,8 @@ N8N_BASE  = "http://localhost:5678"
 API_KEY   = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ZGUxMDMwNS0xOTI3LTRlM2MtYTNjNS1jMzI4NDMzNmMyOWMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiMDg0YjY1NzYtODVjYi00ZmUwLWJhYjEtODFjZGQ5MjAwNWU2IiwiaWF0IjoxNzgwNDE0OTAxLCJleHAiOjE3ODI5NjQ4MDB9.sMwfvZsjFqFah-z7BeOXozp9fEMS7sbK89EHALtSS_Q"
 PORT      = 8080
 
-hitl_data = None  # latest HITL payload from n8n (or demo simulation)
+hitl_data    = None  # latest HITL payload from n8n (or demo simulation)
+pending_edits = {}   # edits from UI stored here so n8n can fetch them
 
 
 # ─── Demo availability check ─────────────────────────────────────────────────
@@ -304,10 +305,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # ── GET ──────────────────────────────────────────────────────────────────
     def do_GET(self):
+        global pending_edits
         if self.path.startswith("/n8n/"):
             self._proxy("GET")
         elif self.path == "/hitl":
             self._serve_hitl()
+        elif self.path == "/hitl/edits":
+            # n8n fetches stored UI edits after approval
+            data = json.dumps(pending_edits).encode()
+            pending_edits = {}
+            self.send_response(200)
+            self._cors()
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
         elif self.path.startswith("/demo/mode"):
             use_conflict = "conflict=1" in self.path
             threading.Thread(target=_run_demo_simulation, args=(use_conflict,), daemon=True).start()
@@ -402,9 +414,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b'{"ok":true}')
 
         elif path == "/hitl/approve":
-            # UI Approve — calls n8n via GET, identical to the email link (known to work)
+            # UI Approve — store edits, then call n8n via GET (same as email link)
+            global pending_edits
             length = int(self.headers.get("Content-Length", 0))
-            if length: self.rfile.read(length)  # drain body
+            body_raw = self.rfile.read(length) if length else b""
+            try:
+                pending_edits = json.loads(body_raw) if body_raw else {}
+                print(f"[hitl/approve] Stored edits: {list(pending_edits.keys())}")
+            except Exception:
+                pending_edits = {}
             if not hitl_data:
                 print("[hitl/approve] ERROR: hitl_data is empty — no pending run found")
                 self._json_ok({"ok": False, "error": "no_pending_run"})

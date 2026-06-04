@@ -3,1438 +3,959 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEURA Meeting Intelligence — Futurice Demo</title>
+  <title>NEURA Meeting Intelligence</title>
   <style>
-    /* ─── Fluent Design Tokens ─────────────────────────────────────────────── */
+    /* ── Fluent UI Design Tokens ─────────────────────────────────── */
     :root {
-      --bg:              #f3f2f1;
-      --surface:         #ffffff;
-      --surface-in:      #faf9f8;
-      --border:          #edebe9;
-      --border-muted:    #e1dfdd;
-      --text:            #323130;
-      --text-2:          #323130;
-      --text-3:          #605e5c;
-      --text-4:          #8a8886;
+      --bg:          #f3f2f1;
+      --surface:     #ffffff;
+      --surface-in:  #faf9f8;
+      --border:      #edebe9;
+      --border-s:    #d2d0ce;
+      --text:        #323130;
+      --text-2:      #605e5c;
+      --text-3:      #8a8886;
+      --text-4:      #a19f9d;
 
-      /* Outlook blue */
-      --accent:          #0078d4;
-      --accent-dark:     #106ebe;
-      --accent-bg:       #deecf9;
-      --accent-light:    #eff6fc;
+      --blue:        #0078d4;
+      --blue-dark:   #106ebe;
+      --blue-bg:     #deecf9;
+      --blue-bg2:    #eff6fc;
 
-      /* Teams purple */
-      --teams:           #5b5fc7;
-      --teams-dark:      #4b4fa3;
-      --teams-bg:        #f0efff;
-      --teams-border:    #c7c6f4;
+      --teams:       #5b5fc7;
+      --teams-dark:  #4b4fa3;
+      --teams-bg:    #f0efff;
+      --teams-border:#b3b5e4;
 
-      /* Success green */
-      --success:         #107c10;
-      --success-bg:      #dff6dd;
-      --success-border:  #92c353;
+      --green:       #107c10;
+      --green-dark:  #0b6a0b;
+      --green-bg:    #dff6dd;
 
-      /* Warning orange */
-      --warn:            #ca5010;
-      --warn-dark:       #a33f00;
-      --warn-bg:         #fed9cc;
-      --warn-border:     #f4b886;
+      --orange:      #ca5010;
+      --orange-bg:   #fed9cc;
+      --orange-light:#fff4ce;
 
-      /* Danger red */
-      --danger:          #a4262c;
-      --danger-dark:     #8b1d1d;
-      --danger-bg:       #fde7e9;
-      --danger-border:   #f1b6ba;
+      --danger:      #a4262c;
+      --danger-dark: #751b20;
+      --danger-bg:   #fde7e9;
+      --danger-border:#f1707a;
 
-      --shadow-sm:       0 1.6px 3.6px rgba(0,0,0,.11), 0 .3px .9px rgba(0,0,0,.09);
-      --shadow-md:       0 3.2px 7.2px rgba(0,0,0,.13), 0 .6px 1.8px rgba(0,0,0,.10);
-      --radius:          4px;
-      --radius-lg:       8px;
+      --warn:        #ca5010;
+      --warn-bg:     #fed9cc;
+      --warn-border: #e07050;
+
+      --success:     #107c10;
+      --success-bg:  #dff6dd;
+      --success-border:#57a300;
+
+      --accent:      #0078d4;
+      --accent-dark: #106ebe;
+      --accent-light:#eff6fc;
+      --accent-bg:   #deecf9;
+
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
+      --shadow-md:  0 2px 8px rgba(0,0,0,.1);
+      --shadow-lg:  0 6px 20px rgba(0,0,0,.13);
+      --radius:     4px;
+      --radius-lg:  8px;
+
+      --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+
+      --sidebar-w: 264px;
+      --topbar-h:  48px;
     }
-
-    /* ─── Dark mode overrides ─────────────────────────────────────────────── */
     body.dark {
-      --bg:              #1b1a19;
-      --surface:         #252423;
-      --surface-in:      #1b1a19;
-      --border:          #3b3a39;
-      --border-muted:    #484644;
-      --text:            #f3f2f1;
-      --text-2:          #d2d0ce;
-      --text-3:          #a19f9d;
-      --text-4:          #6d6b69;
-      --accent:          #479ef5;
-      --accent-dark:     #2899f5;
-      --accent-bg:       #1a3a5c;
-      --accent-light:    #1a2e42;
-      --teams:           #9ea2f2;
-      --teams-dark:      #7f84e8;
-      --teams-bg:        #1e1d3a;
-      --teams-border:    #3d3d6b;
-      --success:         #54b054;
-      --success-bg:      #1a3d1a;
-      --success-border:  #2d6b2d;
-      --warn:            #f4a261;
-      --warn-dark:       #e8823b;
-      --warn-bg:         #3d2408;
-      --warn-border:     #7a4020;
-      --danger:          #f1707b;
-      --danger-dark:     #e84855;
-      --danger-bg:       #3d1a1e;
-      --danger-border:   #7a3040;
+      --bg:         #1b1a19;
+      --surface:    #252423;
+      --surface-in: #1b1a19;
+      --border:     #3b3a39;
+      --border-s:   #484644;
+      --text:       #f3f2f1;
+      --text-2:     #c8c6c4;
+      --text-3:     #a19f9d;
+      --text-4:     #605e5c;
+      --blue-bg:    #052d4e;
+      --blue-bg2:   #0a3d6b;
+      --teams-bg:   #1e1d4f;
+      --teams-border:#4a4f8a;
+      --green-bg:   #042604;
+      --orange-bg:  #3d1a00;
+      --orange-light:#3d2e00;
+      --danger-bg:  #3d0006;
+      --danger-border:#8a1a1f;
+      --warn-bg:    #3d1a00;
+      --success-bg: #042604;
+      --accent-light:#052d4e;
+      --accent-bg:  #052d4e;
     }
 
-    /* ─── Reset & Base ────────────────────────────────────────────────────── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ── Reset ────────────────────────────────────────────────────── */
+    *,*::before,*::after { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family:var(--font); font-size:14px; background:var(--bg); color:var(--text); }
 
-    body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      transition: background .2s, color .2s;
-      -webkit-font-smoothing: antialiased;
-    }
+    /* ── App shell ────────────────────────────────────────────────── */
+    .app-shell { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+    .app-body  { display:flex; flex:1; overflow:hidden; }
 
-    /* ─── App Bar ─────────────────────────────────────────────────────────── */
-    .app-bar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: #0078d4;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,.22);
+    /* ── Topbar ───────────────────────────────────────────────────── */
+    .topbar {
+      height:var(--topbar-h); flex-shrink:0;
+      background:var(--blue);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 20px;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+      z-index:10;
     }
-    .app-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .topbar-brand { display:flex; align-items:center; gap:10px; }
+    .topbar-name  { font-size:15px; font-weight:700; color:#fff; letter-spacing:-.01em; }
+    .topbar-sep   { color:rgba(255,255,255,.4); font-size:14px; }
+    .topbar-partner{ font-size:13px; color:rgba(255,255,255,.8); }
+    .topbar-chip  {
+      background:rgba(255,255,255,.18); color:#fff;
+      font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+      padding:3px 8px; border-radius:20px; border:1px solid rgba(255,255,255,.25);
     }
-    .app-bar-brand {
-      font-size: 15px;
-      font-weight: 600;
-      color: #fff;
-      letter-spacing: -.01em;
+    .topbar-actions { display:flex; gap:4px; }
+    .topbar-btn {
+      background:none; border:none; color:rgba(255,255,255,.8);
+      width:34px; height:34px; border-radius:var(--radius); cursor:pointer;
+      font-size:15px; display:flex; align-items:center; justify-content:center;
+      transition:background .12s;
     }
-    .app-bar-sep {
-      color: rgba(255,255,255,.45);
-      font-size: 14px;
-      font-weight: 300;
+    .topbar-btn:hover { background:rgba(255,255,255,.15); color:#fff; }
+
+    /* ── Sidebar ──────────────────────────────────────────────────── */
+    .sidebar {
+      width:var(--sidebar-w); flex-shrink:0;
+      background:var(--surface);
+      border-right:1px solid var(--border);
+      overflow-y:auto;
+      display:flex; flex-direction:column;
     }
-    .app-bar-partner {
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(255,255,255,.85);
+    .sb-section {
+      padding:20px 16px 0;
     }
-    .live-chip {
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.30);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      padding: 2px 9px;
-      border-radius: 20px;
-      text-transform: uppercase;
-    }
-    .app-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .bar-btn {
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.20);
-      color: rgba(255,255,255,.90);
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background .15s, border-color .15s;
-    }
-    .bar-btn:hover {
-      background: rgba(255,255,255,.22);
-      border-color: rgba(255,255,255,.40);
+    .sb-label {
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.1em; color:var(--text-4);
+      padding:0 4px 8px;
     }
 
-    /* ─── Page wrapper ────────────────────────────────────────────────────── */
-    .page {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 32px 64px;
+    /* Vertical pipeline steps */
+    .pipeline-steps { padding:8px 0 16px; }
+    .vstep { display:flex; gap:10px; align-items:flex-start; }
+    .vstep-node { display:flex; flex-direction:column; align-items:center; }
+    .vstep-line {
+      width:2px; flex:1; min-height:20px;
+      background:var(--border-s);
+      margin:3px 0;
+      border-radius:1px;
+      transition:background .3s;
     }
+    .vstep-line.done { background:var(--green); }
+    .vstep-content { padding:0 0 4px; min-width:0; }
+    .step-label {
+      font-size:13px; color:var(--text-3); font-weight:500;
+      padding:2px 0;
+      line-height:1.4;
+      transition:color .3s;
+    }
+    .step-label.active   { color:var(--blue); font-weight:700; }
+    .step-label.done     { color:var(--green); font-weight:600; }
+    .step-label.waiting  { color:var(--orange); font-weight:700; }
+    .step-label.teams-active { color:var(--teams); font-weight:700; }
+    .step-label.error    { color:var(--danger); font-weight:600; }
 
-    /* ─── Generic card ────────────────────────────────────────────────────── */
-    .ms-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
+    /* Step dot */
+    .step-icon {
+      width:26px; height:26px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      border:2px solid var(--border-s);
+      background:var(--surface);
+      font-size:11px; font-weight:700;
+      flex-shrink:0; transition:all .3s;
+      position:relative;
     }
+    .step-num { font-size:11px; font-weight:700; color:var(--text-3); transition:color .3s; }
+    .step-icon.done { background:var(--green); border-color:var(--green); }
+    .step-icon.done .step-num { display:none; }
+    .step-icon.done::after {
+      content:'';
+      display:block; width:8px; height:5px;
+      border-left:2px solid #fff; border-bottom:2px solid #fff;
+      transform:rotate(-45deg) translateY(-1px);
+    }
+    .step-icon.active { border-color:var(--blue); background:var(--blue-bg); animation:dotPulse 1.6s infinite; }
+    .step-icon.active .step-num { color:var(--blue); }
+    .step-icon.waiting { border-color:var(--orange); background:var(--orange-bg); animation:dotPulseWarn 1.6s infinite; }
+    .step-icon.waiting .step-num { color:var(--orange); }
+    .step-icon.error   { border-color:var(--danger); background:var(--danger-bg); }
+    .step-icon.error .step-num { color:var(--danger); }
+    .step-icon.teams-active { border-color:var(--teams); background:var(--teams-bg); animation:dotPulseTeams 1.6s infinite; }
+    .step-icon.teams-active .step-num { color:var(--teams); }
 
-    /* ─── CONFIG MODAL ────────────────────────────────────────────────────── */
-    .cfg-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    .cfg-overlay.open { display: flex; }
-    .cfg-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 28px;
-      width: 520px;
-      max-width: 92vw;
-      box-shadow: var(--shadow-md);
-    }
-    .cfg-box h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .cfg-box p {
-      font-size: 13px;
-      color: var(--text-3);
-      margin-bottom: 20px;
-    }
-    .cfg-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .cfg-input {
-      background: var(--surface-in);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--radius);
-      padding: 8px 12px;
-      color: var(--text);
-      font-size: 13px;
-      flex: 1;
-      font-family: 'Cascadia Code', 'Consolas', monospace;
-      transition: border-color .15s;
-    }
-    .cfg-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-    .cfg-save {
-      background: var(--success);
-      color: #fff;
-      border: none;
-      padding: 9px 20px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      font-family: inherit;
-      transition: background .15s;
-    }
-    .cfg-save:hover { background: #0e6b0e; }
-    .cfg-hint {
-      font-size: 11px;
-      color: var(--text-4);
-      margin-top: 12px;
-      line-height: 1.5;
-    }
+    @keyframes dotPulse      { 0%,100%{box-shadow:0 0 0 0 rgba(0,120,212,.3)}50%{box-shadow:0 0 0 5px rgba(0,120,212,0)} }
+    @keyframes dotPulseWarn  { 0%,100%{box-shadow:0 0 0 0 rgba(202,80,16,.3)}50%{box-shadow:0 0 0 5px rgba(202,80,16,0)} }
+    @keyframes dotPulseTeams { 0%,100%{box-shadow:0 0 0 0 rgba(91,95,199,.3)}50%{box-shadow:0 0 0 5px rgba(91,95,199,0)} }
 
-    /* ─── PREVIEW MODAL ───────────────────────────────────────────────────── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    /* Status */
+    .sb-status {
+      font-size:13px; color:var(--text-3); line-height:1.5;
+      padding:12px 16px; border-top:1px solid var(--border);
+      min-height:48px;
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      max-width: 640px;
-      width: 100%;
-      max-height: 84vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: var(--shadow-md);
-    }
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 14px;
-      background: none;
-      border: none;
-      color: var(--text-4);
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1;
-      width: 28px;
-      height: 28px;
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background .15s, color .15s;
-    }
-    .modal-close:hover { background: var(--bg); color: var(--text); }
+    .status-msg.active   { color:var(--blue); font-weight:500; }
+    .status-msg.done     { color:var(--green); font-weight:600; }
+    .status-msg.waiting  { color:var(--orange); font-weight:600; }
+    .status-msg.error    { color:var(--danger); font-weight:600; }
 
-    /* Teams chat modal */
-    .teams-modal-bar {
-      background: var(--teams-bg);
-      border-bottom: 1px solid var(--teams-border);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    /* Sidebar blockers */
+    .sb-blockers-wrap {
+      margin:0 12px 12px;
+      background:var(--danger-bg);
+      border:1px solid var(--danger-border);
+      border-radius:var(--radius-lg);
+      padding:12px;
+      display:none;
     }
-    .teams-modal-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--teams);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #fff;
-      font-weight: 700;
-      flex-shrink: 0;
+    .sb-blockers-title {
+      font-size:11px; font-weight:700; color:var(--danger);
+      text-transform:uppercase; letter-spacing:.06em;
+      margin-bottom:8px;
     }
-    .teams-modal-sender { font-size: 14px; font-weight: 600; color: var(--text); }
-    .teams-modal-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
-    .teams-modal-body { padding: 20px; }
-    .teams-chat-bubble {
-      background: var(--surface-in);
-      border: 1px solid var(--teams-border);
-      border-radius: 0 12px 12px 12px;
-      padding: 14px 16px;
-      font-size: 13px;
-      color: var(--text-2);
-      line-height: 1.8;
-      white-space: pre-wrap;
+    .sb-blocker-item {
+      display:flex; gap:6px; align-items:flex-start;
+      padding:4px 0; border-bottom:1px solid rgba(164,38,44,.15);
+      font-size:12px;
     }
-    .teams-routing {
-      padding: 10px 20px;
-      border-top: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--text-4);
+    .sb-blocker-item:last-child { border-bottom:none; }
+    .sb-blocker-count {
+      background:var(--danger); color:#fff;
+      font-size:9px; font-weight:700;
+      padding:1px 5px; border-radius:10px; flex-shrink:0; margin-top:1px;
     }
+    .sb-blocker-desc { color:var(--text); line-height:1.4; }
+    .sb-escalation   { color:var(--danger); font-weight:700; font-size:11px; }
 
-    /* Email modal */
-    .email-chrome { border-radius: var(--radius-lg); overflow: hidden; }
-    .email-chrome-bar {
-      background: var(--surface-in);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .email-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--danger) 0%, var(--warn) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 800;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .email-sender-name { font-size: 14px; font-weight: 600; color: var(--text); }
-    .email-sender-meta { font-size: 12px; color: var(--text-3); margin-top: 1px; }
-    .email-fields {
-      padding: 10px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    .email-field-row {
-      display: flex;
-      gap: 12px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .email-field-row:last-child { border-bottom: none; }
-    .email-field-key {
-      font-size: 11px;
-      color: var(--text-4);
-      min-width: 64px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      padding-top: 1px;
-    }
-    .email-field-val { font-size: 13px; color: var(--text); }
-    .email-subject {
-      padding: 14px 20px;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      line-height: 1.4;
-    }
-    .email-body-content {
-      padding: 18px 20px;
-      font-size: 13px;
-      color: var(--text-2);
-      line-height: 1.9;
-      white-space: pre-line;
-    }
-    .email-routing {
-      padding: 10px 20px;
-      background: var(--surface-in);
-      border-top: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--text-4);
-    }
+    /* ── Main panel ───────────────────────────────────────────────── */
+    .main-panel { flex:1; overflow-y:auto; background:var(--bg); }
+    .main-inner { max-width:1020px; margin:0 auto; padding:24px 28px 64px; }
 
-    /* Cal modal */
-    .cal-body { padding: 24px; }
-    .cal-field { margin-bottom: 16px; }
-    .cal-label {
-      font-size: 11px;
-      color: var(--text-4);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    .cal-value {
-      font-size: 14px;
-      color: var(--text-2);
-      line-height: 1.6;
-      white-space: pre-line;
-    }
-    .cal-teams-box {
-      margin-top: 16px;
-      background: var(--accent-light);
-      border: 1px solid var(--accent-bg);
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-    }
-
-    /* ─── CONFIRM PANEL ───────────────────────────────────────────────────── */
-    .confirm-panel {
-      max-width: 460px;
-      margin: 80px auto;
-      text-align: center;
-      display: none;
-      padding: 48px 32px;
-    }
-    .confirm-icon { font-size: 64px; margin-bottom: 20px; }
-    .confirm-title { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
-    .confirm-title.approved { color: var(--success); }
-    .confirm-title.rejected { color: var(--danger); }
-    .confirm-msg { font-size: 15px; color: var(--text-3); line-height: 1.6; }
-
-    /* ─── HERO CARD ───────────────────────────────────────────────────────── */
-    .hero-card {
-      margin: 24px 0 16px;
-      padding: 32px 40px 28px;
-      text-align: center;
-      border-top: 3px solid var(--accent);
-    }
-    .hero-eyebrow {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .hero-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.15;
-      margin-bottom: 10px;
-      letter-spacing: -.02em;
-    }
-    .hero-sub {
-      font-size: 14px;
-      color: var(--text-3);
-      max-width: 680px;
-      margin: 0 auto 20px;
-      line-height: 1.6;
-    }
-    .capability-chips {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 13px;
-      border-radius: 20px;
-      border: 1px solid var(--border-muted);
-      background: var(--surface-in);
-      color: var(--text-3);
-    }
-    .chip.teams {
-      background: var(--teams-bg);
-      border-color: var(--teams-border);
-      color: var(--teams);
-    }
-    .chip.blue {
-      background: var(--accent-light);
-      border-color: var(--accent-bg);
-      color: var(--accent);
-    }
-    .chip.green {
-      background: var(--success-bg);
-      border-color: var(--success-border);
-      color: var(--success);
-    }
-    .chip.orange {
-      background: var(--warn-bg);
-      border-color: var(--warn-border);
-      color: var(--warn);
-    }
-    .chip.danger {
-      background: var(--danger-bg);
-      border-color: var(--danger-border);
-      color: var(--danger);
-    }
-    .start-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px 36px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background .15s, box-shadow .15s, transform .1s;
-      box-shadow: var(--shadow-sm);
-      letter-spacing: .01em;
-    }
-    .start-btn:hover {
-      background: var(--accent-dark);
-      box-shadow: 0 4px 12px rgba(0,120,212,.30);
-      transform: translateY(-1px);
-    }
-    .start-btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* ─── TRANSCRIPT ──────────────────────────────────────────────────────── */
-    .transcript-section {
-      margin-bottom: 16px;
-    }
+    /* ── Transcript card ──────────────────────────────────────────── */
+    .transcript-section { margin-bottom:16px; }
     .transcript-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm);
+      overflow:hidden;
     }
     .transcript-header {
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      transition: background .12s;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 18px;
+      cursor:pointer; user-select:none;
     }
-    .transcript-header:hover { background: var(--surface-in); }
-    .transcript-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .transcript-toggle {
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 600;
-      white-space: nowrap;
-      margin-left: 16px;
-      flex-shrink: 0;
-    }
+    .transcript-header:hover { background:var(--surface-in); }
+    .transcript-title { font-size:13px; font-weight:600; color:var(--text); }
+    .transcript-toggle { font-size:12px; color:var(--blue); font-weight:500; }
     .transcript-body {
-      padding: 0 20px 18px;
-      font-size: 12px;
-      color: var(--text-3);
-      line-height: 1.9;
-      white-space: pre-line;
-      font-family: 'Cascadia Code', 'Consolas', monospace;
-      border-top: 1px solid var(--border);
-      max-height: 240px;
-      overflow-y: auto;
-      display: none;
+      display:none; padding:0 18px 16px;
+      font-size:12.5px; color:var(--text-2); line-height:1.9;
+      white-space:pre-line; font-family:'Consolas','Courier New',monospace;
+      max-height:240px; overflow-y:auto;
+      border-top:1px solid var(--border);
     }
-    .transcript-body.open { display: block; }
+    .transcript-body.open { display:block; }
 
-    /* ─── PIPELINE STEPPER ────────────────────────────────────────────────── */
-    .pipeline-card {
-      margin-bottom: 12px;
-      padding: 16px 20px 14px;
+    /* ── Hero start area ──────────────────────────────────────────── */
+    .hero-area {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-top:3px solid var(--blue);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm);
+      padding:32px 36px 28px;
+      text-align:center;
+      margin-bottom:16px;
     }
-    .pipeline {
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      overflow-x: auto;
-      gap: 0;
+    .hero-eyebrow {
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.12em; color:var(--blue); margin-bottom:8px;
     }
-    .ms-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      min-width: 72px;
+    .hero-title {
+      font-size:26px; font-weight:700; color:var(--text);
+      line-height:1.2; margin-bottom:10px; letter-spacing:-.02em;
     }
-    .step-connector {
-      width: 28px;
-      height: 2px;
-      background: var(--border-muted);
-      margin-top: 15px;
-      flex-shrink: 0;
-      border-radius: 1px;
-      transition: background .4s;
+    .hero-sub {
+      font-size:14px; color:var(--text-3);
+      max-width:600px; margin:0 auto 22px; line-height:1.65;
     }
-    .step-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      border: 2px solid var(--border-muted);
-      background: var(--surface);
-      transition: all .35s;
-      position: relative;
-      flex-shrink: 0;
+    .capability-chips {
+      display:flex; flex-wrap:wrap; justify-content:center; gap:7px;
+      margin-bottom:22px;
     }
-    .step-icon.active {
-      border-color: var(--accent);
-      background: var(--accent-light);
-      animation: stepPulse 1.8s ease-in-out infinite;
+    .chip {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:12px; font-weight:500;
+      padding:4px 12px; border-radius:20px;
+      border:1px solid var(--border-s);
+      background:var(--surface-in); color:var(--text-3);
     }
-    .step-icon.done {
-      border-color: var(--success);
-      background: var(--success-bg);
-      font-size: 0;
+    .chip.teams  { background:var(--teams-bg); border-color:var(--teams-border); color:var(--teams); }
+    .chip.blue   { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
+    .chip.green  { background:var(--green-bg); border-color:var(--success-border); color:var(--green); }
+    .chip.orange { background:var(--orange-bg); border-color:var(--warn-border); color:var(--orange); }
+    .start-btn {
+      background:var(--blue); color:#fff;
+      border:none; padding:11px 36px;
+      font-size:15px; font-weight:600; font-family:inherit;
+      border-radius:var(--radius); cursor:pointer;
+      box-shadow:var(--shadow-sm);
+      transition:background .12s, box-shadow .12s, transform .1s;
     }
-    .step-icon.done::after {
-      content: '✓';
-      font-size: 14px;
-      color: var(--success);
-      font-weight: 700;
+    .start-btn:hover {
+      background:var(--blue-dark);
+      box-shadow:0 4px 12px rgba(0,120,212,.3);
+      transform:translateY(-1px);
     }
-    .step-icon.waiting {
-      border-color: var(--warn);
-      background: var(--warn-bg);
-      animation: stepPulseWarn 1.8s ease-in-out infinite;
-    }
-    .step-icon.error {
-      border-color: var(--danger);
-      background: var(--danger-bg);
-    }
-    .step-icon.teams-active {
-      border-color: var(--teams);
-      background: var(--teams-bg);
-      animation: stepPulseTeams 1.8s ease-in-out infinite;
-    }
-    .step-label {
-      font-size: 10px;
-      color: var(--text-4);
-      text-align: center;
-      max-width: 72px;
-      line-height: 1.4;
-      font-weight: 500;
-      transition: color .3s;
-    }
-    .step-label.active   { color: var(--accent); font-weight: 700; }
-    .step-label.done     { color: var(--success); font-weight: 600; }
-    .step-label.waiting  { color: var(--warn); font-weight: 700; }
-    .step-label.teams-active { color: var(--teams); font-weight: 700; }
-    .step-label.error    { color: var(--danger); font-weight: 600; }
+    .start-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
 
-
-    .step-num {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-3);
-      line-height: 1;
-      transition: color .3s;
-    }
-    .step-icon.active .step-num   { color: var(--accent); }
-    .step-icon.waiting .step-num  { color: var(--warn); }
-    .step-icon.teams-active .step-num { color: var(--teams); }
-    .step-icon.error .step-num    { color: var(--danger); }
-    .step-icon.done .step-num     { display: none; }
-    @keyframes stepPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0,120,212,.25); }
-      50%       { box-shadow: 0 0 0 6px rgba(0,120,212,.00); }
-    }
-    @keyframes stepPulseWarn {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(202,80,16,.30); }
-      50%       { box-shadow: 0 0 0 6px rgba(202,80,16,.00); }
-    }
-    @keyframes stepPulseTeams {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(91,95,199,.30); }
-      50%       { box-shadow: 0 0 0 6px rgba(91,95,199,.00); }
-    }
-
-
-    /* Two-column approval layout on wide screens */
-    .ap-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-    @media (max-width: 900px) {
-      .ap-columns { grid-template-columns: 1fr; }
-    }
-    .ap-col {}
-
-    /* ─── STATUS ──────────────────────────────────────────────────────────── */
-    .status-area {
-      text-align: center;
-      padding: 12px 24px 16px;
-      min-height: 52px;
-    }
-    .status-msg {
-      font-size: 13px;
-      color: var(--text-4);
-      line-height: 1.5;
-    }
-    .status-msg.active  { color: var(--accent); }
-    .status-msg.done    { color: var(--success); font-weight: 600; }
-    .status-msg.waiting { color: var(--warn); font-weight: 600; }
-    .status-msg.error   { color: var(--danger); font-weight: 600; }
-
-    /* ─── APPROVAL PANEL ──────────────────────────────────────────────────── */
+    /* ── Approval panel ───────────────────────────────────────────── */
     .ap {
-      margin: 0 0 28px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      display: none;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-md);
+      overflow:hidden;
+      margin-bottom:20px;
+      display:none;
     }
     .ap-head {
-      background: var(--warn);
-      padding: 18px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      background:var(--orange);
+      padding:16px 24px;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
     }
-    .ap-head-left h2 {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 3px;
-    }
-    .ap-head-left p {
-      font-size: 12px;
-      color: rgba(255,255,255,.80);
-    }
+    .ap-head-left h2 { font-size:16px; font-weight:700; color:#fff; margin-bottom:2px; }
+    .ap-head-left p  { font-size:12px; color:rgba(255,255,255,.8); }
     .ap-count {
-      background: rgba(255,255,255,.22);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.30);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 20px;
-      white-space: nowrap;
+      background:rgba(255,255,255,.22); color:#fff;
+      border:1px solid rgba(255,255,255,.3);
+      font-size:11px; font-weight:700;
+      padding:4px 12px; border-radius:20px; white-space:nowrap;
     }
-    .ap-body { padding: 20px 28px; }
+    .ap-body { padding:20px 24px; }
 
-    /* Banners */
-    .esc-banner {
-      background: var(--danger-bg);
-      border: 1.5px solid var(--danger-border);
-      border-radius: var(--radius-lg);
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      font-size: 13px;
+    /* Stats bar */
+    .ap-stats {
+      display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;
     }
-    .esc-banner strong { color: var(--danger); }
-    .esc-reason { color: var(--text-2); margin-top: 4px; font-size: 13px; }
-    .ext-warn {
-      background: var(--accent-light);
-      border: 1px solid var(--accent-bg);
-      border-radius: var(--radius-lg);
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      font-size: 13px;
-      color: var(--accent);
-      display: none;
+    .ap-stat {
+      background:var(--surface-in); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:12px 18px;
+      text-align:center; flex:1; min-width:100px;
     }
+    .ap-stat-num  { font-size:26px; font-weight:700; line-height:1; margin-bottom:3px; }
+    .ap-stat-label{ font-size:11px; color:var(--text-3); }
+    .ap-stat.s-teams .ap-stat-num { color:var(--teams); }
+    .ap-stat.s-email .ap-stat-num { color:var(--danger); }
+    .ap-stat.s-cal  .ap-stat-num  { color:var(--blue); }
+    .ap-stat.s-rem  .ap-stat-num  { color:var(--orange); }
 
     /* Summary box */
     .summary-box {
-      background: var(--surface-in);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      margin-bottom: 20px;
+      background:var(--surface-in); border:1px solid var(--border);
+      border-radius:var(--radius); padding:12px 16px; margin-bottom:18px;
     }
     .sec-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-4);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 8px;
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.09em; color:var(--text-4); margin-bottom:6px;
     }
 
-    /* Blockers */
-    .blockers-box {
-      background: var(--danger-bg);
-      border: 1px solid var(--danger-border);
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      margin-bottom: 16px;
+    /* Banners */
+    .esc-banner {
+      background:var(--danger-bg); border:1.5px solid var(--danger-border);
+      border-radius:var(--radius); padding:11px 14px; margin-bottom:14px;
+      font-size:13px; display:none;
     }
-    .blocker-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(164,38,44,.15);
+    .esc-banner strong { color:var(--danger); }
+    .esc-reason { color:var(--text-2); margin-top:3px; font-size:13px; }
+    .ext-warn {
+      background:var(--blue-bg2); border:1px solid var(--blue);
+      border-radius:var(--radius); padding:9px 14px; margin-bottom:14px;
+      font-size:13px; color:var(--blue-dark); display:none;
     }
-    .blocker-item:last-child { border-bottom: none; }
-    .blocker-count {
-      background: var(--danger);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 10px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .blocker-text { font-size: 13px; color: var(--text-2); }
-    .blocker-owner { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-    /* Teams Chat items */
-    .teams-section { margin-bottom: 20px; }
+    /* Blockers box (hidden in main panel, shown in sidebar) */
+    .blockers-box { display:none; }
+    .blocker-item,.blocker-count,.blocker-text,.blocker-owner { }
+
+    /* ── Action section wrapper ───────────────────────────────────── */
+    #apTeamsSection > .teams-section,
+    #apEmailSection > .ext-section,
+    #apMeeting > .mtg-section,
+    #apReminders > .rem-section {
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      margin-bottom:12px;
+    }
+    .action-section {
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      margin-bottom:14px;
+    }
+
+    /* Teams section — list-row style */
+    .teams-section { margin-bottom:0; }
     .teams-section-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 9px;
-      border-bottom: 2px solid var(--teams-border);
-      margin-bottom: 10px;
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px;
+      background:var(--surface-in);
+      border-bottom:1px solid var(--border);
     }
-    .teams-section-title { font-size: 13px; font-weight: 700; color: var(--teams); }
+    .teams-section-title { font-size:12px; font-weight:700; color:var(--teams); }
     .teams-count-badge {
-      background: var(--teams);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
+      background:var(--teams); color:#fff;
+      font-size:9px; font-weight:700;
+      padding:2px 7px; border-radius:10px;
     }
     .tc {
-      background: var(--teams-bg);
-      border: 1px solid var(--teams-border);
-      border-radius: var(--radius-lg);
-      margin-bottom: 8px;
-      overflow: hidden;
-      transition: border-color .15s;
+      background:var(--surface) !important;
+      border:none !important;
+      border-bottom:1px solid var(--border) !important;
+      border-radius:0 !important;
+      margin:0 !important;
     }
-    .tc:hover { border-color: var(--teams); }
-    .tc-head { padding: 12px 14px; cursor: default; }
+    .tc:last-child { border-bottom:none !important; }
+    .tc:hover { background:var(--surface-in) !important; }
+    .tc-head { padding:11px 16px; cursor:pointer; display:flex; align-items:center; gap:0; }
     .tc-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 5px;
-      flex-wrap: wrap;
+      display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap;
     }
-    .tc-icon { font-size: 15px; }
-    .tc-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .tc-icon { display:none; }
+    .tc-name { font-weight:600; font-size:13px; color:var(--text); }
     .teams-badge {
-      background: var(--teams);
-      color: #fff;
-      font-size: 9px;
-      padding: 2px 7px;
-      border-radius: 3px;
-      font-weight: 700;
-      letter-spacing: .04em;
+      background:var(--teams); color:#fff;
+      font-size:9px; padding:1px 6px; border-radius:3px; font-weight:700;
     }
-    .tc-email { font-size: 12px; color: var(--text-4); margin-bottom: 6px; }
-    .tc-task { font-size: 13px; color: var(--text-2); margin-bottom: 3px; }
-    .tc-meta {
-      font-size: 12px;
-      color: var(--text-3);
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .tc-email { font-size:11px; color:var(--text-4); margin-left:auto; padding-left:12px; }
+    .tc-task  { font-size:13px; color:var(--text); }
+    .tc-meta  { display:flex; gap:10px; font-size:11px; color:var(--text-3); flex-wrap:wrap; margin-top:1px; }
+    .pc { font-weight:700; }
+    .pc-critical { color:var(--danger); }
+    .pc-high     { color:var(--orange); }
+    .pc-medium   { color:#ca8f00; }
+    .pc-low      { color:var(--text-3); }
+    .tc-foot {
+      display:flex; align-items:center; gap:8px;
+      padding:8px 0 4px; border-top:1px solid var(--border); margin-top:8px;
     }
-    .pc { font-weight: 700; }
-    .pc-critical { color: var(--danger); }
-    .pc-high     { color: var(--warn); }
-    .pc-medium   { color: #ca8000; }
-    .pc-low      { color: var(--text-4); }
+    .tc-tasks {
+      display:none; border-top:1px solid var(--border);
+      padding:10px 16px 12px; background:var(--surface-in);
+    }
+    .tc-tasks.open { display:block; }
     .tc-actions {
-      padding: 0 14px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      padding:0 16px 10px;
+      display:flex; align-items:center; gap:8px;
     }
     .edit-toggle-btn {
-      background: none;
-      border: 1px solid var(--teams-border);
-      color: var(--teams);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: inherit;
-      padding: 5px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background .12s, border-color .12s;
+      background:none; border:1px solid var(--teams-border);
+      color:var(--teams); font-size:11px; padding:3px 10px;
+      border-radius:var(--radius); cursor:pointer;
+      font-family:inherit; font-weight:600;
+      transition:background .1s;
     }
-    .edit-toggle-btn:hover {
-      background: var(--surface);
-      border-color: var(--teams);
-    }
+    .edit-toggle-btn:hover { background:var(--teams-bg); }
     .edited-pill {
-      font-size: 10px;
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      border: 1px solid var(--accent-bg);
+      font-size:10px; background:var(--border); color:var(--text-3);
+      padding:2px 8px; border-radius:10px; font-weight:500;
     }
     .tc-edit-area {
-      padding: 0 14px 12px;
-      border-top: 1px solid var(--teams-border);
-      display: none;
+      display:none; padding:0 16px 12px;
+      border-top:1px solid var(--border);
     }
-    .tc-edit-area.open { display: block; }
+    .tc-edit-area.open { display:block; }
     .edit-textarea {
-      width: 100%;
-      min-height: 110px;
-      background: var(--surface);
-      border: 1.5px solid var(--teams-border);
-      border-radius: var(--radius-lg);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      padding: 10px 12px;
-      resize: vertical;
-      line-height: 1.7;
-      margin-top: 10px;
-      transition: border-color .15s;
+      width:100%; min-height:100px;
+      background:var(--surface-in); border:1.5px dashed var(--teams-border);
+      border-radius:var(--radius); color:var(--text); font-size:13px;
+      font-family:inherit; padding:10px 12px; resize:vertical;
+      line-height:1.7; margin-top:10px;
     }
-    .edit-textarea:focus {
-      outline: none;
-      border-color: var(--teams);
-      box-shadow: 0 0 0 1px var(--teams);
-    }
+    .edit-textarea:focus { outline:none; border-color:var(--teams); border-style:solid; }
     .done-edit-btn {
-      background: var(--teams);
-      color: #fff;
-      border: none;
-      font-size: 11px;
-      font-weight: 600;
-      font-family: inherit;
-      padding: 6px 16px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background .12s;
+      background:var(--teams); color:#fff; border:none;
+      font-size:11px; padding:5px 14px; border-radius:var(--radius);
+      cursor:pointer; margin-top:8px; font-weight:600; font-family:inherit;
     }
-    .done-edit-btn:hover { background: var(--teams-dark); }
 
-    /* External email items */
-    .ext-section { margin-bottom: 20px; }
+    /* External email section — list-row style */
+    .ext-section { margin-bottom:0; }
     .ext-section-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 9px;
-      border-bottom: 2px solid var(--danger-border);
-      margin-bottom: 10px;
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px; background:var(--surface-in);
+      border-bottom:1px solid var(--border);
     }
-    .ext-section-title { font-size: 13px; font-weight: 700; color: var(--danger); }
+    .ext-section-title { font-size:12px; font-weight:700; color:var(--danger); }
     .ext-count-badge {
-      background: var(--danger);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
+      background:var(--danger); color:#fff;
+      font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;
     }
     .ec {
-      background: var(--surface-in);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      margin-bottom: 8px;
-      overflow: hidden;
-      transition: border-color .15s;
+      background:var(--surface) !important;
+      border:none !important;
+      border-bottom:1px solid var(--border) !important;
+      border-radius:0 !important;
+      margin:0 !important;
     }
-    .ec:hover { border-color: var(--danger-border); }
-    .ec-head { padding: 12px 14px; cursor: default; }
-    .ec-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 5px;
-      flex-wrap: wrap;
-    }
+    .ec:last-child { border-bottom:none !important; }
+    .ec:hover { background:var(--surface-in) !important; }
+    .ec-head { padding:11px 16px; }
+    .ec-top  { display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
     .ext-badge {
-      background: var(--danger);
-      color: #fff;
-      font-size: 9px;
-      padding: 2px 7px;
-      border-radius: 3px;
-      font-weight: 700;
-      letter-spacing: .04em;
+      background:var(--danger); color:#fff;
+      font-size:9px; padding:1px 6px; border-radius:3px; font-weight:700;
     }
-    .ec-name { font-weight: 600; font-size: 14px; color: var(--text); }
-    .ec-company { font-size: 12px; color: var(--text-4); margin-bottom: 4px; }
-    .ec-meta { font-size: 12px; color: var(--text-3); }
+    .ec-name    { font-weight:600; font-size:13px; color:var(--text); }
+    .ec-company { font-size:11px; color:var(--text-3); }
+    .ec-meta    { font-size:12px; color:var(--text-3); }
     .subject-input {
-      width: 100%;
-      background: var(--surface);
-      border: 1.5px solid var(--border-muted);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      padding: 7px 10px;
-      margin-top: 6px;
-      margin-bottom: 4px;
-      transition: border-color .15s;
+      width:100%; background:var(--surface-in);
+      border:1px solid var(--border); border-radius:var(--radius);
+      color:var(--text); font-size:13px; font-family:inherit;
+      padding:6px 10px; margin-top:5px; margin-bottom:4px;
     }
-    .subject-input:focus {
-      outline: none;
-      border-color: var(--danger);
-      box-shadow: 0 0 0 1px var(--danger);
-    }
-    .ec-actions {
-      padding: 0 14px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .subject-input:focus { outline:none; border-color:var(--danger); }
+    .ec-actions { padding:6px 16px 10px; display:flex; align-items:center; gap:8px; border-top:1px solid var(--border); margin-top:4px; }
     .ec-edit-btn {
-      background: none;
-      border: 1px solid var(--danger-border);
-      color: var(--danger);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: inherit;
-      padding: 5px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background .12s;
+      background:none; border:1px solid var(--border-s);
+      color:var(--danger); font-size:11px; padding:3px 10px;
+      border-radius:var(--radius); cursor:pointer;
+      font-family:inherit; font-weight:600; transition:all .1s;
     }
-    .ec-edit-btn:hover { background: var(--danger-bg); }
+    .ec-edit-btn:hover { background:var(--danger-bg); border-color:var(--danger); }
     .edited-pill-red {
-      font-size: 10px;
-      background: var(--danger-bg);
-      color: var(--danger);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      border: 1px solid var(--danger-border);
+      font-size:10px; background:var(--danger-bg); color:var(--danger);
+      padding:2px 8px; border-radius:10px; font-weight:500;
+      border:1px solid var(--danger);
     }
-    .ec-edit-area {
-      padding: 0 14px 12px;
-      border-top: 1px solid var(--border);
-      display: none;
+    .ec-edit-area { padding:0 16px 12px; border-top:1px solid var(--border); display:none; }
+    .ec-edit-area.open { display:block; }
+    .ec-preview  { padding:0 16px 12px; border-top:1px solid var(--border); display:none; }
+    .ec-preview.open { display:block; }
+    .ec-body {
+      margin-top:10px; background:var(--surface-in); border:1px solid var(--border);
+      border-radius:var(--radius); padding:14px; font-size:13px; color:var(--text-2);
+      line-height:1.8; white-space:pre-wrap; font-family:inherit; max-height:260px; overflow-y:auto;
     }
-    .ec-edit-area.open { display: block; }
+    .ec-toggle { font-size:11px; color:var(--danger); margin-top:5px; display:inline-block; cursor:pointer; }
 
-    /* Meeting / Calendar section */
-    .mtg-section { margin-bottom: 20px; }
+    /* Meeting section */
+    .mtg-section { margin-bottom:0; }
     .mtg-section-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 9px;
-      border-bottom: 2px solid var(--accent-bg);
-      margin-bottom: 10px;
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px; background:var(--surface-in);
+      border-bottom:1px solid var(--border);
     }
-    .mtg-section-title { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .mtg-section-title { font-size:12px; font-weight:700; color:var(--blue); }
     .mtg-box {
-      background: var(--accent-light);
-      border: 1px solid var(--accent-bg);
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      margin-bottom: 12px;
+      background:var(--blue-bg2); border:none;
+      padding:14px 16px;
     }
-    .mtg-field-row { display: flex; flex-direction: column; margin-bottom: 12px; }
-    .mtg-field-label {
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 5px;
-    }
-    .mtg-input {
-      background: var(--surface);
-      border: 1.5px solid var(--accent-bg);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      padding: 8px 10px;
-      font-weight: 600;
-      transition: border-color .15s;
-    }
-    .mtg-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-    .mtg-textarea {
-      background: var(--surface);
-      border: 1.5px solid var(--accent-bg);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      padding: 8px 10px;
-      resize: vertical;
-      min-height: 64px;
-      line-height: 1.6;
-      transition: border-color .15s;
-    }
-    .mtg-textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-    .cal-free-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--success-bg);
-      border: 1px solid var(--success-border);
-      border-radius: var(--radius);
-      color: var(--success);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
-      margin-top: 6px;
-    }
-    .cal-conflict-banner {
-      background: var(--danger-bg);
-      border: 1.5px solid var(--danger-border);
-      border-radius: var(--radius-lg);
-      padding: 10px 14px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      color: var(--danger);
-      font-weight: 600;
-    }
-    .time-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .time-opt {
-      background: var(--surface);
-      border: 2px solid var(--border-muted);
-      border-radius: var(--radius-lg);
-      padding: 10px 12px;
-      cursor: pointer;
-      transition: border-color .15s, background .15s;
-      position: relative;
-    }
-    .time-opt:hover { border-color: var(--teams); background: var(--teams-bg); }
-    .time-opt.selected {
-      border-color: var(--teams);
-      background: var(--teams-bg);
-    }
-    .time-opt.selected::after {
-      content: '✓';
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      background: var(--teams);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .time-opt-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .time-opt-display { font-size: 12px; color: var(--text-3); }
-    .time-opt.keep-original { border-color: var(--border-muted); }
-    .time-opt.keep-original.selected {
-      border-color: var(--warn);
-      background: var(--warn-bg);
-    }
-    .time-opt.keep-original.selected::after { background: var(--warn); }
-    .time-changed-pill {
-      font-size: 10px;
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      border: 1px solid var(--accent-bg);
-      margin-left: 8px;
-    }
-    .conflict-required-note {
-      font-size: 12px;
-      color: var(--danger);
-      margin-top: 8px;
-      font-weight: 600;
-    }
+    .mtg-field-row    { display:flex; flex-direction:column; margin-bottom:10px; }
+    .mtg-field-label  { font-size:11px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+    .mtg-input        { background:var(--surface); border:1.5px dashed var(--blue); border-radius:var(--radius); color:var(--text); font-size:14px; font-family:inherit; padding:7px 10px; font-weight:600; }
+    .mtg-input:focus  { outline:none; border-style:solid; }
+    .mtg-textarea     { background:var(--surface); border:1.5px dashed var(--blue); border-radius:var(--radius); color:var(--text); font-size:13px; font-family:inherit; padding:7px 10px; resize:vertical; min-height:56px; line-height:1.6; }
+    .mtg-textarea:focus { outline:none; border-style:solid; }
+    .cal-free-badge   { display:inline-flex; align-items:center; gap:5px; background:var(--green-bg); border:1px solid var(--success-border); border-radius:var(--radius); color:var(--green); font-size:12px; font-weight:600; padding:5px 12px; margin-top:6px; }
+    .cal-conflict-banner { background:var(--danger-bg); border:1.5px solid var(--danger-border); border-radius:var(--radius); padding:9px 14px; margin-bottom:10px; font-size:13px; color:var(--danger); }
+    .time-options     { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .time-opt         { background:var(--surface); border:2px solid var(--border-s); border-radius:var(--radius); padding:9px 12px; cursor:pointer; transition:all .12s; position:relative; }
+    .time-opt:hover   { border-color:var(--blue); }
+    .time-opt.selected { border-color:var(--blue); background:var(--blue-bg2); }
+    .time-opt.selected::after { content:'✓'; position:absolute; top:5px; right:8px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .time-opt.keep-original.selected { border-color:var(--orange); background:var(--orange-light); }
+    .time-opt.keep-original.selected::after { background:var(--orange); }
+    .time-opt-label   { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+    .time-opt-display { font-size:12px; color:var(--text-3); }
+    .time-changed-pill { font-size:10px; background:var(--blue-bg); color:var(--blue); padding:2px 8px; border-radius:10px; font-weight:500; border:1px solid var(--blue); margin-left:8px; }
+    .conflict-required-note { font-size:12px; color:var(--danger); margin-top:8px; font-weight:600; }
 
-    /* Deadline reminders */
-    .rem-section { margin-bottom: 20px; }
+    /* Reminders section */
+    .rem-section { margin-bottom:0; }
     .rem-section-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 9px;
-      border-bottom: 2px solid var(--accent-bg);
-      margin-bottom: 10px;
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px; background:var(--surface-in);
+      border-bottom:1px solid var(--border);
     }
-    .rem-section-title { font-size: 13px; font-weight: 700; color: var(--accent); }
-    .rem-count-badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
+    .rem-section-title { font-size:12px; font-weight:700; color:var(--orange); }
+    .rem-count-badge   { background:var(--orange); color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px; }
     .rem-item {
-      background: var(--surface-in);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: var(--radius-lg);
-      padding: 10px 14px;
-      margin-bottom: 6px;
+      background:var(--surface); border:none;
+      border-bottom:1px solid var(--border);
+      border-left:3px solid var(--orange);
+      border-radius:0; padding:10px 16px; margin:0;
     }
-    .rem-item.critical { border-left-color: var(--danger); }
-    .rem-item.high     { border-left-color: var(--warn); }
-    .rem-item.medium   { border-left-color: #ca8000; }
-    .rem-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-    .rem-meta  { font-size: 12px; color: var(--text-3); }
-    .rem-note  { font-size: 12px; color: var(--text-4); margin-top: 3px; }
+    .rem-item:last-child { border-bottom:none; }
+    .rem-item.critical { border-left-color:var(--danger); }
+    .rem-item.high     { border-left-color:var(--orange); }
+    .rem-title  { font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .rem-meta   { font-size:12px; color:var(--text-3); }
+    .rem-note   { font-size:12px; color:var(--text-4); margin-top:2px; }
 
     /* Approval footer */
     .ap-foot {
-      padding: 4px 28px 24px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
+      padding:16px 24px;
+      display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+      border-top:1px solid var(--border);
     }
     .btn-approve {
-      background: var(--success);
-      color: #fff;
-      border: none;
-      padding: 12px 28px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background .15s, transform .1s;
+      background:var(--green); color:#fff; border:none;
+      padding:10px 28px; font-size:14px; font-weight:700; font-family:inherit;
+      border-radius:var(--radius); cursor:pointer; transition:background .12s;
     }
-    .btn-approve:hover { background: #0e6b0e; transform: translateY(-1px); }
-    .btn-approve:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .btn-approve:hover    { background:var(--green-dark); }
+    .btn-approve:disabled { opacity:.4; cursor:not-allowed; }
     .btn-reject {
-      background: transparent;
-      color: var(--danger);
-      border: 1.5px solid var(--danger-border);
-      padding: 12px 28px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background .15s;
+      background:transparent; color:var(--danger);
+      border:1.5px solid var(--danger);
+      padding:10px 24px; font-size:14px; font-weight:700; font-family:inherit;
+      border-radius:var(--radius); cursor:pointer; transition:background .12s;
     }
-    .btn-reject:hover { background: var(--danger-bg); }
-    .btn-reject:disabled { opacity: .4; cursor: not-allowed; }
-    .ap-note { margin-left: auto; font-size: 12px; color: var(--text-4); }
-    .ap-conflict-warn { font-size: 12px; color: var(--danger); font-weight: 700; }
+    .btn-reject:hover    { background:var(--danger-bg); }
+    .btn-reject:disabled { opacity:.4; cursor:not-allowed; }
+    .ap-note          { margin-left:auto; font-size:12px; color:var(--text-3); }
+    .ap-conflict-warn { font-size:12px; color:var(--danger); font-weight:600; }
 
-    /* ─── DONE SECTION ────────────────────────────────────────────────────── */
-    .done-section {
-      margin: 0 0 60px;
-      text-align: center;
-      display: none;
-    }
+    /* ── Done section ─────────────────────────────────────────────── */
+    .done-section { display:none; margin-bottom:24px; }
     .done-card-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 40px 32px 36px;
+      background:var(--surface); border:1px solid var(--border);
+      border-top:3px solid var(--green);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-sm);
+      padding:32px 28px 24px; text-align:center; margin-bottom:16px;
+    }
+    .done-icon  { font-size:48px; margin-bottom:12px; }
+    .done-title { font-size:22px; font-weight:700; color:var(--green); margin-bottom:8px; }
+    .done-sub   { font-size:14px; color:var(--text-2); margin-bottom:20px; line-height:1.6; }
+    .done-sub strong { color:var(--text); }
+    .done-cards {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+      max-width:560px; margin:0 auto;
+    }
+    .done-card { background:var(--surface-in); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 12px; }
+    .done-card.teams-card    { border-top:3px solid var(--teams); }
+    .done-card.email-card    { border-top:3px solid var(--danger); }
+    .done-card.cal-card      { border-top:3px solid var(--blue); }
+    .done-card.reminder-card { border-top:3px solid var(--orange); }
+    .done-card-num   { font-size:28px; font-weight:700; }
+    .done-card.teams-card .done-card-num    { color:var(--teams); }
+    .done-card.email-card .done-card-num    { color:var(--danger); }
+    .done-card.cal-card .done-card-num      { color:var(--blue); }
+    .done-card.reminder-card .done-card-num { color:var(--orange); }
+    .done-card-label { font-size:11px; color:var(--text-3); margin-top:3px; }
+
+    .sent-list       { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; }
+    .sent-list-title { font-size:13px; font-weight:600; color:var(--text); padding:12px 16px; border-bottom:1px solid var(--border); }
+    .sent-item       { border-bottom:1px solid var(--border); padding:11px 16px; cursor:pointer; transition:background .12s; }
+    .sent-item:last-child { border-bottom:none; }
+    .sent-item:hover       { background:var(--surface-in); }
+    .sent-item.teams-item:hover { background:var(--teams-bg); }
+    .sent-item.email-item:hover { background:var(--danger-bg); }
+    .sent-item.cal-item { background:var(--blue-bg2); }
+    .sent-item-top    { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+    .sent-item-to     { font-size:13px; font-weight:600; color:var(--text); }
+    .sent-item-badge  { font-size:10px; background:var(--surface-in); color:var(--text-3); padding:2px 7px; border-radius:8px; border:1px solid var(--border); }
+    .sent-item-subject{ font-size:13px; color:var(--blue); margin-bottom:2px; }
+    .sent-item-hint   { font-size:11px; color:var(--text-4); }
+
+    /* ── Rejected ─────────────────────────────────────────────────── */
+    .rejected-section { display:none; text-align:center; padding:40px 24px; }
+
+    /* ── Confirm panel (email redirect) ───────────────────────────── */
+    .confirm-panel { max-width:460px; margin:80px auto; text-align:center; display:none; padding:0 24px; }
+    .confirm-icon  { font-size:64px; margin-bottom:18px; }
+    .confirm-title { font-size:26px; font-weight:700; margin-bottom:10px; }
+    .confirm-title.approved { color:var(--green); }
+    .confirm-title.rejected { color:var(--danger); }
+    .confirm-msg   { font-size:15px; color:var(--text-3); line-height:1.6; }
+
+    /* ── Modal ────────────────────────────────────────────────────── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); max-width:620px; width:100%; max-height:84vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-lg); }
+    .modal-close  { position:absolute; top:10px; right:12px; background:none; border:none; color:var(--text-3); font-size:18px; cursor:pointer; z-index:1; width:28px; height:28px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; }
+    .modal-close:hover { background:var(--bg); color:var(--text); }
+    .teams-modal-bar  { background:var(--teams-bg); border-bottom:1px solid var(--teams-border); padding:14px 20px; display:flex; align-items:center; gap:12px; }
+    .teams-modal-icon { width:38px; height:38px; border-radius:50%; background:var(--teams); display:flex; align-items:center; justify-content:center; font-size:17px; color:#fff; font-weight:700; flex-shrink:0; }
+    .teams-modal-sender { font-size:14px; font-weight:600; color:var(--text); }
+    .teams-modal-sub    { font-size:12px; color:var(--text-3); }
+    .teams-modal-body   { padding:20px; }
+    .teams-chat-bubble  { background:var(--surface-in); border:1px solid var(--teams-border); border-radius:var(--radius-lg); border-top-left-radius:2px; padding:14px 16px; font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-wrap; }
+    .teams-routing { padding:10px 20px; border-top:1px solid var(--border); font-size:12px; color:var(--text-4); }
+    .email-chrome { border-radius:var(--radius-lg); overflow:hidden; }
+    .email-chrome-bar { background:var(--surface-in); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; gap:10px; }
+    .email-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--danger),var(--orange)); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; flex-shrink:0; }
+    .email-sender-name { font-size:14px; font-weight:600; color:var(--text); }
+    .email-sender-meta { font-size:12px; color:var(--text-3); }
+    .email-fields { padding:10px 20px; border-bottom:1px solid var(--border); }
+    .email-field-row { display:flex; gap:10px; padding:4px 0; border-bottom:1px solid var(--border); }
+    .email-field-row:last-child { border-bottom:none; }
+    .email-field-key { font-size:11px; color:var(--text-3); min-width:60px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .email-field-val { font-size:13px; color:var(--text); }
+    .email-subject   { padding:14px 20px; font-size:16px; font-weight:700; color:var(--text); border-bottom:1px solid var(--border); line-height:1.4; }
+    .email-body-content { padding:18px 20px; font-size:14px; color:var(--text-2); line-height:1.9; white-space:pre-line; }
+    .email-routing { padding:10px 20px; background:var(--surface-in); border-top:1px solid var(--border); font-size:11px; color:var(--text-4); }
+    .cal-body  { padding:22px; }
+    .cal-field { margin-bottom:14px; }
+    .cal-label { font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; font-weight:600; }
+    .cal-value { font-size:14px; color:var(--text-2); line-height:1.6; white-space:pre-line; }
+    .cal-teams-box { margin-top:16px; background:var(--blue-bg2); border:1px solid var(--blue); border-radius:var(--radius); padding:12px 14px; }
+
+    /* ── Config modal ─────────────────────────────────────────────── */
+    .cfg-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; display:none; align-items:center; justify-content:center; }
+    .cfg-overlay.open { display:flex; }
+    .cfg-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; width:520px; max-width:90vw; box-shadow:var(--shadow-lg); }
+    .cfg-box h3 { font-size:16px; color:var(--text); margin-bottom:4px; font-weight:700; }
+    .cfg-box p  { font-size:13px; color:var(--text-3); margin-bottom:16px; }
+    .cfg-row   { display:flex; gap:10px; margin-bottom:10px; }
+    .cfg-input { background:var(--bg); border:1px solid var(--border-s); border-radius:var(--radius); padding:8px 12px; color:var(--text); font-size:13px; flex:1; font-family:monospace; }
+    .cfg-input:focus { outline:none; border-color:var(--blue); }
+    .cfg-save  { background:var(--green); color:#fff; border:none; padding:8px 18px; border-radius:var(--radius); cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+    .cfg-hint  { font-size:12px; color:var(--text-4); margin-top:10px; }
+
+    /* Misc cleanup for ap-columns (remove in new design) */
+    .ap-columns { display:block; }
+    .ap-col { display:block; }
+
+    @media (max-width:700px) {
+      :root { --sidebar-w:0px; }
+      .sidebar { display:none; }
+      .done-cards { grid-template-columns:repeat(2,1fr); }
+    }
+
+    /* ── Content grid ─────────────────────────────────────────────── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
       margin-bottom: 16px;
     }
-    .done-icon { font-size: 52px; margin-bottom: 16px; }
-    .done-title { font-size: 26px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
-    .done-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; line-height: 1.65; }
-    .done-sub strong { color: var(--text); }
-    .done-cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      max-width: 580px;
-      margin: 0 auto;
-    }
-    .done-card {
-      background: var(--surface-in);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px 12px;
-      text-align: center;
-    }
-    .done-card.teams-card    { border-top: 3px solid var(--teams); }
-    .done-card.email-card    { border-top: 3px solid var(--danger); }
-    .done-card.reminder-card { border-top: 3px solid var(--warn); }
-    .done-card.cal-card      { border-top: 3px solid var(--accent); }
-    .done-card-num { font-size: 28px; font-weight: 700; line-height: 1; }
-    .done-card.teams-card    .done-card-num { color: var(--teams); }
-    .done-card.email-card    .done-card-num { color: var(--danger); }
-    .done-card.reminder-card .done-card-num { color: var(--warn); }
-    .done-card.cal-card      .done-card-num { color: var(--accent); }
-    .done-card-label { font-size: 11px; color: var(--text-4); margin-top: 4px; line-height: 1.3; }
-
-    /* Sent list */
-    .sent-list {
+    .content-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
+      overflow: hidden;
       box-shadow: var(--shadow-sm);
-      padding: 20px 24px;
-      text-align: left;
+      min-height: 80px;
     }
-    .sent-list-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 14px;
-      padding-bottom: 10px;
+    .purple-card { border-top: 3px solid var(--teams); }
+    .red-card    { border-top: 3px solid var(--danger); }
+    .blue-card   { border-top: 3px solid var(--blue); }
+    .orange-card { border-top: 3px solid var(--orange); }
+
+    /* Sections inside cards — strip their own borders */
+    .content-card .teams-section,
+    .content-card .ext-section,
+    .content-card .mtg-section,
+    .content-card .rem-section {
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      background: transparent !important;
+    }
+
+    /* Card section headers — bigger, colored */
+    .content-card .teams-section-header {
+      background: var(--teams-bg) !important;
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--teams-border) !important;
+    }
+    .content-card .teams-section-title {
+      font-size: 13px !important; font-weight: 700 !important;
+    }
+    .content-card .ext-section-header {
+      background: var(--danger-bg) !important;
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--danger-border) !important;
+    }
+    .content-card .ext-section-title {
+      font-size: 13px !important; font-weight: 700 !important;
+    }
+    .content-card .mtg-section-header {
+      background: var(--blue-bg) !important;
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .content-card .mtg-section-title {
+      font-size: 13px !important; font-weight: 700 !important;
+      color: var(--blue-dark) !important;
+    }
+    .content-card .rem-section-header {
+      background: var(--orange-bg) !important;
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--warn-border) !important;
+    }
+    .content-card .rem-section-title {
+      font-size: 13px !important; font-weight: 700 !important;
+      color: var(--orange) !important;
+    }
+
+    /* Improved meeting box inside blue card */
+    .content-card .mtg-box {
+      background: var(--surface) !important;
+      border: none !important;
+      padding: 14px 16px !important;
+    }
+
+    /* Improved reminders inside orange card */
+    .content-card .rem-item {
+      border-bottom: 1px solid var(--border) !important;
+      border-left: none !important;
+      border-radius: 0 !important;
+      padding: 9px 16px !important;
+    }
+    .content-card .rem-item:last-child { border-bottom: none !important; }
+    .content-card .rem-item.critical { background: rgba(164,38,44,.04); }
+    .content-card .rem-item.high     { background: rgba(202,80,16,.03); }
+
+    /* Teams rows inside purple card */
+    .content-card .tc { background: var(--surface) !important; }
+    .content-card .tc:hover { background: var(--teams-bg) !important; opacity:.7; }
+
+    /* Email rows inside red card */
+    .content-card .ec { background: var(--surface) !important; }
+    .content-card .ec:hover { background: var(--danger-bg) !important; opacity:.7; }
+
+    /* Improved stats bar */
+    .ap-stats {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 10px !important;
+      margin-bottom: 16px !important;
+    }
+    .ap-stat {
+      border-radius: var(--radius-lg) !important;
+      padding: 14px 12px !important;
+      text-align: center !important;
+    }
+    .ap-stat.s-teams  { background: var(--teams-bg) !important; border-color: var(--teams-border) !important; }
+    .ap-stat.s-email  { background: var(--danger-bg) !important; border-color: var(--danger-border) !important; }
+    .ap-stat.s-cal    { background: var(--blue-bg) !important; border-color: var(--border) !important; }
+    .ap-stat.s-rem    { background: var(--orange-bg) !important; border-color: var(--warn-border) !important; }
+    .ap-stat-num  { font-size: 28px !important; }
+    .ap-stat-label{ font-size: 11px !important; font-weight: 600 !important; color: var(--text-2) !important; }
+
+    /* Summary box — more polished */
+    .summary-box {
+      background: var(--surface-in) !important;
+      border-left: 3px solid var(--blue) !important;
+      border-top: none !important;
+      border-right: none !important;
+      border-bottom: none !important;
+      border-radius: 0 var(--radius) var(--radius) 0 !important;
+      padding: 12px 16px !important;
+      margin-bottom: 16px !important;
+    }
+
+    @media (max-width: 800px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+
+    /* ── Sent items grid ──────────────────────────────────────────── */
+    .sent-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .sent-section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .purple-sent { border-top: 3px solid var(--teams); }
+    .red-sent    { border-top: 3px solid var(--danger); }
+    .blue-sent   { border-top: 3px solid var(--blue); }
+    .orange-sent { border-top: 3px solid var(--orange); }
+
+    .sent-card-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 14px;
       border-bottom: 1px solid var(--border);
     }
-    .sent-item {
-      background: var(--surface-in);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 12px 14px;
-      margin-bottom: 7px;
-      cursor: pointer;
-      transition: border-color .15s, box-shadow .15s;
+    .purple-sent .sent-card-head { background: var(--teams-bg); }
+    .red-sent    .sent-card-head { background: var(--danger-bg); }
+    .blue-sent   .sent-card-head { background: var(--blue-bg); }
+    .orange-sent .sent-card-head { background: var(--orange-bg); }
+
+    .sent-card-icon  { font-size: 14px; }
+    .sent-card-title { font-size: 12px; font-weight: 700; color: var(--text); flex: 1; }
+    .sent-card-count { font-size: 10px; font-weight: 700; color: var(--text-3); background: var(--surface); border: 1px solid var(--border); padding: 2px 7px; border-radius: 10px; }
+
+    .sent-card-rows { }
+    .sent-row {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
     }
-    .sent-item:hover { border-color: var(--accent-bg); box-shadow: var(--shadow-sm); }
-    .sent-item.teams-item:hover  { border-color: var(--teams-border); }
-    .sent-item.email-item:hover  { border-color: var(--danger-border); }
-    .sent-item.cal-item {
-      background: var(--accent-light);
-      border-color: var(--accent-bg);
+    .sent-row:last-child { border-bottom: none; }
+    .sent-row.clickable { cursor: pointer; }
+    .sent-row.clickable:hover { background: var(--surface-in); }
+
+    .sent-row-left {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 3px; flex-wrap: wrap;
     }
-    .sent-item-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .sent-item-to { font-size: 13px; font-weight: 600; color: var(--text); }
-    .sent-item-badge {
-      font-size: 10px;
-      background: var(--surface);
-      color: var(--text-4);
-      padding: 2px 8px;
+    .sent-row-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .sent-row-badge {
+      font-size: 10px; font-weight: 700; padding: 1px 7px;
       border-radius: 10px;
-      border: 1px solid var(--border-muted);
     }
-    .sent-item-subject { font-size: 13px; color: var(--accent); margin-bottom: 2px; }
-    .sent-item-hint { font-size: 11px; color: var(--text-4); }
+    .sent-row-badge.purple { background: var(--teams-bg); color: var(--teams); border: 1px solid var(--teams-border); }
+    .sent-row-badge.red    { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .sent-row-badge.blue   { background: var(--blue-bg); color: var(--blue-dark); border: 1px solid var(--border); }
+    .sent-row-badge.orange { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--warn-border); }
 
-    /* ─── REJECTED SECTION ────────────────────────────────────────────────── */
-    .rejected-section {
-      max-width: 480px;
-      margin: 0 auto 60px;
-      text-align: center;
-      display: none;
-      padding: 0 24px;
+    .sent-row-sub {
+      font-size: 12px; color: var(--text-3); line-height: 1.4;
+      padding-right: 20px;
+    }
+    .sent-row-arrow {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-4); font-size: 16px;
+    }
+    .sent-cal-status { font-size: 11px; font-weight: 600; }
+    .sent-cal-status.free     { color: var(--green); }
+    .sent-cal-status.conflict { color: var(--orange); }
+
+    @media (max-width: 800px) {
+      .sent-grid { grid-template-columns: 1fr; }
     }
 
-    /* ─── FOOTER ──────────────────────────────────────────────────────────── */
-    .footer {
-      text-align: center;
-      padding: 20px 24px;
-      color: var(--text-4);
-      font-size: 11px;
-      border-top: 1px solid var(--border);
-      margin-top: 40px;
-      letter-spacing: .01em;
-    }
   </style>
 </head>
 <body>
 
-<!-- ── CONFIG MODAL ────────────────────────────────────────────────────────── -->
+<!-- Config modal -->
 <div class="cfg-overlay" id="cfgOverlay" onclick="if(event.target===this)closeCfg()">
   <div class="cfg-box">
-    <h3>Setup</h3>
+    <h3>⚙ Setup</h3>
     <p>Enter your n8n credentials — saved locally in the browser.</p>
-    <div class="cfg-row">
-      <input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" />
-    </div>
-    <div class="cfg-row">
-      <input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID for v3 (from n8n URL)" />
-    </div>
+    <div class="cfg-row"><input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" /></div>
+    <div class="cfg-row"><input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID (from n8n URL)" /></div>
     <button class="cfg-save" onclick="saveConfig()">Save &amp; Close</button>
-    <div class="cfg-hint">n8n: localhost:5678 &nbsp;·&nbsp; proxy: python3 proxy.py &nbsp;·&nbsp; webhook path: neura-demo-trigger-v3</div>
+    <div class="cfg-hint">n8n: localhost:5678 · proxy: python3 proxy.py · webhook: neura-demo-trigger-v3</div>
   </div>
 </div>
 
-<!-- ── PREVIEW MODAL ───────────────────────────────────────────────────────── -->
+<!-- Preview modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -1442,101 +963,146 @@
   </div>
 </div>
 
-<!-- ── CONFIRM PANEL (email redirect) ─────────────────────────────────────── -->
+<!-- Confirm panel (email redirect) -->
 <div class="confirm-panel" id="confirmPanel">
   <div class="confirm-icon" id="confirmIcon">✅</div>
   <div class="confirm-title" id="confirmTitle">Approved!</div>
   <div class="confirm-msg" id="confirmMsg">Processing...</div>
 </div>
 
-<!-- ── MAIN UI ─────────────────────────────────────────────────────────────── -->
-<div id="mainUI">
+<div class="app-shell" id="mainUI">
 
-  <!-- App Bar -->
-  <header class="app-bar">
-    <div class="app-bar-left">
-      <span class="app-bar-brand">NEURA Meeting Intelligence</span>
-      <span class="app-bar-sep">×</span>
-      <span class="app-bar-partner">Futurice</span>
-      <span class="live-chip">Live Demo</span>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-name">NEURA Meeting Intelligence</span>
+      <span class="topbar-sep">×</span>
+      <span class="topbar-partner">Futurice</span>
+      <span class="topbar-chip">Live Demo</span>
     </div>
-    <div class="app-bar-right">
-      <button class="bar-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light mode">🌙</button>
-      <button class="bar-btn" onclick="openCfg()" title="Settings">⚙</button>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light">🌙</button>
+      <button class="topbar-btn" onclick="openCfg()" title="Settings">⚙</button>
     </div>
   </header>
 
-  <!-- Page content -->
-  <div class="page">
+  <div class="app-body">
 
-    <!-- Hero Card -->
-    <div class="ms-card hero-card">
-      <div class="hero-eyebrow">Futurice × NEURA Robotics — AI Meeting Automation</div>
-      <h1 class="hero-title">From transcript to action in 30 seconds</h1>
-      <p class="hero-sub">GPT-4o reads your sprint meeting, extracts every commitment, detects recurring blockers, and automatically sends Teams notifications, formal emails, calendar invites and Planner tasks — all pending your one-click approval.</p>
-      <div class="capability-chips">
-        <span class="chip teams">💬 Teams Chat</span>
-        <span class="chip blue">✉ External Emails</span>
-        <span class="chip green">📅 Calendar + Planner Tasks</span>
-        <span class="chip orange">🔍 Recurring Blocker Detection</span>
-        <span class="chip" style="border-color:var(--teams-border);color:var(--teams);background:var(--teams-bg)">👤 Human-in-the-loop</span>
+    <!-- ── Sidebar ──────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">AI Processing Steps</div>
+        <div class="pipeline-steps">
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-read"><span class="step-num">1</span></div>
+              <div class="vstep-line" id="line-read"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-read">Transcript Loaded</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-ai"><span class="step-num">2</span></div>
+              <div class="vstep-line" id="line-ai"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-ai">AI Reads Meeting</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-history"><span class="step-num">3</span></div>
+              <div class="vstep-line" id="line-history"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-history">Checks Blocker History</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-draft"><span class="step-num">4</span></div>
+              <div class="vstep-line" id="line-draft"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-draft">Drafts Actions + Cal Check</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-hitl"><span class="step-num">5</span></div>
+              <div class="vstep-line" id="line-hitl"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-send"><span class="step-num">6</span></div>
+              <div class="vstep-line" id="line-send"></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-send">Teams + Emails Sent</div>
+            </div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-cal"><span class="step-num">7</span></div>
+            </div>
+            <div class="vstep-content">
+              <div class="step-label" id="lbl-cal">Calendar + Planner Done</div>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <button class="start-btn" id="startBtn" onclick="startDemo()">▶&nbsp; Start Demo</button>
-    </div>
 
-    <!-- Pipeline Stepper Card -->
-    <div class="ms-card pipeline-card">
-      <div class="pipeline">
-        <div class="ms-step">
-          <div class="step-icon" id="icon-read"><span class="step-num">1</span></div>
-          <div class="step-label" id="lbl-read">Transcript</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-ai"><span class="step-num">2</span></div>
-          <div class="step-label" id="lbl-ai">AI Reads</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-history"><span class="step-num">3</span></div>
-          <div class="step-label" id="lbl-history">Checks History</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-draft"><span class="step-num">4</span></div>
-          <div class="step-label" id="lbl-draft">Drafts + Cal Check</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-hitl"><span class="step-num">5</span></div>
-          <div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-send"><span class="step-num">6</span></div>
-          <div class="step-label" id="lbl-send">Teams + Emails</div>
-        </div>
-        <div class="step-connector"></div>
-        <div class="ms-step">
-          <div class="step-icon" id="icon-cal"><span class="step-num">7</span></div>
-          <div class="step-label" id="lbl-cal">Calendar + Done</div>
-        </div>
+      <!-- Status -->
+      <div class="sb-status">
+        <div class="status-msg" id="statusMsg">Click Start Demo to begin.</div>
       </div>
-    </div>
 
-    <!-- Status Message -->
-    <div class="status-area" style="padding:6px 0 10px">
-      <div class="status-msg" id="statusMsg">Click Start Demo to see AI meeting automation in action.</div>
-    </div>
+      <!-- Recurring blockers (appears after AI runs) -->
+      <div class="sb-blockers-wrap" id="sidebarBlockers" style="display:none"></div>
 
-    <!-- Transcript Card -->
-    <div class="transcript-section">
-      <div class="transcript-box">
-        <div class="transcript-header" onclick="toggleTranscript()">
-          <span class="transcript-title">📋 Meeting Transcript — Robot Arm Integration Review &middot; Sprint 7</span>
-          <span class="transcript-toggle" id="transcriptToggle">▶ show transcript</span>
+    </aside>
+
+    <!-- ── Main panel ───────────────────────────────────────────── -->
+    <main class="main-panel">
+      <div class="main-inner">
+
+        <!-- Hero / Start area -->
+        <div class="hero-area" id="heroArea">
+          <div class="hero-eyebrow">Futurice × NEURA Robotics — AI Meeting Automation</div>
+          <h1 class="hero-title">Meeting Co-Pilot</h1>
+          <p class="hero-sub">GPT-4o reads your sprint meeting, extracts every commitment and deadline, detects recurring blockers, then automatically sends Teams notifications, external emails, calendar invites and Planner tasks — pending your one-click approval.</p>
+          <div class="capability-chips">
+            <span class="chip teams">💬 Teams Chat</span>
+            <span class="chip">✉ External Emails</span>
+            <span class="chip green">📅 Calendar + Planner</span>
+            <span class="chip orange">🔍 Blocker Detection</span>
+            <span class="chip teams">👤 Human-in-the-loop</span>
+          </div>
+          <button class="start-btn" id="startBtn" onclick="startDemo()">▶&nbsp; Start Demo</button>
         </div>
-        <div class="transcript-body" id="transcriptBody">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
+
+        <!-- Transcript (always visible after start) -->
+        <div class="transcript-section">
+          <div class="transcript-box">
+            <div class="transcript-header" onclick="toggleTranscript()">
+              <span class="transcript-title">📋 Meeting Transcript — Robot Arm Integration Review · Sprint 7 · June 3 2026 · 6 participants (2 external)</span>
+              <span class="transcript-toggle" id="transcriptToggle">▶ show transcript</span>
+            </div>
+            <div class="transcript-body" id="transcriptBody">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
 
 Felix Wagner: I need to lead with something critical. The IMU sensor calibration drift is back. We discussed this in Sprint 5 and it was marked as resolved. It is not. Build 2.6 still shows 2.1 millimetre precision errors. I flagged this in the last two sprints. Jonas — I need your calibration constants before I can close the firmware patch.
 
@@ -1561,76 +1127,79 @@ Jonas Mueller: I can prepare the full 3.1 spec sheet and send it to Dr. Chen by 
 Dr. Sarah Chen: If I receive the 3.1 spec by June 7th, I can deliver the validated simulation models by June 12th.
 
 Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13th. Thomas must attend. If the docs slip again, June 13th becomes an executive escalation call. Everyone is accountable to these dates.</div>
-      </div>
-    </div>
-
-
-
-    <!-- Approval Panel -->
-    <div class="ap" id="approvalPanel">
-      <div class="ap-head">
-        <div class="ap-head-left">
-          <h2>👤 Review, Edit &amp; Approve</h2>
-          <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
-        </div>
-        <span class="ap-count" id="apCount"></span>
-      </div>
-      <div class="ap-body">
-        <div class="esc-banner" id="escBanner" style="display:none">
-          <strong>⚠ ESCALATION REQUIRED</strong>
-          <div class="esc-reason" id="escReason"></div>
-        </div>
-        <div class="ext-warn" id="extWarn"></div>
-        <div class="summary-box">
-          <div class="sec-label">What happened in this meeting</div>
-          <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
-        </div>
-        <div id="apBlockers"></div>
-        <div class="ap-columns">
-          <div class="ap-col">
-            <div id="apTeamsSection"></div>
-            <div id="apMeeting"></div>
-          </div>
-          <div class="ap-col">
-            <div id="apEmailSection"></div>
-            <div id="apReminders"></div>
           </div>
         </div>
-      </div>
-      <div class="ap-foot">
-        <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
-        <button class="btn-reject" id="rejectBtn" onclick="submitApproval(false)">✗ Don't Send</button>
-        <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
-        <span class="ap-note" id="apNote"></span>
-      </div>
-    </div>
 
-    <!-- Done Section -->
-    <div class="done-section" id="doneSection">
-      <div class="done-card-wrap">
-        <div class="done-icon">✅</div>
-        <div class="done-title">All done!</div>
-        <div class="done-sub" id="doneSub"></div>
-        <div class="done-cards" id="doneCards"></div>
-      </div>
-      <div class="sent-list" id="sentList" style="display:none">
-        <div class="sent-list-title">📬 What was sent — click to preview</div>
-        <div id="sentListItems"></div>
-      </div>
-    </div>
+        <!-- Approval panel -->
+        <div class="ap" id="approvalPanel">
+          <div class="ap-head">
+            <div class="ap-head-left">
+              <h2>👤 Review, Edit &amp; Approve</h2>
+              <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
+            </div>
+            <span class="ap-count" id="apCount"></span>
+          </div>
+          <div class="ap-body">
+            <div class="esc-banner" id="escBanner" style="display:none">
+              <strong>⚠ ESCALATION REQUIRED</strong>
+              <div class="esc-reason" id="escReason"></div>
+            </div>
+            <div class="ext-warn" id="extWarn"></div>
+            <div class="summary-box">
+              <div class="sec-label">What happened in this meeting</div>
+              <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
+            </div>
+            <div id="apStats" style="display:none"></div>
+            <div id="apBlockers" style="display:none"></div>
+            <div class="content-grid">
+              <div class="content-card purple-card">
+                <div id="apTeamsSection"></div>
+              </div>
+              <div class="content-card red-card">
+                <div id="apEmailSection"></div>
+              </div>
+              <div class="content-card blue-card">
+                <div id="apMeeting"></div>
+              </div>
+              <div class="content-card orange-card">
+                <div id="apReminders"></div>
+              </div>
+            </div>
+          </div>
+          <div class="ap-foot">
+            <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
+            <button class="btn-reject"  id="rejectBtn"  onclick="submitApproval(false)">✗ Don't Send</button>
+            <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
+            <span class="ap-note" id="apNote"></span>
+          </div>
+        </div>
 
-    <!-- Rejected Section -->
-    <div class="rejected-section" id="rejectedSection">
-      <div style="font-size:52px;margin-bottom:16px">❌</div>
-      <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
-      <div style="font-size:14px;color:var(--text-3);line-height:1.6">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
-    </div>
+        <!-- Done section -->
+        <div class="done-section" id="doneSection">
+          <div class="done-card-wrap">
+            <div class="done-icon">✅</div>
+            <div class="done-title">All done!</div>
+            <div class="done-sub" id="doneSub"></div>
+            <div class="done-cards" id="doneCards"></div>
+          </div>
+          <div class="sent-list" id="sentList" style="display:none">
+            <div class="sent-list-title">📬 What was sent — click to preview</div>
+            <div id="sentListItems"></div>
+          </div>
+        </div>
 
-  </div><!-- /.page -->
+        <!-- Rejected section -->
+        <div class="rejected-section" id="rejectedSection">
+          <div style="font-size:48px;margin-bottom:14px">❌</div>
+          <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
+          <div style="font-size:14px;color:var(--text-3);line-height:1.6">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
+        </div>
 
-  <div class="footer">NEURA Meeting Intelligence &nbsp;·&nbsp; Teams Chat + External Email &nbsp;·&nbsp; GPT-4o + Microsoft Graph + n8n &nbsp;·&nbsp; Built by Futurice</div>
+      </div><!-- /.main-inner -->
+    </main><!-- /.main-panel -->
 
-</div><!-- /#mainUI -->
+  </div><!-- /.app-body -->
+</div><!-- /.app-shell / #mainUI -->
 
 <script>
 const N8N_DIRECT   = 'http://127.0.0.1:5678';
@@ -1811,6 +1380,23 @@ function showApprovalPanel(data) {
   const blockers = data.blockers || [];
   const calCheck = data.calendar_check || null;
 
+  // Stats bar
+  const statsEl = document.getElementById('apStats');
+  if (statsEl) {
+    const grouped = Object.values((() => {
+      const m = {};
+      internalItems.forEach(item => { if (!m[item.owner_email]) m[item.owner_email] = true; });
+      return m;
+    })());
+    const nMsgs = grouped.length || internalItems.length;
+    statsEl.style.display = '';
+    statsEl.innerHTML =
+      '<div class="ap-stat s-teams"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
+      '<div class="ap-stat s-email"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
+      '<div class="ap-stat s-rem"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
+      (f ? '<div class="ap-stat s-cal"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
+  }
+
   document.getElementById('apCount').textContent =
     internalItems.length + ' chats · ' + externalEmails.length + ' emails · ' + reminders.length + ' reminders';
   document.getElementById('apSummary').textContent = data.meeting_summary || '';
@@ -1849,6 +1435,23 @@ function showApprovalPanel(data) {
     document.getElementById('apBlockers').innerHTML = '';
   }
 
+  // Populate sidebar blockers
+  const sidebarB = document.getElementById('sidebarBlockers');
+  if (sidebarB) {
+    if (blockers.length > 0) {
+      let sb = '<div class="sb-blockers-title">⚠ Recurring Blockers</div>';
+      blockers.forEach(b => {
+        sb += '<div class="sb-blocker-item"><span class="sb-blocker-count">' + b.occurrences + '×</span>';
+        sb += '<span class="sb-blocker-desc">' + escHtml(b.description) + (b.escalation_needed ? ' <b style=\'color:var(--danger)\'>↑ escalate</b>' : '') + '</span></div>';
+      });
+      sidebarB.innerHTML = sb;
+      sidebarB.style.display = '';
+    } else {
+      sidebarB.innerHTML = '';
+      sidebarB.style.display = 'none';
+    }
+  }
+
   // ── Teams Chat section — grouped by person ──
   if (internalItems.length > 0) {
     const ownerMap = {};
@@ -1865,22 +1468,33 @@ function showApprovalPanel(data) {
     html += '<div class="teams-section-header"><span class="teams-section-title">💬 Teams Chat Notifications</span><span class="teams-count-badge">' + groupedOwners.length + ' messages · ' + internalItems.length + ' tasks</span></div>';
     groupedOwners.forEach((person, gi) => {
       const defaultMsg = buildTeamsMessageGrouped(person, data);
+      const topPriority = person.tasks.reduce((p, t) => {
+        const order = {critical:0,high:1,medium:2,low:3};
+        return (order[t.priority]||3) < (order[p]||3) ? t.priority : p;
+      }, 'medium');
+      const pcCls = 'pc pc-' + topPriority;
       html += '<div class="tc" id="tc-g-' + gi + '">';
-      html += '<div class="tc-head">';
+      // Collapsed header — click to expand
+      html += '<div class="tc-head" onclick="toggleTcTasks(' + gi + ')">';
       html += '<div class="tc-top"><span class="tc-icon">💬</span><span class="tc-name">' + escHtml(person.owner_name) + '</span><span class="teams-badge">TEAMS CHAT</span>';
-      if (person.tasks.length > 1) html += ' <span style="font-size:11px;color:var(--teams);background:var(--teams-bg);border:1px solid var(--teams-border);padding:2px 8px;border-radius:10px;font-weight:600">' + person.tasks.length + ' tasks</span>';
+      html += ' <span style="font-size:11px;color:var(--teams);background:var(--teams-bg);border:1px solid var(--teams-border);padding:2px 8px;border-radius:10px;font-weight:600">' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span>';
+      html += ' <span class="' + pcCls + '" style="font-size:11px">' + topPriority.toUpperCase() + '</span>';
+      html += '<span style="margin-left:auto;color:var(--text-4);font-size:11px" id="tc-arrow-' + gi + '">▶</span>';
       html += '</div>';
-      html += '<div class="tc-email">' + escHtml(person.owner_email) + '</div>';
+      html += '<div class="tc-email" style="padding:0 16px 8px">' + escHtml(person.owner_email) + '</div>';
+      html += '</div>';
+      // Collapsible tasks
+      html += '<div class="tc-tasks" id="tc-tasks-' + gi + '">';
       person.tasks.forEach((task, ti) => {
-        const pcCls = 'pc pc-' + (task.priority || 'medium').toLowerCase();
+        const pCls = 'pc pc-' + (task.priority || 'medium').toLowerCase();
         html += '<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0 2px;' + (ti > 0 ? 'border-top:1px solid var(--border-muted);margin-top:4px' : '') + '">';
         html += '<span style="font-size:11px;font-weight:700;color:var(--text-4);min-width:16px;padding-top:2px">' + (ti + 1) + '.</span>';
         html += '<div style="flex:1"><div class="tc-task">' + escHtml(task.task) + '</div>';
-        html += '<div class="tc-meta"><span>Due: ' + escHtml(task.deadline) + '</span><span class="' + pcCls + '">' + escHtml((task.priority || 'medium').toUpperCase()) + '</span>' + (task.depends_on ? '<span>Depends on: ' + escHtml(task.depends_on) + '</span>' : '') + '</div>';
+        html += '<div class="tc-meta"><span>Due: ' + escHtml(task.deadline) + '</span><span class="' + pCls + '">' + escHtml((task.priority || 'medium').toUpperCase()) + '</span>' + (task.depends_on ? '<span>Depends on: ' + escHtml(task.depends_on) + '</span>' : '') + '</div>';
         html += '</div></div>';
       });
-      html += '</div>';
-      html += '<div class="tc-actions">';
+      // tc-actions and tc-edit-area are INSIDE tc-tasks so they're hidden until expanded
+      html += '<div class="tc-foot">';
       html += '<button class="edit-toggle-btn" id="tc-g-edit-btn-' + gi + '" onclick="toggleTcEditG(' + gi + ');event.stopPropagation()">✏️ Edit message</button>';
       html += '<span class="edited-pill" id="tc-g-edited-pill-' + gi + '" style="display:none">(edited)</span>';
       html += '</div>';
@@ -1888,7 +1502,8 @@ function showApprovalPanel(data) {
       html += '<textarea class="edit-textarea" id="tc-g-textarea-' + gi + '" oninput="onTcEditG(' + gi + ')">' + escHtml(defaultMsg) + '</textarea>';
       html += '<button class="done-edit-btn" onclick="closeTcEditG(' + gi + ')">✓ Done</button>';
       html += '</div>';
-      html += '</div>';
+      html += '</div>';  // end tc-tasks
+      html += '</div>';  // end tc
     });
     html += '</div>';
     document.getElementById('apTeamsSection').innerHTML = html;
@@ -2056,6 +1671,13 @@ function onTcEdit(i) {
 function toggleTcPreview(i) {
   // Legacy: clicking the head section does nothing now — edit area has its own toggle
 }
+function toggleTcTasks(gi) {
+  const tasks = document.getElementById('tc-tasks-' + gi);
+  if (!tasks) return;
+  const open = tasks.classList.toggle('open');
+  const arrow = document.getElementById('tc-arrow-' + gi);
+  if (arrow) arrow.textContent = open ? '▼' : '▶';
+}
 function toggleTcEditG(gi) {
   const area = document.getElementById('tc-g-edit-area-' + gi);
   const btn  = document.getElementById('tc-g-edit-btn-' + gi);
@@ -2136,6 +1758,15 @@ function onMtgAgendaEdit() {
 }
 
 // ─── Time option selection ────────────────────────────────────────────────────
+
+  // Wrap meeting in collapsible
+  function toggleMeetingEdit() {
+    const box = document.getElementById('mtgEditBox');
+    const arrow = document.getElementById('mtgArrow');
+    if (!box) return;
+    const open = box.classList.toggle('open');
+    if (arrow) arrow.textContent = open ? '▼' : '▶';
+  }
 function selectTimeOpt(idx, isKeepOriginal) {
   const totalOpts = window._suggestedTimesCount + 1; // suggested + keep original
   for (let i = 0; i < totalOpts; i++) {
@@ -2323,47 +1954,60 @@ function showDone() {
     '<div class="done-card cal-card"><div class="done-card-num">1</div><div class="done-card-label">Meeting + calendar</div></div>';
 
   const groupedOwnersDone = window._groupedOwners || [];
-  const internalCards = groupedOwnersDone.map((person, gi) =>
-    '<div class="sent-item teams-item" onclick="openTeamsModal(' + gi + ')">' +
-      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--teams)">💬 ' + escHtml(person.owner_name) + '</span><span class="sent-item-badge" style="color:var(--teams)">Teams Chat · ' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span></div>' +
-      '<div class="sent-item-subject">' + person.tasks.map(t => escHtml(t.task)).join(' · ') + '</div>' +
-      '<div class="sent-item-hint">Click to preview Teams message ›</div>' +
+
+  // Build 2×2 sent-grid matching the approval panel layout
+  function sentCard(accentClass, icon, title, count, rowsHtml) {
+    return '<div class="sent-section-card ' + accentClass + '">' +
+      '<div class="sent-card-head"><span class="sent-card-icon">' + icon + '</span>' +
+      '<span class="sent-card-title">' + title + '</span>' +
+      '<span class="sent-card-count">' + count + '</span></div>' +
+      '<div class="sent-card-rows">' + rowsHtml + '</div></div>';
+  }
+
+  const teamsRows = groupedOwnersDone.map((person, gi) =>
+    '<div class="sent-row clickable" onclick="openTeamsModal(' + gi + ')">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(person.owner_name) + '</span>' +
+      '<span class="sent-row-badge purple">' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span></div>' +
+      '<div class="sent-row-sub">' + person.tasks.slice(0,2).map(t => escHtml(t.task)).join(' · ') + (person.tasks.length > 2 ? ' +' + (person.tasks.length-2) + ' more' : '') + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>'
+  ).join('');
+
+  const emailRows = externals.map((ext, i) =>
+    '<div class="sent-row clickable" onclick="openEmailModal(' + i + ')">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(ext.recipient_name) + '</span>' +
+      '<span class="sent-row-badge red">' + escHtml(ext.company) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(ext.subject) + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>'
+  ).join('');
+
+  const reminderRows = reminders.map(r =>
+    '<div class="sent-row">' +
+      '<div class="sent-row-left"><span class="sent-row-name" style="font-size:12px">' + escHtml(r.title.replace('DEADLINE: ','')) + '</span>' +
+      '<span class="sent-row-badge orange">' + escHtml(r.deadline) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(r.owner_name) + (r.reminder_note ? ' · ' + escHtml(r.reminder_note) : '') + '</div>' +
     '</div>'
   ).join('');
 
-  const emailCards = externals.map((ext, i) =>
-    '<div class="sent-item email-item" onclick="openEmailModal(' + i + ')">' +
-      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--danger)">✉ ' + escHtml(ext.recipient_name) + ' · ' + escHtml(ext.company) + '</span><span class="sent-item-badge" style="color:var(--danger)">External · demo inbox</span></div>' +
-      '<div class="sent-item-subject">' + escHtml(ext.subject) + '</div>' +
-      '<div class="sent-item-hint">Click to read full email ›</div>' +
-    '</div>'
-  ).join('');
-
-  const reminderCards = reminders.map(r =>
-    '<div class="sent-item reminder-item" style="border-color:var(--warn);cursor:default">' +
-      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--warn)">⏰ ' + escHtml(r.title) + '</span><span class="sent-item-badge" style="color:var(--warn)">Calendar · 24h reminder</span></div>' +
-      '<div style="font-size:13px;color:var(--text-3)">' + escHtml(r.owner_name) + ' · Deadline: <strong>' + escHtml(r.deadline) + '</strong></div>' +
-      (r.reminder_note ? '<div style="font-size:11px;color:var(--text-4);margin-top:2px">' + escHtml(r.reminder_note) + '</div>' : '') +
-    '</div>'
-  ).join('');
-
-  const calAvailNote = calCheck
-    ? '<div class="sent-item" style="border-color:' + (calCheck.is_free ? 'var(--success-border)' : 'var(--warn-border)') + ';cursor:default;margin-bottom:7px">' +
-        '<div class="sent-item-top"><span class="sent-item-to" style="color:' + (calCheck.is_free ? 'var(--success)' : 'var(--warn)') + '">' +
-          (calCheck.is_free ? '✅ Calendar was free' : '⚠ Calendar conflict resolved') + ' — ' + escHtml(calCheck.title || '') + '</span>' +
-          '<span class="sent-item-badge">' + escHtml(calCheck.availability_note || '') + '</span></div>' +
-        '<div style="font-size:12px;color:var(--text-3)">' + escHtml(calCheck.date || '') + ' at ' + escHtml(calCheck.time || '') + '</div>' +
-      '</div>'
+  const calStatus = calCheck
+    ? '<div class="sent-cal-status ' + (calCheck.is_free ? 'free' : 'conflict') + '">' +
+        (calCheck.is_free ? '✅ Calendar was free' : '⚠ Conflict resolved') + '</div>'
     : '';
+  const meetingRow = f ?
+    '<div class="sent-row clickable" onclick="openCalModal()">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(f.title) + '</span>' +
+      '<span class="sent-row-badge blue">' + escHtml(f.date) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(f.time) + ' · ' + escHtml(String(f.duration_minutes)) + ' min' + (calStatus ? ' · ' + (calCheck.is_free ? '✅ free' : '⚠ conflict resolved') : '') + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>' : '';
 
-  const calCard = f ?
-    '<div class="sent-item cal-item" onclick="openCalModal()">' +
-      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--accent)">📅 ' + escHtml(f.title) + '</span><span class="sent-item-badge" style="color:var(--accent)">Teams Meeting</span></div>' +
-      '<div style="font-size:13px;color:var(--text-3)">' + escHtml(f.date) + ' at ' + escHtml(f.time) + ' · ' + escHtml(String(f.duration_minutes)) + ' min</div>' +
-      '<div class="sent-item-hint">Click to see meeting details ›</div>' +
-    '</div>' : '';
+  const grid =
+    '<div class="sent-grid">' +
+    (teamsRows   ? sentCard('purple-sent', '💬', 'Teams Chat',          groupedOwnersDone.length + ' messages', teamsRows)   : '') +
+    (emailRows   ? sentCard('red-sent',    '✉',  'External Emails',     externals.length + ' emails',          emailRows)   : '') +
+    (meetingRow  ? sentCard('blue-sent',   '📅', 'Teams Meeting',       '1 meeting',                           meetingRow)  : '') +
+    (reminderRows? sentCard('orange-sent', '⏰', 'Deadline Reminders',  reminders.length + ' reminders',       reminderRows): '') +
+    '</div>';
 
-  document.getElementById('sentListItems').innerHTML = calAvailNote + internalCards + emailCards + reminderCards + calCard;
+  document.getElementById('sentListItems').innerHTML = grid;
   document.getElementById('sentList').style.display = 'block';
   document.getElementById('doneSection').style.display = 'block';
   document.getElementById('doneSection').scrollIntoView({ behavior: 'smooth' });
@@ -2442,6 +2086,7 @@ function closeModal() { document.getElementById('modalOverlay').classList.remove
 function cf(label, value) {
   return '<div class="cal-field"><div class="cal-label">' + escHtml(label) + '</div><div class="cal-value">' + escHtml(value || '') + '</div></div>';
 }
+
 </script>
 </body>
 </html>

@@ -411,7 +411,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const pLabel = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };\nconst pColor  = { critical: 'Attention', high: 'Warning', medium: 'Default', low: 'Default' };\nconst pEmoji  = { critical: '🔴', high: '🟠', medium: '🟡', low: '⚪' };\nconst finalMeeting = $('Apply Edits').item.json.final_meeting || {};\nconst reviewDate = finalMeeting.date || 'TBD';\nconst reviewTime = finalMeeting.time || '';\n\nreturn $input.all().map(item => {\n  const p = item.json;\n  const tasks = p.tasks || [];\n  const count = tasks.length;\n\n  const taskBlocks = tasks.map(t => ({\n    type: 'Container',\n    separator: true,\n    items: [{\n      type: 'ColumnSet',\n      columns: [\n        {\n          type: 'Column', width: 'auto', verticalContentAlignment: 'Top',\n          items: [{ type: 'TextBlock', text: '☐', size: 'Large', spacing: 'None', color: 'Accent' }]\n        },\n        {\n          type: 'Column', width: 'stretch',\n          items: [\n            { type: 'TextBlock', text: t.task, wrap: true, weight: 'Bolder', spacing: 'None' },\n            { type: 'TextBlock', text: (pEmoji[t.priority] || '⚪') + ' ' + (pLabel[t.priority] || 'MEDIUM') + '  ·  📅 ' + t.deadline, size: 'Small', color: pColor[t.priority] || 'Default', spacing: 'Small' },\n            ...(t.depends_on ? [{ type: 'TextBlock', text: '⛓️ ' + t.depends_on, size: 'Small', isSubtle: true, wrap: true, spacing: 'None' }] : [])\n          ]\n        }\n      ]\n    }]\n  }));\n\n  const card = {\n    type: 'AdaptiveCard',\n    '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',\n    version: '1.4',\n    body: [\n      {\n        type: 'Container', style: 'emphasis', bleed: true,\n        items: [{\n          type: 'ColumnSet',\n          columns: [\n            { type: 'Column', width: 'auto', items: [{ type: 'TextBlock', text: '🤖', size: 'Large' }] },\n            { type: 'Column', width: 'stretch', items: [\n              { type: 'TextBlock', text: 'NEURA Meeting Co-Pilot', weight: 'Bolder', size: 'Medium' },\n              { type: 'TextBlock', text: 'Sprint 7 · Action Items', spacing: 'None', size: 'Small', isSubtle: true }\n            ]}\n          ]\n        }]\n      },\n      { type: 'TextBlock', text: count + ' action item' + (count > 1 ? 's' : '') + ' for **' + p.owner_name + '**', size: 'Medium', weight: 'Bolder', wrap: true, spacing: 'Medium' },\n      ...taskBlocks,\n      {\n        type: 'Container', style: 'emphasis', spacing: 'Medium',\n        items: [{ type: 'TextBlock', text: '📅 Follow-up review: ' + reviewDate + (reviewTime ? ' at ' + reviewTime : ''), size: 'Small', isSubtle: true }]\n      }\n    ]\n  };\n\n  return { json: {\n    owner_name: p.owner_name,\n    owner_email: p.owner_email,\n    teams_payload: {\n      body: { contentType: 'html', content: '<attachment id=\"card1\"></attachment>' },\n      attachments: [{\n        id: 'card1',\n        contentType: 'application/vnd.microsoft.card.adaptive',\n        contentUrl: null,\n        content: JSON.stringify(card),\n        name: null,\n        thumbnailUrl: null\n      }]\n    }\n  }};\n});"
+        "jsCode": "const pLabel = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };\nconst pColor  = { critical: 'Attention', high: 'Warning', medium: 'Default', low: 'Default' };\nconst pEmoji  = { critical: '🔴', high: '🟠', medium: '🟡', low: '⚪' };\nconst finalMeeting = $('Apply Edits').item.json.final_meeting || {};\nconst reviewDate = finalMeeting.date || 'TBD';\nconst reviewTime = finalMeeting.time || '';\n\n// Get Planner plan link\nconst plannerResp = $('Fetch Planner Plan').item.json;\nconst plans = (plannerResp.value || []);\nconst planId = plans.length > 0 ? plans[0].id : '';\nconst planUrl = planId\n  ? 'https://tasks.office.com/27ef6553-6dea-4dc8-8c3e-655179604e00/EN-US/Home/Planner#/plantaskboard?groupId=95635571-5e68-4543-bddf-d019fe658a37&planId=' + planId\n  : null;\n\nreturn $input.all().map(item => {\n  const p = item.json;\n  const tasks = p.tasks || [];\n  const count = tasks.length;\n\n  const taskBlocks = tasks.map(t => ({\n    type: 'Container',\n    separator: true,\n    items: [{\n      type: 'ColumnSet',\n      columns: [\n        {\n          type: 'Column', width: 'auto', verticalContentAlignment: 'Top',\n          items: [{ type: 'TextBlock', text: '☐', size: 'Large', spacing: 'None', color: 'Accent' }]\n        },\n        {\n          type: 'Column', width: 'stretch',\n          items: [\n            { type: 'TextBlock', text: t.task, wrap: true, weight: 'Bolder', spacing: 'None' },\n            { type: 'TextBlock', text: (pEmoji[t.priority] || '⚪') + ' ' + (pLabel[t.priority] || 'MEDIUM') + '  ·  📅 ' + t.deadline, size: 'Small', color: pColor[t.priority] || 'Default', spacing: 'Small' },\n            ...(t.depends_on ? [{ type: 'TextBlock', text: '⛓️ ' + t.depends_on, size: 'Small', isSubtle: true, wrap: true, spacing: 'None' }] : [])\n          ]\n        }\n      ]\n    }]\n  }));\n\n  const card = {\n    type: 'AdaptiveCard',\n    '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',\n    version: '1.4',\n    body: [\n      {\n        type: 'Container', style: 'emphasis', bleed: true,\n        items: [{\n          type: 'ColumnSet',\n          columns: [\n            { type: 'Column', width: 'auto', items: [{ type: 'TextBlock', text: '🤖', size: 'Large' }] },\n            { type: 'Column', width: 'stretch', items: [\n              { type: 'TextBlock', text: 'NEURA Meeting Co-Pilot', weight: 'Bolder', size: 'Medium' },\n              { type: 'TextBlock', text: 'Sprint 7 · Action Items', spacing: 'None', size: 'Small', isSubtle: true }\n            ]}\n          ]\n        }]\n      },\n      { type: 'TextBlock', text: count + ' action item' + (count > 1 ? 's' : '') + ' for **' + p.owner_name + '**', size: 'Medium', weight: 'Bolder', wrap: true, spacing: 'Medium' },\n      ...taskBlocks,\n      {\n        type: 'Container', style: 'emphasis', spacing: 'Medium',\n        items: [{ type: 'TextBlock', text: '📅 Follow-up review: ' + reviewDate + (reviewTime ? ' at ' + reviewTime : ''), size: 'Small', isSubtle: true }]\n      }\n    ],\n    actions: planUrl ? [{\n      type: 'Action.OpenUrl',\n      title: '✅ Open in Planner to mark complete',\n      url: planUrl\n    }] : []\n  };\n\n  return { json: {\n    owner_name: p.owner_name,\n    owner_email: p.owner_email,\n    teams_payload: {\n      body: { contentType: 'html', content: '<attachment id=\"card1\"></attachment>' },\n      attachments: [{\n        id: 'card1',\n        contentType: 'application/vnd.microsoft.card.adaptive',\n        contentUrl: null,\n        content: JSON.stringify(card),\n        name: null,\n        thumbnailUrl: null\n      }]\n    }\n  }};\n});"
       },
       "id": "build-teams-msg-001",
       "name": "Build Teams Message",
@@ -664,6 +664,70 @@
         300
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://graph.microsoft.com/v1.0/groups/95635571-5e68-4543-bddf-d019fe658a37/planner/plans",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "options": {}
+      },
+      "id": "fetch-plan-001",
+      "name": "Fetch Planner Plan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        80
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $('Apply Edits').item.json.final_internal_items || [];\nconst plans = $input.first().json.value || [];\nconst planId = plans.length > 0 ? plans[0].id : '';\nif (items.length === 0 || !planId) return [{ json: { status: 'no_planner_plan' } }];\nreturn items.map(item => ({ json: { ...item, planId } }));"
+      },
+      "id": "split-planner-001",
+      "name": "Split Tasks for Planner",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3760,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/planner/tasks",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({planId: $json.planId, title: $json.task, dueDateTime: $json.deadline + 'T00:00:00Z', priority: $json.priority === 'critical' ? 1 : $json.priority === 'high' ? 3 : $json.priority === 'low' ? 9 : 5}) }}",
+        "options": {}
+      },
+      "id": "create-planner-task-001",
+      "name": "Create Planner Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4000,
+        -80
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -897,11 +961,6 @@
       "main": [
         [
           {
-            "node": "Split Internal Items",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Split External Emails",
             "type": "main",
             "index": 0
@@ -913,6 +972,11 @@
           },
           {
             "node": "Split Deadline Reminders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Planner Plan",
             "type": "main",
             "index": 0
           }
@@ -1034,6 +1098,44 @@
         [
           {
             "node": "Apply Edits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Planner Plan": {
+      "main": [
+        [
+          {
+            "node": "Split Internal Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Tasks for Planner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Tasks for Planner": {
+      "main": [
+        [
+          {
+            "node": "Create Planner Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Planner Tasks": {
+      "main": [
+        [
+          {
+            "node": "Done",
             "type": "main",
             "index": 0
           }

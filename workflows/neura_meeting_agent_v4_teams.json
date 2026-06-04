@@ -1,0 +1,1022 @@
+{
+  "name": "NEURA Meeting Agent v4 — Pre-Approval Calendar + Apply Edits",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## NEURA Meeting Agent v4\n**6 tools, per-action-item granularity**\n\n1. check_blocker_history (all blockers, first)\n2. send_action_chat (ONE call per action item, not per person)\n3. draft_external_email (formal external emails)\n4. check_calendar_availability (before any meeting)\n5. schedule_followup_meeting (only after free slot confirmed)\n6. create_deadline_reminder (critical/high items → calendar)\n\n**Pre-approval: real Graph API calendar check happens BEFORE approval email**\nParse → Build Calendar URL → Check Real Calendar → Process Calendar → Build Approval Email → Notify Demo → Send Approval → Wait\n\n**Post-approval executes 4 lanes in parallel:**\n→ Teams Chat notifications\n→ External formal emails\n→ Build Meeting Details → Teams meeting → Calendar event\n→ Deadline reminder events\n\n✅ Nothing leaves without human approval\n✅ Apply Edits reads edited data from Wait node POST body",
+        "height": 400,
+        "width": 400,
+        "color": 4
+      },
+      "id": "sticky-001",
+      "name": "Intro",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Routing Logic\n**Internal** (@neura-robotics.com)\n→ send_action_chat (per task)\n→ Teams Chat DM\n\n**External** (Bosch, Siemens)\n→ draft_external_email\n→ Formal email, manager approves\n\n**Meetings**\n→ check_calendar_availability first\n→ Then schedule_followup_meeting\n→ Real Graph API calendar check\n   BEFORE sending approval email\n→ Apply Edits reads rescheduled times\n   from Wait node POST body\n\n**Deadlines**\n→ create_deadline_reminder\n→ Calendar events in manager inbox\n→ 24h reminder before each deadline",
+        "height": 340,
+        "width": 340,
+        "color": 6
+      },
+      "id": "sticky-002",
+      "name": "Routing Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        500
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-001",
+      "name": "Run Demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        460,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "neura-demo-trigger-v3",
+        "responseMode": "onReceived",
+        "options": {
+          "responseData": "noData",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "webhook-trigger-001",
+      "name": "Web Demo Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        460,
+        380
+      ],
+      "webhookId": "neura-demo-trigger-v3"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    meeting_title: 'Robot Arm Integration Review — Sprint 7',\n    meeting_date: '2026-06-03',\n    organizer: { name: 'Maria Schmidt', email: 'maria.schmidt@neura-robotics.com' },\n    attendees: [\n      { name: 'Maria Schmidt',  email: 'maria.schmidt@neura-robotics.com', is_external: false },\n      { name: 'Felix Wagner',   email: 'felix.wagner@neura-robotics.com',  is_external: false },\n      { name: 'Jonas Mueller',  email: 'jonas.mueller@neura-robotics.com', is_external: false },\n      { name: 'Anna Richter',   email: 'anna.richter@neura-robotics.com',  is_external: false },\n      { name: 'Thomas Becker',  email: 'thomas.becker@bosch.com',          is_external: true,  company: 'Bosch' },\n      { name: 'Dr. Sarah Chen', email: 'sarah.chen@siemens.com',           is_external: true,  company: 'Siemens PLM' }\n    ],\n    transcript: `Maria Schmidt: Good morning. Sprint 7 integration review. I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.\n\nFelix Wagner: I need to lead with something critical. The IMU sensor calibration drift is back. We discussed this in Sprint 5 and it was marked as resolved. It is not. Build 2.6 still shows 2.1 millimetre precision errors on the targeting arm. I flagged this in the last two sprints. Jonas — I need your corrected calibration constants before I can close the firmware patch. My deadline for the full firmware integration is June 10th.\n\nJonas Mueller: I have isolated the root cause — temperature coefficient variance in the April MEMS batch. I can deliver the corrected calibration constants to Felix by Wednesday June 8th. That is a hard deadline for me. I also need to raise the power consumption issue — build 2.6 is drawing 318 watts at peak load. We are 38 watts over the 280-watt target. I flagged this exact issue in the build 2.4 review three weeks ago and it was deprioritised. I can deliver a full root cause analysis and power audit findings also by June 8th.\n\nAnna Richter: From QA — I cannot begin integration testing until I have Felix's patched firmware and Jonas's calibration constants. My automated test harness is complete and idle. If I receive all inputs by June 9th end of day, I can complete the full test cycle and present results at the QA sprint review on June 11th. June 9th is my hard input deadline.\n\nMaria Schmidt: Thomas — this is the third consecutive sprint where we have been blocked waiting for the Bosch REST API documentation. We missed the Sprint 6 integration milestone entirely because of this. I need a definitive answer today.\n\nThomas Becker: Maria, I take full responsibility. Bosch had an internal re-scoping of the Business IoT division. That re-scoping is now complete. I personally commit to delivering the complete REST API documentation and the hardware interface specification by Friday June 6th. I will run a technical walkthrough call in the week of June 9th. You will have formal written confirmation from me by end of business today.\n\nMaria Schmidt: Thomas, this is the third time we have received a commitment and it has not been delivered. I need that written confirmation today without fail. Felix — if the Bosch docs arrive June 6th, what is your timeline?\n\nFelix Wagner: Bosch API docs by June 6th plus Jonas's calibration constants by June 8th — I can deliver the complete firmware integration and patch by June 10th. That is my firm commitment.\n\nMaria Schmidt: Dr. Chen, welcome. Please walk us through the Siemens PLM simulation deliverable.\n\nDr. Sarah Chen: Thank you. Siemens PLM is delivering the digital twin simulation models for the end-effector assembly. I have an immediate concern. The NEURA specification documents I received reference revision 3.1 of the gripper interface, but all our simulation models were built against revision 2.8. Before I can validate or deliver anything, NEURA must confirm revision 3.1 is the current target and provide the updated mechanical specification. Without it I cannot guarantee accuracy.\n\nFelix Wagner: We are on revision 3.1. Jonas, you own the mechanical interface spec.\n\nJonas Mueller: I can prepare the complete revision 3.1 mechanical specification sheet and send it directly to Dr. Chen by Sunday June 7th. That is a third deliverable I am committing to this sprint.\n\nDr. Sarah Chen: If I receive the 3.1 spec by June 7th, I can deliver the validated simulation models by June 12th. I will send written confirmation of this timeline by end of today.\n\nMaria Schmidt: Good. I am scheduling a mandatory Bosch Integration Review for June 13th at 9am. Felix and Thomas must both attend. If the Bosch API docs do not arrive by June 6th, the June 13th session becomes an executive escalation call. Thomas, I also need you to confirm attendance to that meeting in your written email today. Agreed?\n\nThomas Becker: Agreed. I will deliver by June 6th and confirm June 13th attendance in today's email.\n\nMaria Schmidt: Final commitment summary. One: Felix delivers firmware integration and patch by June 10th, depends on Bosch docs and Jonas calibration constants. Two: Jonas delivers calibration constants to Felix by June 8th, power audit findings by June 8th, and revision 3.1 spec to Dr. Chen by June 7th — three separate deliverables. Three: Anna completes QA test cycle by June 11th pending inputs by June 9th. Four: Thomas delivers API documentation with formal written confirmation and June 13th attendance by end of today. Five: Dr. Sarah Chen delivers simulation models by June 12th pending the 3.1 spec. Six: Bosch Integration Review mandatory June 13th at 9am. Everyone is accountable.\n\nAll: Agreed.`\n  }\n}];"
+      },
+      "id": "sample-001",
+      "name": "Sample Meeting Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse this meeting thoroughly and take all required actions using your tools.\n\nMeeting: {{ $json.meeting_title }}\nDate: {{ $json.meeting_date }}\nOrganizer: {{ $json.organizer.name }} <{{ $json.organizer.email }}>\n\nAttendees:\n{{ $json.attendees.map(a => '- ' + a.name + ' <' + a.email + '>' + (a.is_external ? ' [EXTERNAL — ' + a.company + ']' : ' [NEURA Internal]')).join('\\n') }}\n\nFull Transcript:\n{{ $json.transcript }}\n\nMANDATORY EXECUTION ORDER — follow exactly:\nStep 1: call check_blocker_history for EVERY blocker, delay, and missed commitment (call this FIRST, before anything else)\nStep 2: call send_action_chat for EVERY individual action item — one call per task, NOT per person. If Jonas has three tasks, make three separate calls.\nStep 3: call draft_external_email for each external participant with commitments or requiring formal follow-up\nStep 4: call check_calendar_availability for the proposed meeting date and time\nStep 5: call schedule_followup_meeting only after step 4 confirms availability\nStep 6: call create_deadline_reminder for each critical or high priority action item\nStep 7: return ONLY the raw JSON object",
+        "options": {
+          "systemMessage": "You are the NEURA Robotics AI Meeting Intelligence Agent — a production-grade autonomous assistant embedded in the NEURA Business AI Center.\n\nYour role: transform raw meeting transcripts into comprehensive, actionable follow-up packages that execute automatically across M365 after human approval. Completeness is critical — missing an action item or deadline means it gets lost.\n\nYou have SIX tools. Use ALL that apply:\n\n━━━ TOOL 1: check_blocker_history ━━━\nMANDATORY for EVERY blocker, delayed commitment, or recurring issue mentioned.\nCall FIRST — before any other tool.\nDo not skip even for issues that seem minor.\n\n━━━ TOOL 2: send_action_chat ━━━\nCall ONCE PER ACTION ITEM — NOT once per person.\nIf Jonas Mueller has three distinct tasks, make THREE separate calls.\nFor INTERNAL team members only (@neura-robotics.com domain).\nEach call = one Teams Chat message for one specific task.\nInclude: precise task, exact deadline, priority (critical/high/medium/low), dependencies.\n\n━━━ TOOL 3: draft_external_email ━━━\nCall for EVERY external participant (any non @neura-robotics.com domain) who has commitments or needs formal written follow-up.\nWrite the COMPLETE professional email — greeting, full body, accountability statement, professional sign-off.\nFor parties with prior missed commitments: reference the history professionally but firmly, stating the specific consequence of further delay.\nNo placeholders. No [brackets]. Ready to send as written.\n\n━━━ TOOL 4: check_calendar_availability ━━━\nMANDATORY before any call to schedule_followup_meeting.\nChecks the project manager's M365 calendar for conflicts on the proposed date and time.\nPass: date (YYYY-MM-DD), start_time (HH:MM), end_time (HH:MM).\nDo not schedule a meeting without calling this first.\n\n━━━ TOOL 5: schedule_followup_meeting ━━━\nCall ONLY after check_calendar_availability confirms the slot is free.\nCall only if participants explicitly agreed on a future meeting in the transcript.\nPass: title, start_datetime (ISO 8601 e.g. 2026-06-13T09:00:00), end_datetime (ISO 8601), agenda.\n\n━━━ TOOL 6: create_deadline_reminder ━━━\nCall for EVERY critical or high priority action item.\nCreates a calendar event so the project manager tracks all critical deadlines in their M365 calendar.\nPass: title (e.g. 'DEADLINE: Felix firmware integration patch'), owner_name, deadline (YYYY-MM-DD), priority, reminder_note (why this deadline matters for project delivery).\n\n━━━ EXECUTION ORDER — strictly follow ━━━\nStep 1: check_blocker_history for ALL blockers (always first)\nStep 2: send_action_chat for EVERY action item (one call per task)\nStep 3: draft_external_email for each external participant\nStep 4: check_calendar_availability for the proposed meeting\nStep 5: schedule_followup_meeting (only after availability confirmed)\nStep 6: create_deadline_reminder for each critical/high priority item\nStep 7: return ONLY raw JSON\n\n━━━ CLASSIFICATION ━━━\nInternal (@neura-robotics.com) → send_action_chat → Teams Chat message\nExternal (any other domain) → draft_external_email → formal approval email\n\n━━━ EXTERNAL EMAIL STANDARD ━━━\n• Professional but direct — not passive\n• Reference exact prior commitment dates for recurring issues\n• State the specific consequence of further delay (e.g. executive escalation)\n• Use the person's name throughout\n• Sign off from the project manager\n• Ready to send as written — no placeholders\n\n━━━ ESCALATION ━━━\nSet escalation_required: true if a blocker has occurred 3+ times OR an external vendor has missed critical commitments with project-level impact.\n\nReturn ONLY this raw JSON object — no markdown, no code fences, no explanation:\n{\n  \"meeting_summary\": \"2-3 sentences capturing all decisions, blockers identified, and explicit risk level\",\n  \"action_items\": [\n    {\"task\": \"precise actionable description\", \"owner_name\": \"Full Name\", \"owner_email\": \"email\", \"is_external\": false, \"deadline\": \"YYYY-MM-DD\", \"priority\": \"critical|high|medium|low\", \"depends_on\": \"specific dependency or null\", \"channel\": \"teams_chat\"}\n  ],\n  \"external_emails\": [\n    {\"recipient_name\": \"Full Name\", \"recipient_email\": \"email\", \"company\": \"Company\", \"subject\": \"professional subject line\", \"body\": \"complete professional email body ready to send\", \"commitment_date\": \"YYYY-MM-DD\", \"urgency\": \"critical|high|medium\"}\n  ],\n  \"deadline_reminders\": [\n    {\"title\": \"DEADLINE: task name\", \"owner_name\": \"Full Name\", \"deadline\": \"YYYY-MM-DD\", \"priority\": \"critical|high\", \"reminder_note\": \"why this deadline matters for the project\"}\n  ],\n  \"calendar_availability\": {\"date\": \"YYYY-MM-DD\", \"time_slot\": \"HH:MM-HH:MM\", \"is_free\": true, \"checked_calendar\": \"email\", \"status\": \"AVAILABLE or CONFLICT\"},\n  \"decisions\": [\"explicit decisions made in the meeting\"],\n  \"blockers\": [{\"description\": \"blocker description\", \"owner\": \"responsible party\", \"is_recurring\": true, \"occurrences\": 3, \"escalation_needed\": true}],\n  \"follow_up_meeting\": {\"title\": \"title\", \"date\": \"YYYY-MM-DD\", \"time\": \"HH:MM\", \"duration_minutes\": 60, \"attendees\": [\"emails\"], \"agenda\": \"detailed agenda\"},\n  \"external_participants_detected\": true,\n  \"external_participants\": [\"Name (Company)\"],\n  \"risk_flags\": [\"specific risks with project impact\"],\n  \"escalation_required\": true,\n  \"escalation_reason\": \"specific reason for escalation\"\n}"
+        }
+      },
+      "id": "agent-001",
+      "name": "Meeting Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        960,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-4o",
+          "mode": "id"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "llm-001",
+      "name": "OpenAI GPT4 (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        780,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "7wkvUA54dxB7iO6O",
+          "name": "OpenRouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "check_blocker_history",
+        "description": "Checks meeting history for recurring blockers. CALL FOR EVERY blocker, delay, or missed commitment mentioned — call this FIRST before any other tool. Pass JSON with topic (string describing the issue).",
+        "jsCode": "const input = $input.first().json;\nconst topic = (input.topic || input.query || '').toLowerCase();\nconst history = [\n  { date: '2026-05-07', sprint: 6, topic: 'bosch api documentation delay', occurrences: 1, impact: 'Sprint 6 integration milestone missed entirely — 2 week project delay' },\n  { date: '2026-04-23', sprint: 5, topic: 'bosch api documentation delay', occurrences: 1, impact: 'Integration testing blocked for 2 weeks, Sprint 5 milestone slipped' },\n  { date: '2026-04-09', sprint: 4, topic: 'bosch api documentation', occurrences: 1, impact: 'Firmware integration planning blocked, team idle' },\n  { date: '2026-05-14', sprint: 6, topic: 'imu sensor calibration drift precision error', occurrences: 1, impact: 'Precision targeting error 2.3mm, Sprint 6 firmware integration delayed' },\n  { date: '2026-04-30', sprint: 5, topic: 'imu calibration sensor drift', occurrences: 1, impact: 'Precision errors 2.8mm, marked as resolved in Sprint 5 but not fixed' },\n  { date: '2026-05-21', sprint: 6, topic: 'power consumption regression watt budget', occurrences: 1, impact: 'Build 2.4 exceeded 280W budget by 34W, deprioritised in sprint planning — now recurring' }\n];\nconst words = topic.split(' ').filter(w => w.length > 3);\nconst matches = history.filter(h => words.some(w => h.topic.includes(w)));\nif (matches.length > 0) {\n  const total = matches.reduce((s, m) => s + m.occurrences, 0) + 1;\n  return JSON.stringify({\n    is_recurring: true,\n    total_occurrences: total,\n    first_seen: matches[matches.length - 1].date,\n    last_seen: matches[0].date,\n    sprint_history: matches.map(m => 'Sprint ' + m.sprint + ' (' + m.date + ')').join(', '),\n    pattern: 'RECURRING BLOCKER — seen ' + total + ' times across ' + matches.length + ' sprint(s)',\n    historical_impact: matches.map(m => m.impact).join(' | '),\n    recommendation: total >= 3 ? 'IMMEDIATE ESCALATION REQUIRED — pattern indicates systemic failure, not coincidence' : 'Monitor closely — second occurrence, escalation imminent',\n    escalation_threshold_reached: total >= 3\n  });\n}\nreturn JSON.stringify({\n  is_recurring: false,\n  total_occurrences: 1,\n  pattern: 'First occurrence — no prior history found',\n  recommendation: 'Log and monitor',\n  escalation_threshold_reached: false\n});"
+      },
+      "id": "tool-001",
+      "name": "check_blocker_history",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "schedule_followup_meeting",
+        "description": "Queues a follow-up meeting for scheduling after approval. Call ONLY after check_calendar_availability confirms the slot is free, and only if participants explicitly agreed on a future meeting. Pass: title, start_datetime (ISO 8601 e.g. 2026-06-13T09:00:00), end_datetime (ISO 8601 e.g. 2026-06-13T10:00:00), agenda.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nreturn JSON.stringify({\n  success: true,\n  status: 'Meeting queued: ' + (d.title || 'Follow-up') + ' on ' + (d.start_datetime || 'TBD'),\n  note: 'Calendar availability was checked first. Will be created in Teams after human approval.'\n});"
+      },
+      "id": "tool-002",
+      "name": "schedule_followup_meeting",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "send_action_chat",
+        "description": "Queues ONE Teams Chat notification for ONE specific action item. Call ONCE PER ACTION ITEM — not once per person. If Jonas Mueller has 3 tasks, call this tool 3 times. Internal NEURA team members only (@neura-robotics.com). Pass: recipient_name, recipient_email, task (the specific task for this call only), deadline, priority (critical/high/medium/low), meeting_title, depends_on.",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nreturn JSON.stringify({\n  success: true,\n  channel: 'teams_chat',\n  status: 'Teams Chat notification queued for ' + (d.recipient_name || 'team member') + ': ' + (d.task || 'task'),\n  note: 'Will be sent as Teams Chat direct message after human approval'\n});"
+      },
+      "id": "tool-003",
+      "name": "send_action_chat",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        1140,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "draft_external_email",
+        "description": "Drafts a formal email to an EXTERNAL participant (non @neura-robotics.com) who made commitments or needs formal written follow-up. Write the COMPLETE professional email body — greeting, full substance, accountability statement, professional sign-off. For parties with a history of missed commitments, reference prior delays and state the specific consequence of further delay. No placeholders — ready to send as written. Pass: recipient_name, recipient_email, company, subject (professional subject line), body (complete email text), commitment_date (YYYY-MM-DD), urgency (critical/high/medium).",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nreturn JSON.stringify({\n  success: true,\n  channel: 'external_email',\n  status: 'Formal email drafted for ' + (d.recipient_name || 'external contact') + ' at ' + (d.company || 'company'),\n  note: 'Queued for manager review — will be sent only after approval',\n  recipient: d.recipient_name,\n  company: d.company,\n  commitment_date: d.commitment_date\n});"
+      },
+      "id": "tool-004",
+      "name": "draft_external_email",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "check_calendar_availability",
+        "description": "Checks the project manager's M365 calendar for conflicts on a proposed meeting date and time. ALWAYS call this before schedule_followup_meeting. Pass: date (YYYY-MM-DD), start_time (HH:MM), end_time (HH:MM).",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst date = d.date || (d.start_datetime || '').split('T')[0];\nconst startTime = d.start_time || '09:00';\nconst endTime = d.end_time || '10:00';\n\n// Demo: simulates checking AncyJoseph@Fututrice calendar via Microsoft Graph\n// Production: GET /v1.0/me/calendarView?startDateTime={date}T{start}Z&endDateTime={date}T{end}Z\nconst mockConflicts = [];\n\nif (mockConflicts.length > 0) {\n  return JSON.stringify({\n    date,\n    time_slot: startTime + '–' + endTime,\n    is_free: false,\n    checked_calendar: 'AncyJoseph@Fututrice.onmicrosoft.com',\n    conflicts: mockConflicts,\n    suggested_alternatives: [date + ' 14:00–15:00', date + ' 15:30–16:30'],\n    status: 'CONFLICT — use a suggested alternative',\n    note: 'Demo: checking AncyJoseph M365 calendar'\n  });\n}\n\nreturn JSON.stringify({\n  date,\n  time_slot: startTime + '–' + endTime,\n  is_free: true,\n  checked_calendar: 'AncyJoseph@Fututrice.onmicrosoft.com',\n  conflicts: [],\n  status: 'AVAILABLE — safe to schedule at this time',\n  note: 'Demo: checking AncyJoseph M365 calendar'\n});"
+      },
+      "id": "tool-005",
+      "name": "check_calendar_availability",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "create_deadline_reminder",
+        "description": "Creates a calendar reminder event for a critical or high priority action item deadline. Call for EVERY critical or high priority task so the project manager tracks all key dates in their M365 calendar. Pass: title (e.g. 'DEADLINE: Felix firmware integration patch'), owner_name, deadline (YYYY-MM-DD), priority (critical/high), reminder_note (why this deadline matters for the project).",
+        "jsCode": "const raw = $input.first().json;\nconst d = typeof raw === 'string' ? JSON.parse(raw) : raw;\nreturn JSON.stringify({\n  success: true,\n  queued: true,\n  status: 'Deadline reminder queued: ' + (d.title || 'DEADLINE') + ' on ' + (d.deadline || 'TBD'),\n  calendar_event: (d.title || 'DEADLINE') + ' — ' + (d.owner_name || '') + ' — due ' + (d.deadline || 'TBD'),\n  priority: d.priority || 'high',\n  note: 'Will be created as calendar event with 24h reminder after approval'\n});"
+      },
+      "id": "tool-006",
+      "name": "create_deadline_reminder",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output || '';\nlet parsed;\ntry {\n  let text = typeof raw === 'string' ? raw : JSON.stringify(raw);\n  text = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n  const start = text.indexOf('{'); const end = text.lastIndexOf('}');\n  if (start !== -1 && end > start) { parsed = JSON.parse(text.slice(start, end + 1)); }\n  else { throw new Error('No JSON block found in agent output'); }\n} catch(e) {\n  parsed = {\n    meeting_summary: 'Parse error — check agent output',\n    action_items: [], external_emails: [], deadline_reminders: [],\n    calendar_availability: null, external_participants_detected: false,\n    blockers: [], follow_up_meeting: null,\n    risk_flags: ['Parse error: ' + e.message],\n    escalation_required: false, escalation_reason: ''\n  };\n}\nif (!parsed.external_emails) parsed.external_emails = [];\nif (!parsed.action_items) parsed.action_items = [];\nif (!parsed.deadline_reminders) parsed.deadline_reminders = [];\nif (!parsed.calendar_availability) parsed.calendar_availability = null;\nif (!parsed.escalation_required) parsed.escalation_required = false;\nparsed.action_items = parsed.action_items.map(item => ({\n  ...item,\n  is_external: item.is_external || false,\n  channel: item.channel || (item.is_external ? 'email' : 'teams_chat')\n}));\nreturn [{ json: parsed }];"
+      },
+      "id": "parse-001",
+      "name": "Parse Agent Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Parse Agent Output').item.json;\nconst followup = data.follow_up_meeting || {};\nconst date = followup.date || '2026-06-13';\nreturn [{ json: {\n  meeting_date: date,\n  start_check: date + 'T08:00:00Z',\n  end_check: date + 'T11:00:00Z',\n  meeting_title: followup.title || 'Bosch Integration Review',\n  meeting_time: followup.time || '09:00',\n  meeting_duration: followup.duration_minutes || 60,\n  meeting_agenda: followup.agenda || 'Review integration progress'\n}}];"
+      },
+      "id": "build-cal-url-001",
+      "name": "Build Calendar Check URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=' + $json.start_check + '&endDateTime=' + $json.end_check + '&$select=subject,start,end&$orderby=start/dateTime' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "options": {}
+      },
+      "id": "check-cal-001",
+      "name": "Check Real Calendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1720,
+        300
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const calResponse = $input.first().json;\nconst calInput = $('Build Calendar Check URL').item.json;\nconst events = calResponse.value || [];\nconst conflicts = events.filter(e => e.subject && !e.subject.includes('NEURA AI'));\nconst hasConflict = conflicts.length > 0;\nconst availabilityNote = hasConflict\n  ? '⚠ CONFLICT on ' + calInput.meeting_date + ' ' + calInput.meeting_time + ': ' + conflicts.map(e => '\"' + e.subject + '\"').join(', ')\n  : '✅ Calendar confirmed available on ' + calInput.meeting_date + ' at ' + calInput.meeting_time;\n// Calculate next days without Date() (not allowed in n8n)\nfunction addDays(dateStr, n) {\n  const p = dateStr.split('-').map(Number);\n  let y = p[0], m = p[1], d = p[2] + n;\n  const dim = [0,31,(y%4===0&&(y%100!==0||y%400===0))?29:28,31,30,31,30,31,31,30,31,30,31];\n  while (d > dim[m]) { d -= dim[m]; m++; if (m > 12) { m = 1; y++; } }\n  return y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');\n}\nconst d = calInput.meeting_date;\nconst nd1 = addDays(d, 1);\nconst nd2 = addDays(d, 2);\nconst suggestedTimes = hasConflict ? [\n  { label: 'Same day — afternoon', date: d,   time: '14:00', datetime: d   + 'T14:00:00', display: d   + ' at 14:00–15:00' },\n  { label: 'Next day — morning',   date: nd1, time: '09:00', datetime: nd1 + 'T09:00:00', display: nd1 + ' at 09:00–10:00' },\n  { label: 'Next day — afternoon', date: nd1, time: '14:00', datetime: nd1 + 'T14:00:00', display: nd1 + ' at 14:00–15:00' },\n  { label: '+2 days — morning',    date: nd2, time: '09:00', datetime: nd2 + 'T09:00:00', display: nd2 + ' at 09:00–10:00' }\n] : [];\nreturn [{ json: {\n  title: calInput.meeting_title, date: d, time: calInput.meeting_time,\n  duration_minutes: calInput.meeting_duration, agenda: calInput.meeting_agenda,\n  is_free: !hasConflict, availability_note: availabilityNote,\n  conflict_count: conflicts.length, conflict_subjects: conflicts.map(e => e.subject),\n  suggested_times: suggestedTimes\n}}];"
+      },
+      "id": "process-cal-001",
+      "name": "Process Calendar Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const calCheck = $input.first().json;\nconst data = $('Parse Agent Output').item.json;\n\nconst internalItems = (data.action_items || []).filter(i => !i.is_external);\nconst externalEmails = data.external_emails || [];\nconst reminders = data.deadline_reminders || [];\nconst followup = data.follow_up_meeting || null;\nconst externals = data.external_participants || [];\nconst hasExternal = data.external_participants_detected;\nconst recurringBlockers = (data.blockers || []).filter(b => b.is_recurring);\nconst risks = data.risk_flags || [];\nconst escalation = data.escalation_required;\nconst escalationReason = data.escalation_reason || '';\n\nconst rawApprove = $execution.resumeUrl + '&approved=true';\nconst rawReject = $execution.resumeUrl + '&approved=false';\nconst resumeUrl = 'http://localhost:8080?action=approve&n8n=' + encodeURIComponent(rawApprove);\nconst rejectUrl = 'http://localhost:8080?action=reject&n8n=' + encodeURIComponent(rawReject);\nconst n8nApproveUrl = rawApprove;\nconst n8nRejectUrl = rawReject;\n\nconst pc = { critical: '#dc3545', high: '#fd7e14', medium: '#ffc107', low: '#6c757d' };\n\n// Escalation banner\nlet escalationHtml = escalation\n  ? '<div style=\"background:#fff0f0;border:2px solid #dc3545;border-radius:6px;padding:12px;margin-bottom:14px\"><b style=\"color:#dc3545\">⚠ ESCALATION REQUIRED</b><br><span style=\"font-size:13px\">' + escalationReason + '</span></div>'\n  : '';\n\n// External warning\nlet warningHtml = (hasExternal && externals.length)\n  ? '<div style=\"background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px;margin-bottom:14px\"><b>External participants:</b> ' + externals.join(', ') + '<br><span style=\"font-size:13px\">Formal emails to external parties require your explicit approval.</span></div>'\n  : '';\n\n// Internal Teams Chat items\nlet teamsHtml = '';\ninternalItems.forEach(item => {\n  const pColor = pc[item.priority] || '#6c757d';\n  teamsHtml += '<div style=\"border:1px solid #5b5fc7;border-radius:6px;padding:12px;margin:6px 0;background:#f3f2fc\">';\n  teamsHtml += '<p style=\"margin:0 0 4px 0\"><b>💬 Teams Chat → ' + item.owner_name + '</b> <span style=\"background:#5b5fc7;color:white;font-size:11px;padding:2px 6px;border-radius:3px\">TEAMS CHAT</span></p>';\n  teamsHtml += '<p style=\"margin:0 0 4px 0;color:#555;font-size:13px\">' + item.owner_email + '</p>';\n  teamsHtml += '<p style=\"margin:0 0 4px 0\"><b>Task:</b> ' + item.task + '</p>';\n  teamsHtml += '<p style=\"margin:0\"><b>Deadline:</b> ' + item.deadline + ' &nbsp;<b style=\"color:' + pColor + '\">' + (item.priority || 'medium').toUpperCase() + '</b>';\n  if (item.depends_on) teamsHtml += ' &nbsp;<span style=\"color:#666;font-size:12px\">Depends on: ' + item.depends_on + '</span>';\n  teamsHtml += '</p></div>';\n});\n\n// External formal email drafts\nlet emailsHtml = '';\nexternalEmails.forEach(ext => {\n  const uColor = pc[ext.urgency] || '#dc3545';\n  emailsHtml += '<div style=\"border:1px solid #dc3545;border-radius:6px;padding:12px;margin:6px 0;background:#fff8f8\">';\n  emailsHtml += '<p style=\"margin:0 0 4px 0\"><b>✉ Formal Email → ' + ext.recipient_name + '</b> <span style=\"background:#dc3545;color:white;font-size:11px;padding:2px 6px;border-radius:3px\">EXTERNAL · ' + ext.company + '</span></p>';\n  emailsHtml += '<p style=\"margin:0 0 4px 0;color:#555;font-size:13px\">' + ext.recipient_email + '</p>';\n  emailsHtml += '<p style=\"margin:0 0 4px 0\"><b>Subject:</b> ' + ext.subject + '</p>';\n  emailsHtml += '<p style=\"margin:0 0 6px 0\"><b>Commitment:</b> ' + ext.commitment_date + ' &nbsp;<b style=\"color:' + uColor + '\">' + (ext.urgency || 'high').toUpperCase() + '</b></p>';\n  emailsHtml += '<details><summary style=\"cursor:pointer;font-size:12px;color:#0066cc\">▶ Preview email body</summary>';\n  emailsHtml += '<pre style=\"margin:8px 0 0;font-size:12px;color:#333;white-space:pre-wrap;font-family:Arial,sans-serif;background:#f9f9f9;padding:10px;border-radius:4px\">' + ext.body + '</pre></details>';\n  emailsHtml += '</div>';\n});\n\n// Calendar availability badge and conflict alternatives\nconst calBadge = calCheck.is_free\n  ? '<span style=\"background:#28a745;color:white;font-size:11px;padding:2px 8px;border-radius:3px;margin-left:6px\">✅ AVAILABLE</span>'\n  : '<span style=\"background:#dc3545;color:white;font-size:11px;padding:2px 8px;border-radius:3px;margin-left:6px\">⚠ CONFLICT</span>';\n\n// Conflict alternatives section\nlet conflictHtml = '';\nif (!calCheck.is_free && calCheck.suggested_times && calCheck.suggested_times.length > 0) {\n  conflictHtml = '<div style=\"background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px;margin:6px 0\">';\n  conflictHtml += '<p style=\"margin:0 0 8px 0\"><b>⚠ Calendar conflict detected — if there is a conflict, the human will be shown alternatives to pick from in the demo page</b></p>';\n  conflictHtml += '<p style=\"margin:0 0 6px 0;font-size:13px\">Suggested alternative times:</p>';\n  calCheck.suggested_times.forEach(st => {\n    conflictHtml += '<p style=\"margin:2px 0;font-size:13px\">• ' + st.label + ': <b>' + st.display + '</b></p>';\n  });\n  conflictHtml += '</div>';\n}\n\n// Follow-up meeting\nlet meetingHtml = '';\nif (followup) {\n  meetingHtml = '<div style=\"border:1px solid #0d6efd;border-radius:6px;padding:12px;margin:6px 0;background:#f0f4ff\">';\n  meetingHtml += '<p style=\"margin:0 0 6px 0\"><b>📅 Teams Meeting: ' + followup.title + '</b>' + calBadge + '</p>';\n  meetingHtml += '<p style=\"margin:0 0 4px 0\">Date: <b>' + followup.date + ' at ' + followup.time + '</b> (' + followup.duration_minutes + ' min)</p>';\n  meetingHtml += '<p style=\"margin:0 0 4px 0\">Agenda: ' + followup.agenda + '</p>';\n  meetingHtml += '<p style=\"margin:4px 0 0;font-size:12px;color:' + (calCheck.is_free ? '#28a745' : '#dc3545') + '\">';\n  meetingHtml += 'Real calendar verified via Graph API · ' + calCheck.availability_note;\n  meetingHtml += '</p>';\n  meetingHtml += '</div>';\n  if (conflictHtml) meetingHtml += conflictHtml;\n}\n\n// Deadline reminders\nlet remindersHtml = '';\nif (reminders.length > 0) {\n  remindersHtml = '<h4 style=\"border-bottom:1px solid #0d6efd;padding-bottom:6px;color:#0d6efd\">⏰ Deadline Reminders — ' + reminders.length + ' calendar events to create</h4>';\n  reminders.forEach(r => {\n    const pColor = pc[r.priority] || '#ffc107';\n    remindersHtml += '<div style=\"border:1px solid #dee2e6;border-radius:6px;padding:8px 12px;margin:4px 0;background:#f8f9fa\">';\n    remindersHtml += '<b style=\"color:' + pColor + '\">⏰</b> ' + r.title + ' — deadline: <b>' + r.deadline + '</b>';\n    remindersHtml += ' <span style=\"color:#555;font-size:12px\">(' + r.owner_name + ')</span>';\n    if (r.reminder_note) remindersHtml += '<br><span style=\"font-size:12px;color:#666\">' + r.reminder_note + '</span>';\n    remindersHtml += '</div>';\n  });\n}\n\n// Recurring blockers\nlet blockersHtml = '';\nif (recurringBlockers.length > 0) {\n  blockersHtml = '<h4 style=\"color:#dc3545;border-bottom:1px solid #e0e0e0;padding-bottom:6px\">Recurring Blockers Detected</h4>';\n  recurringBlockers.forEach(b => {\n    blockersHtml += '<p style=\"margin:4px 0\">&#8226; <b>' + b.description + '</b> (seen ' + b.occurrences + '&times;) &mdash; ' + b.owner;\n    if (b.escalation_needed) blockersHtml += ' <b style=\"color:#dc3545\">&#8594; Escalation needed</b>';\n    blockersHtml += '</p>';\n  });\n}\n\n// Risk flags\nlet risksHtml = '';\nif (risks.length > 0) {\n  risksHtml = '<h4 style=\"color:#fd7e14\">Risk Flags</h4>';\n  risks.forEach(r => { risksHtml += '<p style=\"margin:4px 0\">&#8226; ' + r + '</p>'; });\n}\n\nconst totalActions = internalItems.length + externalEmails.length;\nconst subject = '[v4 Review Required] ' + internalItems.length + ' Teams chats + ' + externalEmails.length + ' external emails + ' + reminders.length + ' deadline reminders' + (escalation ? ' — ESCALATION REQUIRED' : '');\n\nlet html = '<div style=\"font-family:Arial,sans-serif;max-width:640px;color:#1a1a1a\">';\nhtml += '<h2 style=\"color:#1a1a2e;margin-bottom:4px\">NEURA AI Meeting Agent v4</h2>';\nhtml += '<h3 style=\"color:#e63946;margin-top:0\">Review &amp; Approve Before Sending</h3>';\nhtml += escalationHtml + warningHtml;\nhtml += '<h4 style=\"border-bottom:1px solid #e0e0e0;padding-bottom:6px\">Meeting Summary</h4>';\nhtml += '<p>' + (data.meeting_summary || '') + '</p>';\nif (internalItems.length > 0) {\n  html += '<h4 style=\"border-bottom:1px solid #5b5fc7;padding-bottom:6px;color:#5b5fc7\">💬 Teams Chat Notifications (' + internalItems.length + ')</h4>';\n  html += teamsHtml;\n}\nif (externalEmails.length > 0) {\n  html += '<h4 style=\"border-bottom:1px solid #dc3545;padding-bottom:6px;color:#dc3545\">✉ Formal Emails — External Parties (' + externalEmails.length + ')</h4>';\n  html += emailsHtml;\n}\nif (meetingHtml) {\n  html += '<h4 style=\"border-bottom:1px solid #e0e0e0;padding-bottom:6px\">Teams Meeting to Schedule</h4>';\n  html += meetingHtml;\n}\nif (remindersHtml) html += remindersHtml;\nif (blockersHtml) html += blockersHtml;\nif (risksHtml) html += risksHtml;\nhtml += '<br><hr style=\"border:none;border-top:1px solid #e0e0e0\">';\nhtml += '<p><b>If you approve:</b> ' + internalItems.length + ' Teams Chats + ' + externalEmails.length + ' external emails + ' + reminders.length + ' deadline calendar events + 1 Teams meeting = everything executes in the next 15 seconds.</p>';\nhtml += '<table style=\"margin-top:12px\"><tr>';\nhtml += '<td><a href=\"' + resumeUrl + '\" style=\"background:#28a745;color:white;padding:14px 36px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;display:inline-block\">Approve &amp; Send All</a></td>';\nhtml += '<td style=\"width:16px\"></td>';\nhtml += '<td><a href=\"' + rejectUrl + '\" style=\"background:#dc3545;color:white;padding:14px 36px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;display:inline-block\">Reject</a></td>';\nhtml += '</tr></table>';\nhtml += '<br><hr style=\"border:none;border-top:1px solid #e0e0e0\"><p style=\"color:#999;font-size:12px\"><i>NEURA AI Meeting Agent v4 | Teams + External Email + Calendar + Apply Edits | Powered by Futurice</i></p>';\nhtml += '</div>';\n\nreturn [{ json: {\n  subject, html,\n  resume_url: resumeUrl, reject_url: rejectUrl,\n  n8n_approve_url: n8nApproveUrl, n8n_reject_url: n8nRejectUrl,\n  item_count: totalActions,\n  internal_items: internalItems,\n  external_emails: externalEmails,\n  deadline_reminders: reminders,\n  calendar_check: calCheck,\n  follow_up_meeting: followup,\n  meeting_summary: data.meeting_summary,\n  external_participants: externals,\n  has_external: hasExternal,\n  blockers: recurringBlockers,\n  escalation_required: escalation,\n  escalation_reason: escalationReason\n}}];"
+      },
+      "id": "build-approval-001",
+      "name": "Build Approval Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8080/hitl",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(({ approve_url: $json.n8n_approve_url, reject_url: $json.n8n_reject_url, meeting_summary: $json.meeting_summary, internal_items: $json.internal_items, external_emails: $json.external_emails, deadline_reminders: $json.deadline_reminders, calendar_check: $json.calendar_check, follow_up_meeting: $json.follow_up_meeting, external_participants: $json.external_participants, has_external: $json.has_external, item_count: $json.item_count, blockers: $json.blockers, escalation_required: $json.escalation_required, escalation_reason: $json.escalation_reason })) }}",
+        "options": {}
+      },
+      "id": "notify-demo-001",
+      "name": "Notify Demo Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({message: {subject: $json.subject, body: {contentType: 'HTML', content: $json.html}, toRecipients: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'} }], importance: 'high'}, saveToSentItems: true}) }}",
+        "options": {}
+      },
+      "id": "send-approval-001",
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2680,
+        300
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "id": "wait-001",
+      "name": "Wait for Human Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2920,
+        300
+      ],
+      "webhookId": "hitl-neura-demo-v3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ String($json.query?.approved || $json.body?.approved) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-approved-001",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [
+        3160,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const waitOutput = $input.first().json;\n// Wait node captures POST body in $json.body, query in $json.query\nconst body = waitOutput.body || {};\nconst editedItems = body.edited_items || null;\nconst editedEmails = body.edited_emails || null;\nconst editedMeeting = body.edited_meeting || null;\nconst original = $('Parse Agent Output').item.json;\nreturn [{ json: {\n  final_internal_items: editedItems || (original.action_items || []).filter(i => !i.is_external),\n  final_external_emails: editedEmails || (original.external_emails || []),\n  final_meeting: editedMeeting || original.follow_up_meeting,\n  deadline_reminders: original.deadline_reminders || [],\n  has_edits: !!(editedItems || editedEmails || editedMeeting)\n}}];"
+      },
+      "id": "apply-edits-001",
+      "name": "Apply Edits",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst items = edits.final_internal_items || [];\nif (items.length === 0) return [{ json: { status: 'no_internal_items' } }];\nconst byOwner = {};\nitems.forEach(item => {\n  const key = item.owner_email;\n  if (!byOwner[key]) byOwner[key] = { owner_name: item.owner_name, owner_email: item.owner_email, tasks: [] };\n  byOwner[key].tasks.push({ task: item.task, deadline: item.deadline, priority: item.priority, depends_on: item.depends_on || null });\n});\nreturn Object.values(byOwner).map(person => ({ json: person }));"
+      },
+      "id": "split-internal-001",
+      "name": "Split Internal Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3640,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $input.first().json;\nconst tasks = p.tasks || [];\nconst pLabel = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };\nconst lines = tasks.map((t, i) => {\n  let s = (i + 1) + '. [' + (pLabel[t.priority] || 'MEDIUM') + '] ' + t.task + '\\n   Due: ' + t.deadline;\n  if (t.depends_on) s += '\\n   Depends on: ' + t.depends_on;\n  return s;\n}).join('\\n\\n');\nconst count = tasks.length;\nconst reviewDate = ($('Apply Edits').item.json.final_meeting || {}).date || 'TBD';\nreturn [{ json: {\n  owner_name: p.owner_name,\n  owner_email: p.owner_email,\n  msg_subject: '[Teams Chat \\u2192 ' + p.owner_name + '] ' + count + ' Action Item' + (count > 1 ? 's' : '') + ' \\u2014 Sprint 7 Review',\n  msg_body: 'Hi ' + p.owner_name + ',\\n\\n' + count + ' action item' + (count > 1 ? 's' : '') + ' from today\\'s Sprint 7 review:\\n\\n' + lines + '\\n\\nFollow-up review: ' + reviewDate + '\\n\\n\\u2014 NEURA AI Meeting Co-Pilot v4 | Futurice\\n\\n[DEMO] Intended for: ' + p.owner_email\n}}];"
+      },
+      "id": "build-teams-msg-001",
+      "name": "Build Teams Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3760,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst emails = edits.final_external_emails || [];\nif (emails.length === 0) return [{ json: { status: 'no_external_emails' } }];\nreturn emails.map(email => ({ json: email }));"
+      },
+      "id": "split-external-001",
+      "name": "Split External Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3640,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst originalCal = $('Process Calendar Result').item.json;\nconst fm = edits.final_meeting || {};\nconst date = fm.date || originalCal.date || '2026-06-13';\nconst time = fm.time || originalCal.time || '09:00';\nconst isRescheduled = fm.date && fm.date !== originalCal.date;\nreturn [{ json: {\n  title: (fm.title || originalCal.title) + (isRescheduled ? ' [Rescheduled]' : ''),\n  date, time,\n  duration_minutes: fm.duration_minutes || originalCal.duration_minutes || 60,\n  agenda: fm.agenda || originalCal.agenda || 'Review integration progress',\n  is_rescheduled: isRescheduled,\n  availability_note: originalCal.availability_note || '✅ Calendar confirmed available'\n}}];"
+      },
+      "id": "build-meeting-001",
+      "name": "Build Meeting Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3640,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst reminders = edits.deadline_reminders || [];\nif (reminders.length === 0) return [{ json: { status: 'no_reminders' } }];\nreturn reminders.map(r => ({ json: r }));"
+      },
+      "id": "split-reminders-001",
+      "name": "Split Deadline Reminders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3640,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "status",
+              "value": "REJECTED — nothing sent",
+              "type": "string"
+            },
+            {
+              "id": "r2",
+              "name": "message",
+              "value": "Human rejected. No Teams chats, no emails, no calendar events.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rejected-001",
+      "name": "Distribution Rejected",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3400,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({message: {subject: $json.msg_subject, body: {contentType: 'Text', content: $json.msg_body}, toRecipients: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'} }], importance: 'high'}, saveToSentItems: true}) }}",
+        "options": {}
+      },
+      "id": "send-teams-001",
+      "name": "Send Teams Notifications",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3960,
+        80
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({message: {subject: '[External Email DEMO → ' + $json.recipient_name + ' | ' + $json.company + '] ' + $json.subject, body: {contentType: 'Text', content: '[DEMO MODE — In production → ' + $json.recipient_email + ' | ' + $json.company + '] [Urgency: ' + ($json.urgency || 'high').toUpperCase() + ']\\n\\n---\\n\\n' + $json.body + '\\n\\n---\\nSent by NEURA AI Meeting Agent v4 | Powered by Futurice'}, toRecipients: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'} }], importance: 'high'}, saveToSentItems: true}) }}",
+        "options": {}
+      },
+      "id": "send-external-001",
+      "name": "Send External Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3880,
+        240
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/onlineMeetings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({subject: $json.title, startDateTime: $json.date + 'T' + $json.time + ':00.0000000Z', endDateTime: $json.date + 'T' + (String(parseInt($json.time.split(':')[0]) + Math.floor(($json.duration_minutes || 60) / 60)).padStart(2,'0')) + ':' + String(($json.time.split(':')[1] ? parseInt($json.time.split(':')[1]) : 0) + (($json.duration_minutes || 60) % 60)).padStart(2,'0') + ':00.0000000Z'}) }}",
+        "options": {}
+      },
+      "id": "teams-meeting-001",
+      "name": "Create Teams Meeting",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3880,
+        400
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/calendar/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({subject: $('Build Meeting Details').item.json.title, start: {dateTime: $('Build Meeting Details').item.json.date + 'T' + $('Build Meeting Details').item.json.time + ':00', timeZone: 'UTC'}, end: {dateTime: $('Build Meeting Details').item.json.date + 'T' + (String(parseInt($('Build Meeting Details').item.json.time.split(':')[0]) + Math.floor(($('Build Meeting Details').item.json.duration_minutes || 60) / 60)).padStart(2,'0')) + ':' + String((parseInt($('Build Meeting Details').item.json.time.split(':')[1] || '0')) + (($('Build Meeting Details').item.json.duration_minutes || 60) % 60)).padStart(2,'0') + ':00', timeZone: 'UTC'}, body: {contentType: 'HTML', content: '<b>Agenda:</b> ' + $('Build Meeting Details').item.json.agenda + '<br><br><b style=\"color:' + ($('Build Meeting Details').item.json.is_rescheduled ? '#fd7e14' : '#28a745') + '\">' + $('Build Meeting Details').item.json.availability_note + '</b><br><br><b>Join Microsoft Teams Meeting:</b><br><a href=\"' + ($json.joinWebUrl || 'link-pending') + '\">Click here to join</a><br><br>' + ($('Build Meeting Details').item.json.is_rescheduled ? '<b style=\"color:#fd7e14\">⚠ This meeting was rescheduled from the originally proposed time.</b><br><br>' : '') + '<i>Scheduled by NEURA AI Meeting Agent v4 | Powered by Futurice</i>'}, attendees: [{emailAddress: {address: 'AncyJoseph@Fututrice.onmicrosoft.com'}, type: 'required'}]}) }}",
+        "options": {}
+      },
+      "id": "calendar-001",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4120,
+        400
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/calendar/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({subject: '⏰ ' + ($json.title || 'DEADLINE'), start: {dateTime: $json.deadline + 'T08:00:00', timeZone: 'UTC'}, end: {dateTime: $json.deadline + 'T09:00:00', timeZone: 'UTC'}, body: {contentType: 'HTML', content: '<b>Deadline Reminder — created by NEURA AI Meeting Agent v4</b><br><br>Owner: ' + $json.owner_name + '<br>Priority: <b>' + ($json.priority || 'high').toUpperCase() + '</b><br><br>' + ($json.reminder_note || '') + '<br><br><i>NEURA AI Meeting Agent v4 | Futurice</i>'}, isReminderOn: true, reminderMinutesBeforeStart: 1440, categories: ['NEURA AI Agent']}) }}",
+        "options": {}
+      },
+      "id": "create-reminders-001",
+      "name": "Create Deadline Reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3880,
+        560
+      ],
+      "credentials": {
+        "microsoftOAuth2Api": {
+          "id": "JpJTuimza9Db1j6c",
+          "name": "Futurice M365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok1",
+              "name": "status",
+              "value": "COMPLETED",
+              "type": "string"
+            },
+            {
+              "id": "ok2",
+              "name": "actions_taken",
+              "value": "Teams Chat notifications sent (per action item, after Apply Edits)\nFormal emails sent to external parties (after Apply Edits)\nDeadline reminder events created in manager calendar\nReal calendar availability verified BEFORE approval email\nApply Edits applied any human edits from Wait node POST body\nBuild Meeting Details handled rescheduled times\nTeams meeting link generated\nCalendar event created with availability note",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "done-001",
+      "name": "Done",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4360,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Run Demo": {
+      "main": [
+        [
+          {
+            "node": "Sample Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Demo Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sample Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Meeting Data": {
+      "main": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Agent Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT4 (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_blocker_history": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "schedule_followup_meeting": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_action_chat": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "draft_external_email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_calendar_availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_deadline_reminder": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Agent Output": {
+      "main": [
+        [
+          {
+            "node": "Build Calendar Check URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Calendar Check URL": {
+      "main": [
+        [
+          {
+            "node": "Check Real Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Real Calendar": {
+      "main": [
+        [
+          {
+            "node": "Process Calendar Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Calendar Result": {
+      "main": [
+        [
+          {
+            "node": "Build Approval Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Approval Email": {
+      "main": [
+        [
+          {
+            "node": "Notify Demo Page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Approval Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Demo Page": {
+      "main": [
+        []
+      ]
+    },
+    "Send Approval Email": {
+      "main": [
+        [
+          {
+            "node": "Wait for Human Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Human Approval": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Apply Edits",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Distribution Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Edits": {
+      "main": [
+        [
+          {
+            "node": "Split Internal Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split External Emails",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Meeting Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Deadline Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Internal Items": {
+      "main": [
+        [
+          {
+            "node": "Build Teams Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split External Emails": {
+      "main": [
+        [
+          {
+            "node": "Send External Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Meeting Details": {
+      "main": [
+        [
+          {
+            "node": "Create Teams Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Deadline Reminders": {
+      "main": [
+        [
+          {
+            "node": "Create Deadline Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Teams Notifications": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send External Emails": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Teams Meeting": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Deadline Reminders": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Teams Message": {
+      "main": [
+        [
+          {
+            "node": "Send Teams Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {}
+}

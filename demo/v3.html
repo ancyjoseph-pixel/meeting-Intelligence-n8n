@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEURA Meeting Agent v3 — Teams + Email</title>
+  <style>
+    :root {
+      --bg:           #0d1117;
+      --surface:      #161b22;
+      --surface-in:   #0d1117;
+      --border:       #21262d;
+      --border-muted: #30363d;
+      --text:         #e6edf3;
+      --text-2:       #c9d1d9;
+      --text-3:       #8b949e;
+      --text-4:       #484f58;
+      --accent:       #58a6ff;
+      --accent-bg:    #1f3a5f;
+      --success:      #3fb950;
+      --success-bg:   #1a3728;
+      --warn:         #d29922;
+      --warn-bg:      #2d2616;
+      --danger:       #f85149;
+      --danger-bg:    #3d1a1a;
+      --teams:        #7b83eb;
+      --teams-bg:     #1e1f3a;
+      --teams-border: #4a4f8a;
+      --step-border:  #21262d;
+    }
+    body.light {
+      --bg:           #ffffff;
+      --surface:      #f6f8fa;
+      --surface-in:   #ffffff;
+      --border:       #d0d7de;
+      --border-muted: #d8dee4;
+      --text:         #1f2328;
+      --text-2:       #1f2328;
+      --text-3:       #57606a;
+      --text-4:       #8c959f;
+      --accent:       #0969da;
+      --accent-bg:    #ddf4ff;
+      --success:      #1a7f37;
+      --success-bg:   #dafbe1;
+      --warn:         #9a6700;
+      --warn-bg:      #fff8c5;
+      --danger:       #cf222e;
+      --danger-bg:    #ffebe9;
+      --teams:        #5b5fc7;
+      --teams-bg:     #f0effc;
+      --teams-border: #8b8ee8;
+      --step-border:  #d0d7de;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+
+    /* HEADER */
+    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border)}
+    .logo-wrap{display:flex;align-items:center;gap:8px}
+    .logo-neura{font-size:20px;font-weight:700;color:var(--accent)}
+    .logo-sep{color:var(--text-4);font-size:16px}
+    .logo-futurice{font-size:14px;color:var(--text-3);font-weight:500}
+    .v3-chip{background:linear-gradient(135deg,#5b5fc7,#7b83eb);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+    .header-right{display:flex;align-items:center;gap:8px}
+    .badge{background:#1f6feb;color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.5px}
+    .icon-btn{background:none;border:1px solid var(--border-muted);color:var(--text-3);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .v2-link{font-size:12px;color:var(--text-4);text-decoration:none;padding:4px 8px;border-radius:4px;border:1px solid var(--border)}
+    .v2-link:hover{color:var(--accent);border-color:var(--accent)}
+
+    /* CONFIG MODAL */
+    .cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center}
+    .cfg-overlay.open{display:flex}
+    .cfg-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:520px;max-width:90vw}
+    .cfg-box h3{font-size:15px;color:var(--text);margin-bottom:4px}
+    .cfg-box p{font-size:13px;color:var(--text-3);margin-bottom:16px}
+    .cfg-row{display:flex;gap:10px;margin-bottom:10px}
+    .cfg-input{background:var(--surface-in);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;flex:1;font-family:monospace}
+    .cfg-input:focus{outline:none;border-color:var(--accent)}
+    .cfg-save{background:#238636;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+    .cfg-hint{font-size:12px;color:var(--text-4);margin-top:10px}
+
+    /* HERO */
+    .hero{text-align:center;padding:56px 40px 28px}
+    .hero h1{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:14px}
+    .hero h1 .accent{color:var(--accent)}
+    .hero h1 .teams-color{color:var(--teams)}
+    .hero p{font-size:17px;color:var(--text-3);max-width:580px;margin:0 auto 16px;line-height:1.7}
+    .capability-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:32px}
+    .chip{background:var(--surface);border:1px solid var(--border);color:var(--text-3);font-size:12px;padding:5px 12px;border-radius:20px}
+    .chip.teams{border-color:var(--teams-border);color:var(--teams);background:var(--teams-bg)}
+    .chip.danger{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+    .chip.success{border-color:var(--success);color:var(--success);background:var(--success-bg)}
+    .start-btn{background:linear-gradient(135deg,#1f6feb,#5b5fc7);color:#fff;border:none;padding:16px 48px;font-size:17px;font-weight:700;border-radius:10px;cursor:pointer;transition:all .2s}
+    .start-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,95,199,.4)}
+    .start-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* TRANSCRIPT */
+    .transcript-section{max-width:780px;margin:0 auto 20px;padding:0 24px}
+    .transcript-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .transcript-header{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+    .transcript-header:hover{background:var(--surface-in)}
+    .transcript-title{font-size:13px;font-weight:600;color:var(--text)}
+    .transcript-toggle{font-size:12px;color:var(--text-4)}
+    .transcript-body{padding:0 18px 18px;font-size:12px;color:var(--text-3);line-height:1.9;white-space:pre-line;font-family:monospace;border-top:1px solid var(--border);max-height:240px;overflow-y:auto;display:none}
+    .transcript-body.open{display:block}
+
+    /* PIPELINE */
+    .pipeline{display:flex;align-items:flex-start;justify-content:center;padding:28px 24px 12px;overflow-x:auto;gap:2px}
+    .step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:88px}
+    .step-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--step-border);background:var(--surface);transition:all .4s;position:relative}
+    .step-icon.active{border-color:var(--accent);background:var(--accent-bg);box-shadow:0 0 20px rgba(88,166,255,.3)}
+    .step-icon.done{border-color:var(--success);background:var(--success-bg)}
+    .step-icon.done::after{content:'✓';position:absolute;bottom:-2px;right:-2px;background:var(--success);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .step-icon.waiting{border-color:var(--warn);background:var(--warn-bg);animation:pulse 1.5s infinite}
+    .step-icon.error{border-color:var(--danger);background:var(--danger-bg)}
+    .step-icon.teams-active{border-color:var(--teams);background:var(--teams-bg)}
+    .step-label{font-size:10px;color:var(--text-3);text-align:center;max-width:80px;line-height:1.4;font-weight:500}
+    .step-label.active{color:var(--accent);font-weight:600}
+    .step-label.done{color:var(--success)}
+    .step-label.waiting{color:var(--warn);font-weight:600}
+    .step-label.teams-active{color:var(--teams);font-weight:600}
+    .arrow{color:var(--border-muted);font-size:18px;padding-bottom:24px;flex-shrink:0}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(210,153,34,.4)}50%{box-shadow:0 0 0 8px rgba(210,153,34,0)}}
+
+    /* STATUS */
+    .status-area{text-align:center;padding:0 24px 20px;min-height:52px}
+    .status-msg{font-size:15px;color:var(--text-3);line-height:1.5}
+    .status-msg.active{color:var(--accent)}
+    .status-msg.done{color:var(--success);font-weight:600}
+    .status-msg.waiting{color:var(--warn);font-weight:600}
+    .status-msg.error{color:var(--danger)}
+
+    /* APPROVAL PANEL */
+    .ap{max-width:780px;margin:0 auto 32px;background:var(--surface);border:2px solid var(--warn);border-radius:14px;overflow:hidden;display:none}
+    .ap-head{background:var(--warn-bg);padding:18px 28px;border-bottom:1px solid var(--warn);display:flex;align-items:center;justify-content:space-between}
+    .ap-head-left h2{font-size:17px;color:var(--warn);margin-bottom:3px}
+    .ap-head-left p{font-size:13px;color:var(--text-3)}
+    .ap-count{background:var(--warn);color:#000;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
+    .ap-body{padding:20px 28px}
+
+    /* banners */
+    .esc-banner{background:var(--danger-bg);border:1.5px solid var(--danger);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px}
+    .esc-banner strong{color:var(--danger)}
+    .esc-reason{color:var(--text-2);margin-top:4px;font-size:13px}
+    .ext-warn{background:var(--warn-bg);border:1px solid var(--warn);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--warn);display:none}
+    .summary-box{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:18px}
+    .sec-label{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px}
+
+    /* blockers */
+    .blockers-box{background:var(--danger-bg);border:1px solid var(--danger);border-radius:8px;padding:12px 16px;margin-bottom:16px}
+    .blocker-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(248,81,73,.2)}
+    .blocker-item:last-child{border-bottom:none}
+    .blocker-count{background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:2px}
+    .blocker-text{font-size:13px;color:var(--text-2)}
+    .blocker-owner{font-size:11px;color:var(--text-3);margin-top:2px}
+
+    /* Teams chat items */
+    .teams-section{margin-bottom:20px}
+    .teams-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--teams-border);margin-bottom:10px}
+    .teams-section-title{font-size:13px;font-weight:700;color:var(--teams)}
+    .teams-count-badge{background:var(--teams);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+    .tc{background:var(--teams-bg);border:1px solid var(--teams-border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+    .tc:hover{border-color:var(--teams)}
+    .tc-head{padding:12px 14px;cursor:pointer}
+    .tc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+    .tc-icon{font-size:16px}
+    .tc-name{font-weight:600;font-size:14px;color:var(--text)}
+    .teams-badge{background:var(--teams);color:#fff;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700}
+    .tc-email{font-size:12px;color:var(--text-3)}
+    .tc-task{font-size:13px;color:var(--text-2);margin-bottom:4px}
+    .tc-meta{font-size:12px;color:var(--text-3);display:flex;gap:12px;flex-wrap:wrap}
+    .pc{font-weight:700}
+    .pc-critical{color:#f85149}.pc-high{color:#fd7e14}.pc-medium{color:#d29922}.pc-low{color:#6c757d}
+    .tc-actions{padding:0 14px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .edit-toggle-btn{background:none;border:1px solid var(--teams-border);color:var(--teams);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
+    .edit-toggle-btn:hover{background:var(--teams-bg);border-color:var(--teams)}
+    .edited-pill{font-size:10px;background:var(--border-muted);color:var(--text-3);padding:2px 8px;border-radius:10px;font-weight:500}
+    .tc-edit-area{padding:0 14px 12px;border-top:1px solid var(--teams-border);display:none}
+    .tc-edit-area.open{display:block}
+    .edit-textarea{width:100%;min-height:110px;background:var(--surface-in);border:1.5px dashed var(--teams-border);border-radius:6px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:10px 12px;resize:vertical;line-height:1.7;margin-top:10px}
+    .edit-textarea:focus{outline:none;border-color:var(--teams);border-style:solid}
+    .done-edit-btn{background:var(--teams);color:#fff;border:none;font-size:11px;padding:5px 14px;border-radius:4px;cursor:pointer;margin-top:8px;font-weight:600}
+
+    /* External email items */
+    .ext-section{margin-bottom:20px}
+    .ext-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--danger);margin-bottom:10px}
+    .ext-section-title{font-size:13px;font-weight:700;color:var(--danger)}
+    .ext-count-badge{background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+    .ec{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+    .ec:hover{border-color:var(--danger)}
+    .ec-head{padding:12px 14px;cursor:pointer}
+    .ec-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+    .ext-badge{background:var(--danger);color:#fff;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700}
+    .ec-name{font-weight:600;font-size:14px;color:var(--text)}
+    .ec-company{font-size:12px;color:var(--text-3)}
+    .ec-meta{font-size:12px;color:var(--text-3)}
+    .subject-input{width:100%;background:var(--surface-in);border:1.5px dashed var(--border-muted);border-radius:5px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:6px 10px;margin-top:5px;margin-bottom:4px}
+    .subject-input:focus{outline:none;border-color:var(--danger);border-style:solid}
+    .ec-actions{padding:0 14px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .ec-edit-btn{background:none;border:1px solid var(--border-muted);color:var(--danger);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
+    .ec-edit-btn:hover{background:var(--danger-bg);border-color:var(--danger)}
+    .edited-pill-red{font-size:10px;background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:10px;font-weight:500;border:1px solid var(--danger)}
+    .ec-edit-area{padding:0 14px 12px;border-top:1px solid var(--border);display:none}
+    .ec-edit-area.open{display:block}
+    .ec-preview{padding:0 14px 12px;border-top:1px solid var(--border);display:none}
+    .ec-preview.open{display:block}
+    .ec-body{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text-2);line-height:1.8;white-space:pre-wrap;font-family:'Segoe UI',Arial,sans-serif;max-height:280px;overflow-y:auto}
+    .ec-toggle{font-size:11px;color:var(--danger);margin-top:5px;display:inline-block;cursor:pointer}
+
+    /* Meeting / Calendar section */
+    .mtg-section{margin-bottom:20px}
+    .mtg-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--accent);margin-bottom:10px}
+    .mtg-section-title{font-size:13px;font-weight:700;color:var(--accent)}
+    .mtg-box{background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+    .mtg-field-row{display:flex;flex-direction:column;margin-bottom:10px}
+    .mtg-field-label{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .mtg-input{background:var(--surface-in);border:1.5px dashed var(--accent);border-radius:5px;color:var(--text);font-size:14px;font-family:'Segoe UI',Arial,sans-serif;padding:7px 10px;font-weight:600}
+    .mtg-input:focus{outline:none;border-color:var(--accent);border-style:solid}
+    .mtg-textarea{background:var(--surface-in);border:1.5px dashed var(--accent);border-radius:5px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:7px 10px;resize:vertical;min-height:60px;line-height:1.6}
+    .mtg-textarea:focus{outline:none;border-color:var(--accent);border-style:solid}
+    .cal-free-badge{display:inline-flex;align-items:center;gap:5px;background:var(--success-bg);border:1px solid var(--success);border-radius:6px;color:var(--success);font-size:12px;font-weight:600;padding:5px 12px;margin-top:6px}
+    .cal-conflict-banner{background:var(--danger-bg);border:1.5px solid var(--danger);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--danger)}
+    .time-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .time-opt{background:var(--surface-in);border:2px solid var(--border-muted);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;position:relative}
+    .time-opt:hover{border-color:var(--teams)}
+    .time-opt.selected{border-color:var(--teams);background:var(--teams-bg)}
+    .time-opt.selected::after{content:'✓';position:absolute;top:6px;right:8px;background:var(--teams);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .time-opt-label{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+    .time-opt-display{font-size:12px;color:var(--text-3)}
+    .time-opt.keep-original{border-color:var(--border-muted)}
+    .time-opt.keep-original.selected{border-color:var(--warn);background:var(--warn-bg)}
+    .time-opt.keep-original.selected::after{background:var(--warn)}
+    .time-changed-pill{font-size:10px;background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:500;border:1px solid var(--accent);margin-left:8px}
+    .conflict-required-note{font-size:12px;color:var(--danger);margin-top:8px;font-weight:600}
+
+    /* Deadline reminders */
+    .rem-section{margin-bottom:20px}
+    .rem-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--accent);margin-bottom:10px}
+    .rem-section-title{font-size:13px;font-weight:700;color:var(--accent)}
+    .rem-count-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+    .rem-item{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;border-left:3px solid var(--accent)}
+    .rem-item.critical{border-left-color:#f85149}
+    .rem-item.high{border-left-color:#fd7e14}
+    .rem-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+    .rem-meta{font-size:12px;color:var(--text-3)}
+    .rem-note{font-size:12px;color:var(--text-4);margin-top:3px}
+
+    /* approval footer */
+    .ap-foot{padding:4px 28px 22px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .btn-approve{background:#238636;color:#fff;border:none;padding:14px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s}
+    .btn-approve:hover{background:#2ea043;transform:translateY(-1px)}
+    .btn-approve:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-reject{background:transparent;color:var(--danger);border:1.5px solid var(--danger);padding:14px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s}
+    .btn-reject:hover{background:var(--danger-bg)}
+    .btn-reject:disabled{opacity:.4;cursor:not-allowed}
+    .ap-note{margin-left:auto;font-size:12px;color:var(--text-3)}
+    .ap-conflict-warn{font-size:12px;color:var(--danger);font-weight:600}
+
+    /* DONE */
+    .done-section{max-width:780px;margin:0 auto 60px;text-align:center;display:none;padding:0 24px}
+    .done-icon{font-size:56px;margin-bottom:14px}
+    .done-title{font-size:26px;font-weight:700;color:var(--success);margin-bottom:8px}
+    .done-sub{font-size:15px;color:var(--text-3);margin-bottom:24px;line-height:1.6}
+    .done-sub strong{color:var(--text)}
+    .done-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:420px;margin:0 auto 28px}
+    .done-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+    .done-card.teams-card{border-color:var(--teams-border)}
+    .done-card.email-card{border-color:var(--danger)}
+    .done-card.cal-card{border-color:var(--accent)}
+    .done-card.reminder-card{border-color:var(--warn-bg)}
+    .done-card-num{font-size:28px;font-weight:700}
+    .done-card.teams-card .done-card-num{color:var(--teams)}
+    .done-card.email-card .done-card-num{color:var(--danger)}
+    .done-card.cal-card .done-card-num{color:var(--accent)}
+    .done-card.reminder-card .done-card-num{color:var(--warn)}
+    .done-card-label{font-size:11px;color:var(--text-3);margin-top:3px}
+
+    /* sent list */
+    .sent-list{max-width:700px;margin:0 auto;text-align:left}
+    .sent-list-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+    .sent-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
+    .sent-item:hover{border-color:var(--accent)}
+    .sent-item.teams-item:hover{border-color:var(--teams)}
+    .sent-item.email-item:hover{border-color:var(--danger)}
+    .sent-item.cal-item{background:var(--accent-bg);border-color:var(--accent)}
+    .sent-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .sent-item-to{font-size:13px;font-weight:600;color:var(--text)}
+    .sent-item-badge{font-size:10px;background:var(--surface-in);color:var(--text-3);padding:2px 7px;border-radius:8px;border:1px solid var(--border)}
+    .sent-item-subject{font-size:13px;color:var(--accent);margin-bottom:2px}
+    .sent-item-hint{font-size:11px;color:var(--text-4)}
+
+    /* REJECTED */
+    .rejected-section{max-width:480px;margin:0 auto 60px;text-align:center;display:none;padding:0 24px}
+
+    /* CONFIRM */
+    .confirm-panel{max-width:460px;margin:80px auto;text-align:center;display:none;padding:0 24px}
+    .confirm-icon{font-size:64px;margin-bottom:18px}
+    .confirm-title{font-size:26px;font-weight:700;margin-bottom:10px}
+    .confirm-title.approved{color:var(--success)}.confirm-title.rejected{color:var(--danger)}
+    .confirm-msg{font-size:15px;color:var(--text-3);line-height:1.6}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--surface-in);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;max-height:84vh;overflow-y:auto;position:relative}
+    .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-3);font-size:22px;cursor:pointer;z-index:1}
+    .modal-close:hover{color:var(--text)}
+
+    /* Teams chat modal */
+    .teams-modal-bar{background:var(--teams-bg);border-bottom:1px solid var(--teams-border);padding:14px 20px;display:flex;align-items:center;gap:12px}
+    .teams-modal-icon{width:40px;height:40px;border-radius:50%;background:var(--teams);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0}
+    .teams-modal-sender{font-size:14px;font-weight:600;color:var(--text)}
+    .teams-modal-sub{font-size:12px;color:var(--text-3)}
+    .teams-modal-body{padding:20px}
+    .teams-chat-bubble{background:var(--surface);border:1px solid var(--teams-border);border-radius:12px;border-top-left-radius:2px;padding:14px 16px;font-size:14px;color:var(--text-2);line-height:1.8;white-space:pre-wrap}
+    .teams-routing{padding:10px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-4)}
+
+    /* Email modal */
+    .email-chrome{border-radius:12px;overflow:hidden}
+    .email-chrome-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px}
+    .email-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#dc3545,#fd7e14);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+    .email-sender-name{font-size:14px;font-weight:600;color:var(--text)}
+    .email-sender-meta{font-size:12px;color:var(--text-3)}
+    .email-fields{padding:10px 20px;border-bottom:1px solid var(--border)}
+    .email-field-row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--border)}
+    .email-field-row:last-child{border-bottom:none}
+    .email-field-key{font-size:11px;color:var(--text-3);min-width:60px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+    .email-field-val{font-size:13px;color:var(--text)}
+    .email-subject{padding:14px 20px;font-size:16px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);line-height:1.4}
+    .email-body-content{padding:18px 20px;font-size:14px;color:var(--text-2);line-height:1.9;white-space:pre-line}
+    .email-routing{padding:10px 20px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-4)}
+
+    /* Cal modal */
+    .cal-body{padding:22px}
+    .cal-field{margin-bottom:14px}
+    .cal-label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;font-weight:600}
+    .cal-value{font-size:14px;color:var(--text-2);line-height:1.6;white-space:pre-line}
+    .cal-teams-box{margin-top:16px;background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;padding:12px 14px}
+
+    /* FOOTER */
+    .footer{text-align:center;padding:24px;color:var(--text-4);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+  </style>
+</head>
+<body>
+
+<!-- CONFIG MODAL -->
+<div class="cfg-overlay" id="cfgOverlay" onclick="if(event.target===this)closeCfg()">
+  <div class="cfg-box">
+    <h3>⚙ Setup</h3>
+    <p>Enter your n8n credentials — saved locally in the browser.</p>
+    <div class="cfg-row"><input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" /></div>
+    <div class="cfg-row"><input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID for v3 (from n8n URL)" /></div>
+    <button class="cfg-save" onclick="saveConfig()">Save & Close</button>
+    <div class="cfg-hint">n8n: localhost:5678 · proxy: python3 proxy.py · webhook path: neura-demo-trigger-v3</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- CONFIRM (email redirect) -->
+<div class="confirm-panel" id="confirmPanel">
+  <div class="confirm-icon" id="confirmIcon">✅</div>
+  <div class="confirm-title" id="confirmTitle">Approved!</div>
+  <div class="confirm-msg" id="confirmMsg">Processing...</div>
+</div>
+
+<div id="mainUI">
+  <div class="header">
+    <div class="logo-wrap">
+      <span class="logo-neura">NEURA</span>
+      <span class="logo-sep">×</span>
+      <span class="logo-futurice">Futurice</span>
+      <span class="v3-chip">v3</span>
+    </div>
+    <div class="header-right">
+      <a class="v2-link" href="index.html">← v2</a>
+      <span class="badge">LIVE PROTOTYPE</span>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+      <button class="icon-btn" onclick="openCfg()" title="Settings">⚙</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Meeting <span class="accent">Intelligence</span><br><span class="teams-color">Teams</span> + Email</h1>
+    <p>GPT-4o processes the meeting, checks blocker history, sends Teams Chat notifications to internal team, and drafts formal emails for external parties — all after your one-click approval.</p>
+    <div class="capability-chips">
+      <span class="chip teams">💬 Teams Chat for internals</span>
+      <span class="chip danger">✉ Formal emails for externals</span>
+      <span class="chip success">🔍 Recurring blocker detection</span>
+      <span class="chip">📅 Auto meeting scheduler</span>
+      <span class="chip">👤 Human-in-the-loop edit</span>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startDemo()">▶ Start Demo</button>
+  </div>
+
+  <div class="transcript-section">
+    <div class="transcript-box">
+      <div class="transcript-header" onclick="toggleTranscript()">
+        <span class="transcript-title">📋 Meeting Transcript — Robot Arm Integration Review · Sprint 7 · June 3 2026 · 6 participants (2 external)</span>
+        <span class="transcript-toggle" id="transcriptToggle">▼ collapse</span>
+      </div>
+      <div class="transcript-body open" id="transcriptBody">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
+
+Felix Wagner: I need to lead with something critical. The IMU sensor calibration drift is back. We discussed this in Sprint 5 and it was marked as resolved. It is not. Build 2.6 still shows 2.1 millimetre precision errors. I flagged this in the last two sprints. Jonas — I need your calibration constants before I can close the firmware patch.
+
+Jonas Mueller: I have isolated the root cause — temperature coefficient variance in the April MEMS batch. I can deliver corrected calibration constants to Felix by Wednesday June 8th. I also need to raise the power consumption issue — build 2.6 is drawing 318 watts at peak. We are 38 watts over the 280-watt target. I flagged this in the build 2.4 review three weeks ago but it was deprioritised.
+
+Anna Richter: QA cannot start integration testing until I have Felix's patched firmware and Jonas's calibration constants. My test harness is ready and completely idle. If I receive all inputs by end of June 9th, I can complete the full test cycle and present results at the QA sprint review on June 11th.
+
+Maria Schmidt: Thomas — this is the third consecutive sprint where we have been blocked waiting for the Bosch REST API documentation. We missed the Sprint 6 integration milestone entirely because of this. I need a definitive answer today.
+
+Thomas Becker: Maria, I take full responsibility. Bosch had an internal re-scoping of the Business IoT division. That re-scoping is now complete. I personally commit to delivering the complete REST API documentation and hardware interface specification by Friday June 6th. I will run a technical walkthrough call the week of June 9th.
+
+Maria Schmidt: Thomas, this is the third time. I need that commitment in formal written confirmation to the full project team by close of business today. Felix — if the Bosch docs arrive June 6th, what is your timeline?
+
+Felix Wagner: Bosch API docs by June 6th plus Jonas's calibration constants by June 8th — I can deliver the complete firmware integration and patch by June 10th. That is my firm commitment.
+
+Dr. Sarah Chen: I have an immediate concern. The NEURA specification documents I received reference revision 3.1 of the gripper interface, but all of our simulation models were built against revision 2.8. Before I can validate or deliver anything, NEURA must provide the revision 3.1 mechanical specification.
+
+Felix Wagner: We are on revision 3.1. Jonas, you own the mechanical interface spec.
+
+Jonas Mueller: I can prepare the full 3.1 spec sheet and send it to Dr. Chen by Sunday June 7th.
+
+Dr. Sarah Chen: If I receive the 3.1 spec by June 7th, I can deliver the validated simulation models by June 12th.
+
+Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13th. Thomas must attend. If the docs slip again, June 13th becomes an executive escalation call. Everyone is accountable to these dates.</div>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="step"><div class="step-icon" id="icon-read">📋</div><div class="step-label" id="lbl-read">Transcript</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-ai">🤖</div><div class="step-label" id="lbl-ai">AI Reads</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-history">🔍</div><div class="step-label" id="lbl-history">Checks History</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-draft">💬📅</div><div class="step-label" id="lbl-draft">Drafts + Cal Check</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-hitl">👤</div><div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-send">📤</div><div class="step-label" id="lbl-send">Teams + Emails</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="step-icon" id="icon-cal">✅</div><div class="step-label" id="lbl-cal">Calendar + Done</div></div>
+  </div>
+
+  <div class="status-area">
+    <div class="status-msg" id="statusMsg">Click Start Demo to see AI meeting automation in action.</div>
+  </div>
+
+  <!-- APPROVAL PANEL -->
+  <div class="ap" id="approvalPanel">
+    <div class="ap-head">
+      <div class="ap-head-left">
+        <h2>👤 Review, Edit &amp; Approve</h2>
+        <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
+      </div>
+      <span class="ap-count" id="apCount"></span>
+    </div>
+    <div class="ap-body">
+      <div class="esc-banner" id="escBanner" style="display:none">
+        <strong>⚠ ESCALATION REQUIRED</strong>
+        <div class="esc-reason" id="escReason"></div>
+      </div>
+      <div class="ext-warn" id="extWarn"></div>
+      <div class="summary-box">
+        <div class="sec-label">What happened in this meeting</div>
+        <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.6"></p>
+      </div>
+      <div id="apBlockers"></div>
+      <div id="apTeamsSection"></div>
+      <div id="apEmailSection"></div>
+      <div id="apMeeting"></div>
+      <div id="apReminders"></div>
+    </div>
+    <div class="ap-foot">
+      <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
+      <button class="btn-reject" id="rejectBtn" onclick="submitApproval(false)">✗ Don't Send</button>
+      <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
+      <span class="ap-note" id="apNote"></span>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div class="done-section" id="doneSection">
+    <div class="done-icon">✅</div>
+    <div class="done-title">All done!</div>
+    <div class="done-sub" id="doneSub"></div>
+    <div class="done-cards" id="doneCards"></div>
+    <div class="sent-list" id="sentList" style="display:none">
+      <div class="sent-list-title">📬 What was sent — click to preview</div>
+      <div id="sentListItems"></div>
+    </div>
+  </div>
+
+  <!-- REJECTED -->
+  <div class="rejected-section" id="rejectedSection">
+    <div style="font-size:52px;margin-bottom:14px">❌</div>
+    <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
+    <div style="font-size:14px;color:var(--text-3)">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
+  </div>
+</div>
+
+<div class="footer">NEURA Meeting Intelligence v3 · Teams Chat + External Email · GPT-4o + Microsoft Graph + n8n · Built by Futurice</div>
+
+<script>
+const N8N_DIRECT   = 'http://127.0.0.1:5678';
+const WEBHOOK_PATH = '/webhook/neura-demo-trigger-v3';
+let API_KEY     = localStorage.getItem('n8n_api_key_v3') || localStorage.getItem('n8n_api_key') || '';
+let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id_v3') || '';
+
+// Theme
+(function(){
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const b = document.getElementById('themeBtn'); if (b) b.textContent = '🌑';
+    });
+  }
+})();
+function toggleTheme() {
+  const l = document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = l ? '🌑' : '🌙';
+  localStorage.setItem('theme', l ? 'light' : 'dark');
+}
+
+function openCfg() {
+  document.getElementById('cfgApiKey').value = API_KEY;
+  document.getElementById('cfgWorkflowId').value = WORKFLOW_ID;
+  document.getElementById('cfgOverlay').classList.add('open');
+}
+function closeCfg() { document.getElementById('cfgOverlay').classList.remove('open'); }
+function saveConfig() {
+  API_KEY = document.getElementById('cfgApiKey').value.trim();
+  WORKFLOW_ID = document.getElementById('cfgWorkflowId').value.trim();
+  localStorage.setItem('n8n_api_key_v3', API_KEY);
+  localStorage.setItem('n8n_workflow_id_v3', WORKFLOW_ID);
+  closeCfg();
+  setStatus('Settings saved ✓', 'done');
+}
+
+function toggleTranscript() {
+  const b = document.getElementById('transcriptBody');
+  const t = document.getElementById('transcriptToggle');
+  b.classList.toggle('open');
+  t.textContent = b.classList.contains('open') ? '▼ collapse' : '▶ expand';
+}
+
+// Email redirect handler
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(window.location.search);
+  const action = p.get('action'), n8nUrl = p.get('n8n');
+  if (action && n8nUrl) {
+    document.getElementById('mainUI').style.display = 'none';
+    const panel = document.getElementById('confirmPanel');
+    panel.style.display = 'block';
+    const ok = action === 'approve';
+    document.getElementById('confirmIcon').textContent = ok ? '✅' : '❌';
+    const t = document.getElementById('confirmTitle');
+    t.textContent = ok ? 'Approved!' : 'Rejected';
+    t.className = 'confirm-title ' + (ok ? 'approved' : 'rejected');
+    document.getElementById('confirmMsg').textContent = ok
+      ? 'Approval sent. Teams Chat notifications are being delivered and external emails are being sent.'
+      : 'Rejected. No Teams messages, no emails, no calendar event was created.';
+    fetch(decodeURIComponent(n8nUrl)).catch(() => {});
+    return;
+  }
+  // Restore approval panel if available
+  const saved = sessionStorage.getItem('v3_hitl_data');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data && data.approve_url) {
+        approvalData = data;
+        n8nApproveUrl = data.approve_url;
+        n8nRejectUrl  = data.reject_url;
+        setStep('read', 'done');
+        setStep('ai', 'done');
+        setStep('history', 'done');
+        setStep('draft', 'done', 'Actions Ready');
+        setStep('hitl', 'waiting', 'Your Review & Edit');
+        setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
+        showApprovalPanel(data);
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('startBtn').textContent = '▶ Start Demo';
+      }
+    } catch(e) {}
+  }
+});
+
+function setStep(id, state, label) {
+  const icon = document.getElementById('icon-' + id);
+  const lbl  = document.getElementById('lbl-' + id);
+  if (icon) icon.className = 'step-icon ' + state;
+  if (lbl)  { lbl.className = 'step-label ' + state; if (label) lbl.textContent = label; }
+}
+function setStatus(msg, cls) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + (cls || '');
+}
+
+let pollTimer = null;
+let n8nApproveUrl = null, n8nRejectUrl = null, approvalData = null;
+
+async function startDemo() {
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  sessionStorage.removeItem('v3_hitl_data');
+  document.getElementById('doneSection').style.display = 'none';
+  document.getElementById('rejectedSection').style.display = 'none';
+  document.getElementById('approvalPanel').style.display = 'none';
+  setStep('read', 'done', 'Transcript');
+  setStep('ai', 'active', 'AI Reads');
+  setStatus('GPT-4o is reading the meeting transcript — identifying every commitment, blocker, and action item...', 'active');
+  fetch('/demo/start', { method: 'POST' }).catch(() => {});
+  fetch('/hitl/clear', { method: 'POST' }).catch(() => {});
+  setTimeout(() => {
+    setStep('history', 'active', 'Checks History');
+    setStatus('Checking blocker history — looking for recurring issues across previous sprints...', 'active');
+  }, 6000);
+  setTimeout(() => {
+    setStep('ai', 'done', 'AI Reads');
+    setStep('history', 'done', 'History Checked');
+    setStep('draft', 'active', 'Drafting...');
+    setStatus('Writing Teams Chat notifications, drafting external emails, checking calendar availability, queuing deadline reminders...', 'active');
+  }, 13000);
+  pollTimer = setInterval(pollHitl, 1500);
+}
+
+async function pollHitl() {
+  try {
+    const res = await fetch('/hitl');
+    const data = await res.json();
+    if (data && data.approve_url) {
+      clearInterval(pollTimer); pollTimer = null;
+      approvalData = data;
+      n8nApproveUrl = data.approve_url;
+      n8nRejectUrl  = data.reject_url;
+      sessionStorage.setItem('v3_hitl_data', JSON.stringify(data));
+      setStep('draft', 'done', 'Actions Ready');
+      setStep('hitl', 'waiting', 'Your Review & Edit');
+      setStatus('AI has finished. Review, edit, then approve — nothing sent yet.', 'waiting');
+      showApprovalPanel(data);
+    }
+  } catch(e) {}
+}
+
+// ─── Edited data store ────────────────────────────────────────────────────────
+window._editedData = { items: {}, emails: {}, meeting: null };
+
+function initEditedData() {
+  window._editedData = { items: {}, emails: {}, meeting: null };
+}
+
+// ─── Conflict state ───────────────────────────────────────────────────────────
+window._hasConflict = false;
+window._conflictResolved = false;
+
+function updateApproveBtn() {
+  const btn = document.getElementById('approveBtn');
+  const warn = document.getElementById('apConflictWarn');
+  if (window._hasConflict && !window._conflictResolved) {
+    btn.disabled = true;
+    warn.style.display = 'inline';
+  } else {
+    btn.disabled = false;
+    warn.style.display = 'none';
+  }
+}
+
+// ─── Show Approval Panel ──────────────────────────────────────────────────────
+function showApprovalPanel(data) {
+  initEditedData();
+  window._hasConflict = false;
+  window._conflictResolved = false;
+
+  const internalItems = data.internal_items || [];
+  const externalEmails = data.external_emails || [];
+  const reminders = data.deadline_reminders || [];
+  const f = data.follow_up_meeting;
+  const externals = data.external_participants || [];
+  const blockers = data.blockers || [];
+  const calCheck = data.calendar_check || null;
+
+  document.getElementById('apCount').textContent =
+    internalItems.length + ' chats · ' + externalEmails.length + ' emails · ' + reminders.length + ' reminders';
+  document.getElementById('apSummary').textContent = data.meeting_summary || '';
+
+  // Escalation
+  if (data.escalation_required) {
+    document.getElementById('escBanner').style.display = 'block';
+    document.getElementById('escReason').textContent = data.escalation_reason || '';
+  } else {
+    document.getElementById('escBanner').style.display = 'none';
+  }
+
+  // External warning
+  if (data.has_external && externals.length) {
+    const w = document.getElementById('extWarn');
+    w.style.display = 'block';
+    w.innerHTML = '<strong>External participants:</strong> ' + externals.join(', ') + ' — formal emails require your approval before sending.';
+  } else {
+    document.getElementById('extWarn').style.display = 'none';
+  }
+
+  // Blockers
+  if (blockers.length > 0) {
+    let html = '<div class="blockers-box" style="margin-bottom:16px">';
+    html += '<div class="sec-label" style="color:var(--danger);margin-bottom:8px">🔴 Recurring Blockers Detected (' + blockers.length + ')</div>';
+    blockers.forEach(b => {
+      html += '<div class="blocker-item">';
+      html += '<span class="blocker-count">' + b.occurrences + '×</span>';
+      html += '<div><div class="blocker-text">' + escHtml(b.description) + '</div>';
+      html += '<div class="blocker-owner">Owner: ' + escHtml(b.owner) + (b.escalation_needed ? ' &nbsp;· <span style="color:var(--danger)">Escalation needed</span>' : '') + '</div></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('apBlockers').innerHTML = html;
+  } else {
+    document.getElementById('apBlockers').innerHTML = '';
+  }
+
+  // ── Teams Chat section — grouped by person ──
+  if (internalItems.length > 0) {
+    const ownerMap = {};
+    internalItems.forEach((item, i) => {
+      const key = item.owner_email;
+      if (!ownerMap[key]) ownerMap[key] = { owner_name: item.owner_name, owner_email: item.owner_email, tasks: [], indices: [] };
+      ownerMap[key].tasks.push(item);
+      ownerMap[key].indices.push(i);
+    });
+    const groupedOwners = Object.values(ownerMap);
+    window._groupedOwners = groupedOwners;
+
+    let html = '<div class="teams-section">';
+    html += '<div class="teams-section-header"><span class="teams-section-title">💬 Teams Chat Notifications</span><span class="teams-count-badge">' + groupedOwners.length + ' messages · ' + internalItems.length + ' tasks</span></div>';
+    groupedOwners.forEach((person, gi) => {
+      const defaultMsg = buildTeamsMessageGrouped(person, data);
+      html += '<div class="tc" id="tc-g-' + gi + '">';
+      html += '<div class="tc-head">';
+      html += '<div class="tc-top"><span class="tc-icon">💬</span><span class="tc-name">' + escHtml(person.owner_name) + '</span><span class="teams-badge">TEAMS CHAT</span>';
+      if (person.tasks.length > 1) html += ' <span style="font-size:11px;color:var(--teams);background:var(--teams-bg);border:1px solid var(--teams-border);padding:2px 8px;border-radius:10px;font-weight:600">' + person.tasks.length + ' tasks</span>';
+      html += '</div>';
+      html += '<div class="tc-email">' + escHtml(person.owner_email) + '</div>';
+      person.tasks.forEach((task, ti) => {
+        const pcCls = 'pc pc-' + (task.priority || 'medium').toLowerCase();
+        html += '<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0 2px;' + (ti > 0 ? 'border-top:1px solid var(--border-muted);margin-top:4px' : '') + '">';
+        html += '<span style="font-size:11px;font-weight:700;color:var(--text-4);min-width:16px;padding-top:2px">' + (ti + 1) + '.</span>';
+        html += '<div style="flex:1"><div class="tc-task">' + escHtml(task.task) + '</div>';
+        html += '<div class="tc-meta"><span>Due: ' + escHtml(task.deadline) + '</span><span class="' + pcCls + '">' + escHtml((task.priority || 'medium').toUpperCase()) + '</span>' + (task.depends_on ? '<span>Depends on: ' + escHtml(task.depends_on) + '</span>' : '') + '</div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+      html += '<div class="tc-actions">';
+      html += '<button class="edit-toggle-btn" id="tc-g-edit-btn-' + gi + '" onclick="toggleTcEditG(' + gi + ');event.stopPropagation()">✏️ Edit message</button>';
+      html += '<span class="edited-pill" id="tc-g-edited-pill-' + gi + '" style="display:none">(edited)</span>';
+      html += '</div>';
+      html += '<div class="tc-edit-area" id="tc-g-edit-area-' + gi + '">';
+      html += '<textarea class="edit-textarea" id="tc-g-textarea-' + gi + '" oninput="onTcEditG(' + gi + ')">' + escHtml(defaultMsg) + '</textarea>';
+      html += '<button class="done-edit-btn" onclick="closeTcEditG(' + gi + ')">✓ Done</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('apTeamsSection').innerHTML = html;
+  } else {
+    window._groupedOwners = [];
+    document.getElementById('apTeamsSection').innerHTML = '';
+  }
+
+  // ── External email section ──
+  if (externalEmails.length > 0) {
+    let html = '<div class="ext-section">';
+    html += '<div class="ext-section-header"><span class="ext-section-title">✉ Formal Emails — External Parties</span><span class="ext-count-badge">' + externalEmails.length + '</span></div>';
+    externalEmails.forEach((ext, i) => {
+      const urgCls = ext.urgency === 'critical' ? '#f85149' : ext.urgency === 'high' ? '#fd7e14' : '#d29922';
+      html += '<div class="ec" id="ec-' + i + '">';
+      html += '<div class="ec-head">';
+      html += '<div class="ec-top"><span style="font-size:16px">✉</span><span class="ec-name">' + escHtml(ext.recipient_name) + '</span><span class="ext-badge">EXTERNAL · ' + escHtml(ext.company) + '</span></div>';
+      html += '<div class="ec-company">' + escHtml(ext.recipient_email) + '</div>';
+      html += '<input type="text" class="subject-input" id="ec-subj-' + i + '" value="' + escAttr(ext.subject) + '" oninput="onEmailSubjEdit(' + i + ')" onclick="event.stopPropagation()" placeholder="Subject..." />';
+      html += '<div class="ec-meta">Commitment: ' + escHtml(ext.commitment_date) + ' &nbsp;· <span style="color:' + urgCls + ';font-weight:700">' + escHtml((ext.urgency || 'high').toUpperCase()) + '</span></div>';
+      html += '</div>';
+      html += '<div class="ec-actions">';
+      html += '<button class="ec-edit-btn" id="ec-edit-btn-' + i + '" onclick="toggleEcBodyEdit(' + i + ')">✏️ Edit body</button>';
+      html += '<span class="edited-pill-red" id="ec-edited-pill-' + i + '" style="display:none">(edited)</span>';
+      html += '</div>';
+      html += '<div class="ec-edit-area" id="ec-edit-area-' + i + '">';
+      html += '<textarea class="edit-textarea" style="border-color:var(--danger);min-height:160px" id="ec-body-ta-' + i + '" oninput="onEmailBodyEdit(' + i + ')">' + escHtml(ext.body || '') + '</textarea>';
+      html += '<button class="done-edit-btn" style="background:var(--danger)" onclick="closeEcBodyEdit(' + i + ')">✓ Done</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('apEmailSection').innerHTML = html;
+  } else {
+    document.getElementById('apEmailSection').innerHTML = '';
+  }
+
+  // ── Calendar / Meeting section ──
+  if (f) {
+    const hasConflict = calCheck && calCheck.is_free === false;
+    window._hasConflict = hasConflict;
+    window._conflictResolved = false;
+
+    let html = '<div class="mtg-section">';
+    html += '<div class="mtg-section-header"><span class="mtg-section-title">📅 Teams Meeting + Calendar Invite</span><span id="mtg-time-changed-pill" style="display:none" class="time-changed-pill">(time changed)</span></div>';
+    html += '<div class="mtg-box">';
+
+    // Editable title
+    html += '<div class="mtg-field-row">';
+    html += '<div class="mtg-field-label">Meeting title</div>';
+    html += '<input type="text" class="mtg-input" id="mtg-title-input" value="' + escAttr(f.title) + '" oninput="onMtgTitleEdit()" />';
+    html += '</div>';
+
+    // Editable agenda
+    html += '<div class="mtg-field-row">';
+    html += '<div class="mtg-field-label">Agenda</div>';
+    html += '<textarea class="mtg-textarea" id="mtg-agenda-ta" oninput="onMtgAgendaEdit()">' + escHtml(f.agenda || '') + '</textarea>';
+    html += '</div>';
+
+    // Date/time display
+    html += '<div style="font-size:13px;color:var(--text-3);margin-bottom:8px">Proposed: <strong>' + escHtml(f.date) + '</strong> at <strong>' + escHtml(f.time) + '</strong> · ' + escHtml(String(f.duration_minutes)) + ' min</div>';
+
+    if (!hasConflict && calCheck && calCheck.is_free === true) {
+      html += '<div class="cal-free-badge">✅ ' + escHtml(calCheck.date || f.date) + ' at ' + escHtml(calCheck.time || f.time) + ' — Calendar is free</div>';
+    }
+
+    if (hasConflict) {
+      const conflicts = (calCheck.conflict_subjects || []).join(', ') || 'existing event';
+      html += '<div class="cal-conflict-banner">⚠ Conflict on ' + escHtml(calCheck.date || f.date) + ' ' + escHtml(calCheck.time || f.time) + ': ' + escHtml(conflicts) + '</div>';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:6px">Choose a time:</div>';
+      html += '<div class="time-options" id="time-options-grid">';
+
+      const suggested = calCheck.suggested_times || [];
+      suggested.slice(0, 4).forEach((opt, oi) => {
+        html += '<div class="time-opt" id="time-opt-' + oi + '" onclick="selectTimeOpt(' + oi + ',false)">';
+        html += '<div class="time-opt-label">' + escHtml(opt.label || ('Option ' + (oi+1))) + '</div>';
+        html += '<div class="time-opt-display">' + escHtml(opt.display || (opt.date + ' ' + opt.time)) + '</div>';
+        html += '</div>';
+      });
+
+      // Keep original option
+      const keepIdx = suggested.slice(0, 4).length;
+      html += '<div class="time-opt keep-original" id="time-opt-' + keepIdx + '" onclick="selectTimeOpt(' + keepIdx + ',true)">';
+      html += '<div class="time-opt-label">Keep original time</div>';
+      html += '<div class="time-opt-display">' + escHtml(f.date) + ' at ' + escHtml(f.time) + ' (override conflict)</div>';
+      html += '</div>';
+
+      html += '</div>';
+      html += '<div class="conflict-required-note" id="conflict-required-note">You must select a time before approving.</div>';
+    }
+
+    html += '</div></div>';
+    document.getElementById('apMeeting').innerHTML = html;
+
+    // Store suggested times count for selectTimeOpt
+    window._suggestedTimesCount = (calCheck && calCheck.suggested_times ? Math.min(calCheck.suggested_times.length, 4) : 0);
+    window._calCheckData = calCheck;
+    window._followUpMeeting = f;
+  } else {
+    document.getElementById('apMeeting').innerHTML = '';
+    window._hasConflict = false;
+    window._conflictResolved = true;
+  }
+
+  // ── Deadline reminders ──
+  if (reminders.length > 0) {
+    const pc = {critical:'#f85149', high:'#fd7e14', medium:'#d29922', low:'#6c757d'};
+    let html = '<div class="rem-section">';
+    html += '<div class="rem-section-header"><span class="rem-section-title">⏰ Deadline Reminders</span><span class="rem-count-badge">' + reminders.length + ' calendar events</span></div>';
+    reminders.forEach(r => {
+      const pColor = pc[(r.priority || 'high').toLowerCase()] || '#fd7e14';
+      const priCls = (r.priority || 'high').toLowerCase();
+      html += '<div class="rem-item ' + priCls + '">';
+      html += '<div class="rem-title">' + escHtml(r.title) + '</div>';
+      html += '<div class="rem-meta">Owner: <strong>' + escHtml(r.owner_name) + '</strong> · Deadline: <strong>' + escHtml(r.deadline) + '</strong> · <span style="color:' + pColor + ';font-weight:700">' + escHtml((r.priority || 'high').toUpperCase()) + '</span></div>';
+      if (r.reminder_note) html += '<div class="rem-note">' + escHtml(r.reminder_note) + '</div>';
+      html += '</div>';
+    });
+    html += '<div style="font-size:12px;color:var(--text-4);margin-top:8px">Each reminder will be created as a calendar event with a 24-hour notification before the deadline.</div>';
+    html += '</div>';
+    document.getElementById('apReminders').innerHTML = html;
+  } else {
+    document.getElementById('apReminders').innerHTML = '';
+  }
+
+  const total = internalItems.length + externalEmails.length;
+  document.getElementById('apNote').textContent =
+    internalItems.length + ' Teams chats · ' + externalEmails.length + ' emails · ' + reminders.length + ' reminders · 1 meeting';
+  window._approvalData = data;
+
+  updateApproveBtn();
+
+  const panel = document.getElementById('approvalPanel');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+// ─── Teams Chat edit handlers ─────────────────────────────────────────────────
+function toggleTcEdit(i) {
+  const area = document.getElementById('tc-edit-area-' + i);
+  const btn  = document.getElementById('tc-edit-btn-' + i);
+  const open = area.classList.toggle('open');
+  btn.textContent = open ? '✓ Done editing' : '✏️ Edit message';
+}
+function closeTcEdit(i) {
+  const area = document.getElementById('tc-edit-area-' + i);
+  const btn  = document.getElementById('tc-edit-btn-' + i);
+  area.classList.remove('open');
+  btn.textContent = '✏️ Edit message';
+}
+function onTcEdit(i) {
+  const ta = document.getElementById('tc-textarea-' + i);
+  const pill = document.getElementById('tc-edited-pill-' + i);
+  const data = window._approvalData || {};
+  const item = (data.internal_items || [])[i];
+  const original = buildTeamsMessage(item, data);
+  if (ta.value !== original) {
+    window._editedData.items[i] = ta.value;
+    pill.style.display = 'inline';
+  } else {
+    delete window._editedData.items[i];
+    pill.style.display = 'none';
+  }
+}
+function toggleTcPreview(i) {
+  // Legacy: clicking the head section does nothing now — edit area has its own toggle
+}
+function toggleTcEditG(gi) {
+  const area = document.getElementById('tc-g-edit-area-' + gi);
+  const btn  = document.getElementById('tc-g-edit-btn-' + gi);
+  const open = area.classList.toggle('open');
+  btn.textContent = open ? '✓ Done editing' : '✏️ Edit message';
+}
+function closeTcEditG(gi) {
+  const area = document.getElementById('tc-g-edit-area-' + gi);
+  const btn  = document.getElementById('tc-g-edit-btn-' + gi);
+  area.classList.remove('open');
+  btn.textContent = '✏️ Edit message';
+}
+function onTcEditG(gi) {
+  const ta = document.getElementById('tc-g-textarea-' + gi);
+  const pill = document.getElementById('tc-g-edited-pill-' + gi);
+  const person = (window._groupedOwners || [])[gi];
+  if (!person) return;
+  const original = buildTeamsMessageGrouped(person, window._approvalData || {});
+  const changed = ta.value !== original;
+  if (changed) {
+    person.indices.forEach(i => { window._editedData.items[i] = ta.value; });
+    pill.style.display = 'inline';
+  } else {
+    person.indices.forEach(i => { delete window._editedData.items[i]; });
+    pill.style.display = 'none';
+  }
+}
+
+// ─── Email edit handlers ──────────────────────────────────────────────────────
+function toggleEcBodyEdit(i) {
+  const area = document.getElementById('ec-edit-area-' + i);
+  const btn  = document.getElementById('ec-edit-btn-' + i);
+  const open = area.classList.toggle('open');
+  btn.textContent = open ? '✓ Done editing' : '✏️ Edit body';
+}
+function closeEcBodyEdit(i) {
+  const area = document.getElementById('ec-edit-area-' + i);
+  const btn  = document.getElementById('ec-edit-btn-' + i);
+  area.classList.remove('open');
+  btn.textContent = '✏️ Edit body';
+}
+function onEmailSubjEdit(i) {
+  const inp = document.getElementById('ec-subj-' + i);
+  const pill = document.getElementById('ec-edited-pill-' + i);
+  const data = window._approvalData || {};
+  const ext = (data.external_emails || [])[i];
+  if (!window._editedData.emails[i]) window._editedData.emails[i] = {};
+  window._editedData.emails[i].subject = inp.value;
+  const bodyTa = document.getElementById('ec-body-ta-' + i);
+  const bodyVal = bodyTa ? bodyTa.value : null;
+  const subjChanged = inp.value !== (ext ? ext.subject : '');
+  const bodyChanged = bodyTa && bodyVal !== (ext ? ext.body : '');
+  pill.style.display = (subjChanged || bodyChanged) ? 'inline' : 'none';
+}
+function onEmailBodyEdit(i) {
+  const ta = document.getElementById('ec-body-ta-' + i);
+  const pill = document.getElementById('ec-edited-pill-' + i);
+  const data = window._approvalData || {};
+  const ext = (data.external_emails || [])[i];
+  if (!window._editedData.emails[i]) window._editedData.emails[i] = {};
+  window._editedData.emails[i].body = ta.value;
+  const subjInp = document.getElementById('ec-subj-' + i);
+  const subjChanged = subjInp && subjInp.value !== (ext ? ext.subject : '');
+  const bodyChanged = ta.value !== (ext ? ext.body : '');
+  pill.style.display = (subjChanged || bodyChanged) ? 'inline' : 'none';
+}
+
+// ─── Meeting edit handlers ────────────────────────────────────────────────────
+function onMtgTitleEdit() {
+  const inp = document.getElementById('mtg-title-input');
+  if (!window._editedData.meeting) window._editedData.meeting = Object.assign({}, window._followUpMeeting);
+  window._editedData.meeting.title = inp.value;
+}
+function onMtgAgendaEdit() {
+  const ta = document.getElementById('mtg-agenda-ta');
+  if (!window._editedData.meeting) window._editedData.meeting = Object.assign({}, window._followUpMeeting);
+  window._editedData.meeting.agenda = ta.value;
+}
+
+// ─── Time option selection ────────────────────────────────────────────────────
+function selectTimeOpt(idx, isKeepOriginal) {
+  const totalOpts = window._suggestedTimesCount + 1; // suggested + keep original
+  for (let i = 0; i < totalOpts; i++) {
+    const el = document.getElementById('time-opt-' + i);
+    if (el) el.classList.remove('selected');
+  }
+  const selected = document.getElementById('time-opt-' + idx);
+  if (selected) selected.classList.add('selected');
+
+  const f = window._followUpMeeting || {};
+  const calCheck = window._calCheckData || {};
+  const suggested = (calCheck.suggested_times || []).slice(0, 4);
+
+  if (isKeepOriginal) {
+    window._editedData.meeting = Object.assign({}, f);
+  } else {
+    const opt = suggested[idx];
+    if (opt) {
+      const base = window._editedData.meeting ? window._editedData.meeting : Object.assign({}, f);
+      window._editedData.meeting = Object.assign({}, base, { date: opt.date, time: opt.time });
+    }
+  }
+
+  window._conflictResolved = true;
+
+  // Show (time changed) pill
+  const pill = document.getElementById('mtg-time-changed-pill');
+  if (pill && !isKeepOriginal) pill.style.display = 'inline';
+
+  // Hide required note
+  const note = document.getElementById('conflict-required-note');
+  if (note) note.style.display = 'none';
+
+  updateApproveBtn();
+}
+
+// ─── Build Teams message ──────────────────────────────────────────────────────
+function buildTeamsMessage(item, data) {
+  const f = data.follow_up_meeting;
+  return 'NEURA Meeting Co-Pilot v3\n' +
+    '────────────────────────────────────\n' +
+    '📋 Action item assigned to you\n' +
+    '────────────────────────────────────\n\n' +
+    'Task: ' + item.task + '\n' +
+    'Deadline: ' + item.deadline + '\n' +
+    'Priority: ' + (item.priority || 'medium').toUpperCase() +
+    (item.depends_on ? '\nDepends on: ' + item.depends_on : '') +
+    (f ? '\n\nFollow-up review: ' + f.date + ' at ' + f.time : '') +
+    '\n\n[In production: delivered as Teams Chat direct message]\n— NEURA AI Meeting Co-Pilot v3 · Powered by Futurice';
+}
+function buildTeamsMessageGrouped(person, data) {
+  const f = data.follow_up_meeting;
+  const tasks = person.tasks || [];
+  const pLabel = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };
+  const lines = tasks.map((t, i) =>
+    (i + 1) + '. [' + (pLabel[t.priority] || (t.priority || 'medium').toUpperCase()) + '] ' + t.task +
+    '\n   Due: ' + t.deadline +
+    (t.depends_on ? '\n   Depends on: ' + t.depends_on : '')
+  ).join('\n\n');
+  return 'NEURA Meeting Co-Pilot v3\n' +
+    '────────────────────────────────────\n' +
+    tasks.length + ' action item' + (tasks.length > 1 ? 's' : '') + ' assigned to you\n' +
+    '────────────────────────────────────\n\n' +
+    lines +
+    (f ? '\n\nFollow-up review: ' + f.date + ' at ' + f.time : '') +
+    '\n\n[In production: delivered as Teams Chat direct message]\n— NEURA AI Meeting Co-Pilot v3 · Powered by Futurice';
+}
+
+function escHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Submit Approval ──────────────────────────────────────────────────────────
+async function submitApproval(approved) {
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('rejectBtn').disabled = true;
+  sessionStorage.removeItem('v3_hitl_data');
+
+  if (!approved) {
+    try { await fetch('/hitl/reject', { method: 'POST' }); } catch(e) {}
+    document.getElementById('approvalPanel').style.display = 'none';
+    document.getElementById('rejectedSection').style.display = 'block';
+    setStep('hitl', 'error', 'Rejected');
+    setStatus('Nothing was sent.', '');
+    return;
+  }
+
+  // Collect edits
+  const data = window._approvalData || approvalData || {};
+  const internalItems = data.internal_items || [];
+  const externalEmails = data.external_emails || [];
+  const f = data.follow_up_meeting;
+
+  const finalItems = internalItems.map((item, i) => {
+    if (window._editedData.items[i] !== undefined) {
+      return Object.assign({}, item, { edited_message: window._editedData.items[i] });
+    }
+    return item;
+  });
+
+  const finalEmails = externalEmails.map((ext, i) => {
+    const edits = window._editedData.emails[i] || {};
+    return Object.assign({}, ext, edits);
+  });
+
+  const finalMeeting = window._editedData.meeting
+    ? Object.assign({}, f, window._editedData.meeting)
+    : (f || null);
+
+  document.querySelector('.ap-head h2').textContent = '⏳ Sending now...';
+  document.querySelector('.ap-head p').textContent = 'Sending Teams notifications and external emails...';
+  document.getElementById('apCount').style.display = 'none';
+  setStep('hitl', 'done', 'Approved');
+  setStep('send', 'active', 'Sending...');
+  setStatus('Sending via Microsoft Graph API...', 'active');
+
+  try {
+    await fetch('/hitl/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        edited_items: finalItems,
+        edited_emails: finalEmails,
+        edited_meeting: finalMeeting
+      })
+    });
+  } catch(e) {}
+
+  setTimeout(() => {
+    setStep('send', 'done', 'All Sent');
+    setStep('cal', 'active', 'Creating...');
+    setStatus('Creating Teams calendar event and deadline reminders...', 'active');
+  }, 3500);
+
+  setTimeout(() => {
+    setStep('cal', 'done', 'Calendar Done');
+    setStatus('Everything delivered.', 'done');
+    document.getElementById('approvalPanel').style.display = 'none';
+    showDone();
+  }, 7500);
+}
+
+// ─── Show Done ────────────────────────────────────────────────────────────────
+function showDone() {
+  const data = window._approvalData || approvalData || {};
+  const internals = data.internal_items || [];
+  const externals = data.external_emails || [];
+  const reminders = data.deadline_reminders || [];
+  const f = data.follow_up_meeting;
+  const calCheck = data.calendar_check;
+
+  const calNote = calCheck
+    ? (calCheck.is_free ? ' · ✅ calendar was free' : ' · ⚠ calendar conflict resolved')
+    : '';
+
+  document.getElementById('doneSub').innerHTML =
+    '<strong>' + internals.length + '</strong> Teams Chat notifications · ' +
+    '<strong>' + externals.length + '</strong> external emails · ' +
+    '<strong>' + reminders.length + '</strong> deadline reminders in calendar' +
+    (f ? ' · <strong>' + escHtml(f.title) + '</strong> scheduled for ' + escHtml(f.date) + calNote : '');
+
+  const teamsNotifCount = (window._groupedOwners || []).length || internals.length;
+  document.getElementById('doneCards').innerHTML =
+    '<div class="done-card teams-card"><div class="done-card-num">' + teamsNotifCount + '</div><div class="done-card-label">Teams notifications</div></div>' +
+    '<div class="done-card email-card"><div class="done-card-num">' + externals.length + '</div><div class="done-card-label">External emails</div></div>' +
+    '<div class="done-card reminder-card"><div class="done-card-num">' + reminders.length + '</div><div class="done-card-label">Deadline reminders</div></div>' +
+    '<div class="done-card cal-card"><div class="done-card-num">1</div><div class="done-card-label">Meeting + calendar</div></div>';
+
+  const groupedOwnersDone = window._groupedOwners || [];
+  const internalCards = groupedOwnersDone.map((person, gi) =>
+    '<div class="sent-item teams-item" onclick="openTeamsModal(' + gi + ')">' +
+      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--teams)">💬 ' + escHtml(person.owner_name) + '</span><span class="sent-item-badge" style="color:var(--teams)">Teams Chat · ' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span></div>' +
+      '<div class="sent-item-subject">' + person.tasks.map(t => escHtml(t.task)).join(' · ') + '</div>' +
+      '<div class="sent-item-hint">Click to preview Teams message ›</div>' +
+    '</div>'
+  ).join('');
+
+  const emailCards = externals.map((ext, i) =>
+    '<div class="sent-item email-item" onclick="openEmailModal(' + i + ')">' +
+      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--danger)">✉ ' + escHtml(ext.recipient_name) + ' · ' + escHtml(ext.company) + '</span><span class="sent-item-badge" style="color:var(--danger)">External · demo inbox</span></div>' +
+      '<div class="sent-item-subject">' + escHtml(ext.subject) + '</div>' +
+      '<div class="sent-item-hint">Click to read full email ›</div>' +
+    '</div>'
+  ).join('');
+
+  const reminderCards = reminders.map(r =>
+    '<div class="sent-item reminder-item" style="border-color:var(--warn);cursor:default">' +
+      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--warn)">⏰ ' + escHtml(r.title) + '</span><span class="sent-item-badge" style="color:var(--warn)">Calendar · 24h reminder</span></div>' +
+      '<div style="font-size:13px;color:var(--text-3)">' + escHtml(r.owner_name) + ' · Deadline: <strong>' + escHtml(r.deadline) + '</strong></div>' +
+      (r.reminder_note ? '<div style="font-size:11px;color:var(--text-4);margin-top:2px">' + escHtml(r.reminder_note) + '</div>' : '') +
+    '</div>'
+  ).join('');
+
+  const calAvailNote = calCheck
+    ? '<div class="sent-item" style="border-color:' + (calCheck.is_free ? 'var(--success)' : 'var(--warn)') + ';cursor:default;margin-bottom:7px">' +
+        '<div class="sent-item-top"><span class="sent-item-to" style="color:' + (calCheck.is_free ? 'var(--success)' : 'var(--warn)') + '">' +
+          (calCheck.is_free ? '✅ Calendar was free' : '⚠ Calendar conflict resolved') + ' — ' + escHtml(calCheck.title || '') + '</span>' +
+          '<span class="sent-item-badge">' + escHtml(calCheck.availability_note || '') + '</span></div>' +
+        '<div style="font-size:12px;color:var(--text-3)">' + escHtml(calCheck.date || '') + ' at ' + escHtml(calCheck.time || '') + '</div>' +
+      '</div>'
+    : '';
+
+  const calCard = f ?
+    '<div class="sent-item cal-item" onclick="openCalModal()">' +
+      '<div class="sent-item-top"><span class="sent-item-to" style="color:var(--accent)">📅 ' + escHtml(f.title) + '</span><span class="sent-item-badge" style="color:var(--accent)">Teams Meeting</span></div>' +
+      '<div style="font-size:13px;color:var(--text-3)">' + escHtml(f.date) + ' at ' + escHtml(f.time) + ' · ' + escHtml(String(f.duration_minutes)) + ' min</div>' +
+      '<div class="sent-item-hint">Click to see meeting details ›</div>' +
+    '</div>' : '';
+
+  document.getElementById('sentListItems').innerHTML = calAvailNote + internalCards + emailCards + reminderCards + calCard;
+  document.getElementById('sentList').style.display = 'block';
+  document.getElementById('doneSection').style.display = 'block';
+  document.getElementById('doneSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── Modals ───────────────────────────────────────────────────────────────────
+function openTeamsModal(gi) {
+  const data = window._approvalData || {};
+  const person = (window._groupedOwners || [])[gi]; if (!person) return;
+  const firstIdx = person.indices[0];
+  const edited = person.indices.some(i => window._editedData && window._editedData.items[i] !== undefined);
+  const msg = edited ? (window._editedData.items[firstIdx] || buildTeamsMessageGrouped(person, data)) : buildTeamsMessageGrouped(person, data);
+  document.getElementById('modalContent').innerHTML =
+    '<div class="teams-modal-bar">' +
+      '<div class="teams-modal-icon">💬</div>' +
+      '<div><div class="teams-modal-sender">NEURA AI Meeting Co-Pilot v3</div>' +
+      '<div class="teams-modal-sub">Teams Chat · via AncyJoseph@Fututrice.onmicrosoft.com' + (edited ? ' · <span style="color:var(--warn)">(edited)</span>' : '') + '</div></div>' +
+    '</div>' +
+    '<div class="teams-modal-body">' +
+      '<div style="font-size:12px;color:var(--text-3);margin-bottom:8px">Direct Message to: <strong style="color:var(--text)">' + escHtml(person.owner_name) + '</strong> &lt;' + escHtml(person.owner_email) + '&gt; · ' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</div>' +
+      '<div class="teams-chat-bubble">' + escHtml(msg) + '</div>' +
+    '</div>' +
+    '<div class="teams-routing">📤 Routed to AncyJoseph@Fututrice.onmicrosoft.com · In production: Teams Chat DM to ' + escHtml(person.owner_email) + '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEmailModal(i) {
+  const data = window._approvalData || {};
+  const ext = (data.external_emails || [])[i]; if (!ext) return;
+  const edits = (window._editedData && window._editedData.emails[i]) || {};
+  const finalSubject = edits.subject !== undefined ? edits.subject : ext.subject;
+  const finalBody = edits.body !== undefined ? edits.body : ext.body;
+  const edited = edits.subject !== undefined || edits.body !== undefined;
+  const urgColors = {critical:'#f85149',high:'#fd7e14',medium:'#d29922'};
+  const uColor = urgColors[ext.urgency] || '#fd7e14';
+  document.getElementById('modalContent').innerHTML =
+    '<div class="email-chrome">' +
+      '<div class="email-chrome-bar">' +
+        '<div class="email-avatar">AI</div>' +
+        '<div><div class="email-sender-name">NEURA AI Meeting Agent v3' + (edited ? ' <span style="font-size:11px;color:var(--warn)">(edited)</span>' : '') + '</div>' +
+        '<div class="email-sender-meta">via AncyJoseph@Fututrice.onmicrosoft.com</div></div>' +
+      '</div>' +
+      '<div class="email-fields">' +
+        '<div class="email-field-row"><span class="email-field-key">To</span><span class="email-field-val">' + escHtml(ext.recipient_name) + ' &lt;' + escHtml(ext.recipient_email) + '&gt; · ' + escHtml(ext.company) + '</span></div>' +
+        '<div class="email-field-row"><span class="email-field-key">Urgency</span><span class="email-field-val" style="color:' + uColor + ';font-weight:700">' + escHtml((ext.urgency || 'high').toUpperCase()) + '</span></div>' +
+        '<div class="email-field-row"><span class="email-field-key">Commit by</span><span class="email-field-val">' + escHtml(ext.commitment_date) + '</span></div>' +
+      '</div>' +
+      '<div class="email-subject">' + escHtml(finalSubject || '') + '</div>' +
+      '<div class="email-body-content">' + escHtml(finalBody || '') + '</div>' +
+      '<div class="email-routing">📤 Routed to AncyJoseph@Fututrice.onmicrosoft.com · In production: ' + escHtml(ext.recipient_email) + '</div>' +
+    '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openCalModal() {
+  const data = window._approvalData || {};
+  const f = data.follow_up_meeting; if (!f) return;
+  const final = window._editedData.meeting ? Object.assign({}, f, window._editedData.meeting) : f;
+  document.getElementById('modalContent').innerHTML =
+    '<div class="cal-body">' +
+      '<h3 style="color:var(--text);font-size:16px;margin-bottom:18px">📅 Teams Calendar Event</h3>' +
+      cf('Meeting Title', final.title) +
+      cf('Date & Time', final.date + ' at ' + final.time + ' (' + final.duration_minutes + ' minutes)') +
+      cf('Agenda', final.agenda) +
+      cf('Attendees', (final.attendees || []).join('\n')) +
+      '<div class="cal-teams-box">' +
+        '<div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:6px;letter-spacing:.5px">MICROSOFT TEAMS</div>' +
+        '<div style="font-size:14px;color:var(--text)">Calendar event created in your Outlook calendar with Teams join link.</div>' +
+        '<div style="font-size:13px;color:var(--text-3);margin-top:4px">Open the event in Outlook or Teams to find the meeting link.</div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function cf(label, value) {
+  return '<div class="cal-field"><div class="cal-label">' + escHtml(label) + '</div><div class="cal-value">' + escHtml(value || '') + '</div></div>';
+}
+</script>
+</body>
+</html>

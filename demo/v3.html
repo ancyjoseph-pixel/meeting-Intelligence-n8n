@@ -354,17 +354,25 @@
     }
     .ap-stat {
       background: var(--surface-in); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 20px 16px;
-      text-align: center; cursor: pointer;
+      border-radius: var(--radius-lg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      aspect-ratio: 1;
+      cursor: pointer;
       transition: transform .15s, box-shadow .15s;
     }
-    .ap-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .ap-stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
     .ap-stat-num  { font-size:26px; font-weight:700; line-height:1; margin-bottom:3px; }
     .ap-stat-label{ font-size:11px; color:var(--text-3); }
+    .ap-stat.s-teams { background:var(--teams-bg); border-color:var(--teams-border); }
+    .ap-stat.s-email { background:var(--danger-bg); border-color:var(--danger-border); }
+    .ap-stat.s-cal   { background:var(--blue-bg); border-color:var(--border); }
+    .ap-stat.s-rem   { background:var(--orange-bg); border-color:var(--warn-border); }
     .ap-stat.s-teams .ap-stat-num { color:var(--teams); }
     .ap-stat.s-email .ap-stat-num { color:var(--danger); }
-    .ap-stat.s-cal  .ap-stat-num  { color:var(--blue); }
-    .ap-stat.s-rem  .ap-stat-num  { color:var(--orange); }
+    .ap-stat.s-cal   .ap-stat-num { color:var(--blue); }
+    .ap-stat.s-rem   .ap-stat-num { color:var(--orange); }
+    .ap-stat-label { font-size:11px; color:var(--text-2); font-weight:600; margin-top:4px; }
 
     /* Summary box */
     .summary-box {
@@ -747,6 +755,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
+      margin-top: 24px;
       margin-bottom: 24px;
       align-items: start;
     }
@@ -838,23 +847,7 @@
     .content-card .ec:hover { background: var(--danger-bg) !important; opacity:.7; }
 
     /* Improved stats bar */
-    .ap-stats {
-      display: grid !important;
-      grid-template-columns: repeat(4, 1fr) !important;
-      gap: 10px !important;
-      margin-bottom: 16px !important;
-    }
-    .ap-stat {
-      border-radius: var(--radius-lg) !important;
-      padding: 14px 12px !important;
-      text-align: center !important;
-    }
-    .ap-stat.s-teams  { background: var(--teams-bg) !important; border-color: var(--teams-border) !important; }
-    .ap-stat.s-email  { background: var(--danger-bg) !important; border-color: var(--danger-border) !important; }
-    .ap-stat.s-cal    { background: var(--blue-bg) !important; border-color: var(--border) !important; }
-    .ap-stat.s-rem    { background: var(--orange-bg) !important; border-color: var(--warn-border) !important; }
-    .ap-stat-num  { font-size: 28px !important; }
-    .ap-stat-label{ font-size: 11px !important; font-weight: 600 !important; color: var(--text-2) !important; }
+
 
     /* Summary box — more polished */
     .summary-box {
@@ -1163,7 +1156,7 @@ Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13t
               <div class="sec-label">What happened in this meeting</div>
               <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
             </div>
-            <div id="apStats" style="display:none"></div>
+            <div id="apStats" class="ap-stats" style="display:none"></div>
             <div id="apBlockers" style="display:none"></div>
             <div class="content-grid">
               <div class="content-card purple-card" id="cardTeams">
@@ -1416,10 +1409,13 @@ function showApprovalPanel(data) {
     const nMsgs = grouped.length || internalItems.length;
     statsEl.style.display = '';
     statsEl.innerHTML =
-      '<div class="ap-stat s-teams" onclick="highlightCard('cardTeams')" title="View Teams notifications"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
-      '<div class="ap-stat s-email" onclick="highlightCard('cardEmail')" title="View external emails"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
-      '<div class="ap-stat s-rem" onclick="highlightCard('cardReminders')" title="View deadline reminders"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
-      (f ? '<div class="ap-stat s-cal" onclick="highlightCard('cardMeeting')" title="View meeting details"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
+      '<div class="ap-stat s-teams" data-card="cardTeams"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
+      '<div class="ap-stat s-email" data-card="cardEmail"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
+      '<div class="ap-stat s-rem" data-card="cardReminders"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
+      (f ? '<div class="ap-stat s-cal" data-card="cardMeeting"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
+    statsEl.querySelectorAll('.ap-stat[data-card]').forEach(function(el) {
+      el.addEventListener('click', function() { highlightCard(el.getAttribute('data-card')); });
+    });
   }
 
   document.getElementById('apCount').textContent =

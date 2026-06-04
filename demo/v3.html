@@ -571,34 +571,26 @@ window.addEventListener('DOMContentLoaded', () => {
     fetch(decodeURIComponent(n8nUrl)).catch(() => {});
     return;
   }
-  // Restore approval panel — check proxy first (works even if sessionStorage was cleared),
-  // fall back to sessionStorage if proxy has nothing
+  // On load: poll /hitl — if a run is waiting, restore the approval panel
   async function tryRestore() {
-    let data = null;
     try {
       const res = await fetch('/hitl');
-      const proxied = await res.json();
-      if (proxied && proxied.approve_url) data = proxied;
+      const data = await res.json();
+      if (data && data.approve_url) {
+        approvalData = data;
+        n8nApproveUrl = data.approve_url;
+        n8nRejectUrl  = data.reject_url;
+        setStep('read', 'done');
+        setStep('ai', 'done');
+        setStep('history', 'done');
+        setStep('draft', 'done', 'Actions Ready');
+        setStep('hitl', 'waiting', 'Your Review & Edit');
+        setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
+        showApprovalPanel(data);
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('startBtn').textContent = '▶ Start Demo';
+      }
     } catch(e) {}
-    if (!data) {
-      const saved = sessionStorage.getItem('v3_hitl_data');
-      if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
-    }
-    if (data && data.approve_url) {
-      approvalData = data;
-      n8nApproveUrl = data.approve_url;
-      n8nRejectUrl  = data.reject_url;
-      sessionStorage.setItem('v3_hitl_data', JSON.stringify(data));
-      setStep('read', 'done');
-      setStep('ai', 'done');
-      setStep('history', 'done');
-      setStep('draft', 'done', 'Actions Ready');
-      setStep('hitl', 'waiting', 'Your Review & Edit');
-      setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
-      showApprovalPanel(data);
-      document.getElementById('startBtn').disabled = false;
-      document.getElementById('startBtn').textContent = '▶ Start Demo';
-    }
   }
   tryRestore();
 });
@@ -621,7 +613,6 @@ let n8nApproveUrl = null, n8nRejectUrl = null, approvalData = null;
 async function startDemo() {
   const btn = document.getElementById('startBtn');
   btn.disabled = true; btn.textContent = '⏳ Running...';
-  sessionStorage.removeItem('v3_hitl_data');
   document.getElementById('doneSection').style.display = 'none';
   document.getElementById('rejectedSection').style.display = 'none';
   document.getElementById('approvalPanel').style.display = 'none';
@@ -652,7 +643,6 @@ async function pollHitl() {
       approvalData = data;
       n8nApproveUrl = data.approve_url;
       n8nRejectUrl  = data.reject_url;
-      sessionStorage.setItem('v3_hitl_data', JSON.stringify(data));
       setStep('draft', 'done', 'Actions Ready');
       setStep('hitl', 'waiting', 'Your Review & Edit');
       setStatus('AI has finished. Review, edit, then approve — nothing sent yet.', 'waiting');
@@ -1104,7 +1094,6 @@ function escAttr(s) {
 async function submitApproval(approved) {
   document.getElementById('approveBtn').disabled = true;
   document.getElementById('rejectBtn').disabled = true;
-  sessionStorage.removeItem('v3_hitl_data');
 
   if (!approved) {
     try { await fetch('/hitl/reject', { method: 'POST' }); } catch(e) {}
@@ -1144,8 +1133,9 @@ async function submitApproval(approved) {
   setStep('send', 'active', 'Sending...');
   setStatus('Sending via Microsoft Graph API...', 'active');
 
+  let approveOk = false;
   try {
-    await fetch('/hitl/approve', {
+    const approveRes = await fetch('/hitl/approve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1154,7 +1144,14 @@ async function submitApproval(approved) {
         edited_meeting: finalMeeting
       })
     });
+    approveOk = approveRes.ok;
   } catch(e) {}
+  if (!approveOk) {
+    document.getElementById('approveBtn').disabled = false;
+    document.getElementById('rejectBtn').disabled = false;
+    setStatus('⚠ Could not reach n8n — is n8n running and the workflow active?', 'error');
+    return;
+  }
 
   setTimeout(() => {
     setStep('send', 'done', 'All Sent');

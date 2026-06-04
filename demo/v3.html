@@ -571,27 +571,36 @@ window.addEventListener('DOMContentLoaded', () => {
     fetch(decodeURIComponent(n8nUrl)).catch(() => {});
     return;
   }
-  // Restore approval panel if available
-  const saved = sessionStorage.getItem('v3_hitl_data');
-  if (saved) {
+  // Restore approval panel — check proxy first (works even if sessionStorage was cleared),
+  // fall back to sessionStorage if proxy has nothing
+  async function tryRestore() {
+    let data = null;
     try {
-      const data = JSON.parse(saved);
-      if (data && data.approve_url) {
-        approvalData = data;
-        n8nApproveUrl = data.approve_url;
-        n8nRejectUrl  = data.reject_url;
-        setStep('read', 'done');
-        setStep('ai', 'done');
-        setStep('history', 'done');
-        setStep('draft', 'done', 'Actions Ready');
-        setStep('hitl', 'waiting', 'Your Review & Edit');
-        setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
-        showApprovalPanel(data);
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('startBtn').textContent = '▶ Start Demo';
-      }
+      const res = await fetch('/hitl');
+      const proxied = await res.json();
+      if (proxied && proxied.approve_url) data = proxied;
     } catch(e) {}
+    if (!data) {
+      const saved = sessionStorage.getItem('v3_hitl_data');
+      if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
+    }
+    if (data && data.approve_url) {
+      approvalData = data;
+      n8nApproveUrl = data.approve_url;
+      n8nRejectUrl  = data.reject_url;
+      sessionStorage.setItem('v3_hitl_data', JSON.stringify(data));
+      setStep('read', 'done');
+      setStep('ai', 'done');
+      setStep('history', 'done');
+      setStep('draft', 'done', 'Actions Ready');
+      setStep('hitl', 'waiting', 'Your Review & Edit');
+      setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
+      showApprovalPanel(data);
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('startBtn').textContent = '▶ Start Demo';
+    }
   }
+  tryRestore();
 });
 
 function setStep(id, state, label) {

@@ -403,7 +403,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/hitl/approve":
             # UI Approve button — call n8n server-side (avoids browser CORS issues)
-            global hitl_data
             length = int(self.headers.get("Content-Length", 0))
             body_raw = self.rfile.read(length) if length else b""
             n8n_url = (hitl_data or {}).get("approve_url", "")
@@ -423,7 +422,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/hitl/reject":
             # UI Reject button — call n8n server-side
-            global hitl_data
             length = int(self.headers.get("Content-Length", 0))
             if length: self.rfile.read(length)
             n8n_url = (hitl_data or {}).get("reject_url", "")

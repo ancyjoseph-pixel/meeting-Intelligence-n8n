@@ -1136,7 +1136,15 @@ async function submitApproval(approved) {
   let approveOk = false;
   let approveError = '';
   try {
-    const approveRes = await fetch('/hitl/approve', { method: 'POST' });
+    const approveRes = await fetch('/hitl/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        edited_items: finalItems,
+        edited_emails: finalEmails,
+        edited_meeting: finalMeeting
+      })
+    });
     const approveJson = await approveRes.json();
     approveOk = approveJson.ok === true;
     approveError = approveJson.error || '';

@@ -167,9 +167,9 @@
 
     /* ─── Page wrapper ────────────────────────────────────────────────────── */
     .page {
-      max-width: 860px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 0 24px 64px;
+      padding: 0 32px 64px;
     }
 
     /* ─── Generic card ────────────────────────────────────────────────────── */
@@ -472,7 +472,7 @@
     .hero-sub {
       font-size: 14px;
       color: var(--text-3);
-      max-width: 520px;
+      max-width: 680px;
       margin: 0 auto 20px;
       line-height: 1.6;
     }
@@ -709,6 +709,19 @@
       0%, 100% { box-shadow: 0 0 0 0 rgba(91,95,199,.30); }
       50%       { box-shadow: 0 0 0 6px rgba(91,95,199,.00); }
     }
+
+
+    /* Two-column approval layout on wide screens */
+    .ap-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .ap-columns { grid-template-columns: 1fr; }
+    }
+    .ap-col {}
 
     /* ─── STATUS ──────────────────────────────────────────────────────────── */
     .status-area {
@@ -1573,10 +1586,16 @@ Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13t
           <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
         </div>
         <div id="apBlockers"></div>
-        <div id="apTeamsSection"></div>
-        <div id="apEmailSection"></div>
-        <div id="apMeeting"></div>
-        <div id="apReminders"></div>
+        <div class="ap-columns">
+          <div class="ap-col">
+            <div id="apTeamsSection"></div>
+            <div id="apMeeting"></div>
+          </div>
+          <div class="ap-col">
+            <div id="apEmailSection"></div>
+            <div id="apReminders"></div>
+          </div>
+        </div>
       </div>
       <div class="ap-foot">
         <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>

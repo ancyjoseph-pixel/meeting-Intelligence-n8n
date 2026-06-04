@@ -398,7 +398,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const edits = $('Apply Edits').item.json;\nconst items = edits.final_internal_items || [];\nif (items.length === 0) return [{ json: { status: 'no_internal_items' } }];\nconst byOwner = {};\nitems.forEach(item => {\n  const key = item.owner_email;\n  if (!byOwner[key]) byOwner[key] = { owner_name: item.owner_name, owner_email: item.owner_email, tasks: [] };\n  byOwner[key].tasks.push({ task: item.task, deadline: item.deadline, priority: item.priority, depends_on: item.depends_on || null });\n});\nreturn Object.values(byOwner).map(person => ({ json: person }));"
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst items = edits.final_internal_items || [];\nif (items.length === 0) return [{ json: { status: 'no_internal_items' } }];\nconst byOwner = {};\nitems.forEach(item => {\n  const key = item.owner_email;\n  if (!byOwner[key]) byOwner[key] = { owner_name: item.owner_name, owner_email: item.owner_email, tasks: [] };\n  byOwner[key].tasks.push({ task: item.task, deadline: item.deadline, priority: item.priority, depends_on: item.depends_on || null, edited_message: item.edited_message || null });\n});\nreturn Object.values(byOwner).map(person => ({ json: person }));"
       },
       "id": "split-internal-001",
       "name": "Split Internal Items",

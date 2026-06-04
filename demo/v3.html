@@ -1134,22 +1134,20 @@ async function submitApproval(approved) {
   setStatus('Sending via Microsoft Graph API...', 'active');
 
   let approveOk = false;
+  let approveError = '';
   try {
-    const approveRes = await fetch('/hitl/approve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        edited_items: finalItems,
-        edited_emails: finalEmails,
-        edited_meeting: finalMeeting
-      })
-    });
-    approveOk = approveRes.ok;
-  } catch(e) {}
+    const approveRes = await fetch('/hitl/approve', { method: 'POST' });
+    const approveJson = await approveRes.json();
+    approveOk = approveJson.ok === true;
+    approveError = approveJson.error || '';
+  } catch(e) { approveError = e.message; }
   if (!approveOk) {
     document.getElementById('approveBtn').disabled = false;
     document.getElementById('rejectBtn').disabled = false;
-    setStatus('⚠ Could not reach n8n — is n8n running and the workflow active?', 'error');
+    const msg = approveError === 'no_pending_run'
+      ? '⚠ No pending run found — start the demo first, then approve when the panel appears.'
+      : '⚠ Could not reach n8n: ' + (approveError || 'unknown error') + ' — check proxy terminal.';
+    setStatus(msg, 'error');
     return;
   }
 

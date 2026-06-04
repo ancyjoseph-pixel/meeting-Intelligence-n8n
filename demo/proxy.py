@@ -402,23 +402,30 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b'{"ok":true}')
 
         elif path == "/hitl/approve":
-            # UI Approve button — call n8n server-side (avoids browser CORS issues)
+            # UI Approve — calls n8n via GET, identical to the email link (known to work)
             length = int(self.headers.get("Content-Length", 0))
-            body_raw = self.rfile.read(length) if length else b""
-            n8n_url = (hitl_data or {}).get("approve_url", "")
+            if length: self.rfile.read(length)  # drain body
+            if not hitl_data:
+                print("[hitl/approve] ERROR: hitl_data is empty — no pending run found")
+                self._json_ok({"ok": False, "error": "no_pending_run"})
+                return
+            n8n_url = hitl_data.get("approve_url", "")
+            print(f"[hitl/approve] approve_url = {n8n_url[:120]}")
             if n8n_url and "localhost:8080" not in n8n_url:
-                print(f"[hitl/approve] Calling n8n: {n8n_url[:80]}...")
                 try:
-                    req = urllib.request.Request(n8n_url, data=body_raw, method="POST")
-                    req.add_header("Content-Type", "application/json")
+                    req = urllib.request.Request(n8n_url, method="GET")
+                    req.add_header("User-Agent", "NEURA-Proxy/1.0")
                     with urllib.request.urlopen(req, timeout=15) as resp:
-                        print(f"[hitl/approve] n8n resumed: {resp.status}")
+                        print(f"[hitl/approve] n8n resumed OK — status {resp.status}")
+                    hitl_data = None
+                    self._json_ok({"ok": True})
                 except Exception as e:
-                    print(f"[hitl/approve] n8n call failed: {e}")
+                    print(f"[hitl/approve] n8n call FAILED: {e}")
+                    self._json_ok({"ok": False, "error": str(e)})
             else:
-                print("[hitl/approve] Demo mode — approved (no n8n call needed)")
-            hitl_data = None
-            self._json_ok({"ok": True})
+                print("[hitl/approve] Demo mode — approved")
+                hitl_data = None
+                self._json_ok({"ok": True})
 
         elif path == "/hitl/reject":
             # UI Reject button — call n8n server-side

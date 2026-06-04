@@ -343,17 +343,22 @@
       font-size:11px; font-weight:700;
       padding:4px 12px; border-radius:20px; white-space:nowrap;
     }
-    .ap-body { padding:20px 24px; }
+    .ap-body { padding:22px 28px; }
 
     /* Stats bar */
     .ap-stats {
-      display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
     }
     .ap-stat {
-      background:var(--surface-in); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:12px 18px;
-      text-align:center; flex:1; min-width:100px;
+      background: var(--surface-in); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 16px;
+      text-align: center; cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
     }
+    .ap-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .ap-stat-num  { font-size:26px; font-weight:700; line-height:1; margin-bottom:3px; }
     .ap-stat-label{ font-size:11px; color:var(--text-3); }
     .ap-stat.s-teams .ap-stat-num { color:var(--teams); }
@@ -741,8 +746,9 @@
     .content-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 16px;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: start;
     }
     .content-card {
       background: var(--surface);
@@ -938,6 +944,14 @@
     @media (max-width: 800px) {
       .sent-grid { grid-template-columns: 1fr; }
     }
+
+
+    /* Stat card → content card highlight */
+    .content-card { transition: box-shadow .3s; }
+    .purple-card.card-highlight { box-shadow: 0 0 0 3px var(--teams), var(--shadow-md) !important; }
+    .red-card.card-highlight    { box-shadow: 0 0 0 3px var(--danger), var(--shadow-md) !important; }
+    .blue-card.card-highlight   { box-shadow: 0 0 0 3px var(--blue), var(--shadow-md) !important; }
+    .orange-card.card-highlight { box-shadow: 0 0 0 3px var(--orange), var(--shadow-md) !important; }
 
   </style>
 </head>
@@ -1152,16 +1166,16 @@ Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13t
             <div id="apStats" style="display:none"></div>
             <div id="apBlockers" style="display:none"></div>
             <div class="content-grid">
-              <div class="content-card purple-card">
+              <div class="content-card purple-card" id="cardTeams">
                 <div id="apTeamsSection"></div>
               </div>
-              <div class="content-card red-card">
+              <div class="content-card red-card" id="cardEmail">
                 <div id="apEmailSection"></div>
               </div>
-              <div class="content-card blue-card">
+              <div class="content-card blue-card" id="cardMeeting">
                 <div id="apMeeting"></div>
               </div>
-              <div class="content-card orange-card">
+              <div class="content-card orange-card" id="cardReminders">
                 <div id="apReminders"></div>
               </div>
             </div>
@@ -1367,6 +1381,17 @@ function updateApproveBtn() {
 }
 
 // ─── Show Approval Panel ──────────────────────────────────────────────────────
+
+function highlightCard(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.remove('card-highlight');
+  void card.offsetWidth; // force reflow to restart animation
+  card.classList.add('card-highlight');
+  setTimeout(() => card.classList.remove('card-highlight'), 1600);
+}
+
 function showApprovalPanel(data) {
   initEditedData();
   window._hasConflict = false;
@@ -1391,10 +1416,10 @@ function showApprovalPanel(data) {
     const nMsgs = grouped.length || internalItems.length;
     statsEl.style.display = '';
     statsEl.innerHTML =
-      '<div class="ap-stat s-teams"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
-      '<div class="ap-stat s-email"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
-      '<div class="ap-stat s-rem"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
-      (f ? '<div class="ap-stat s-cal"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
+      '<div class="ap-stat s-teams" onclick="highlightCard('cardTeams')" title="View Teams notifications"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
+      '<div class="ap-stat s-email" onclick="highlightCard('cardEmail')" title="View external emails"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
+      '<div class="ap-stat s-rem" onclick="highlightCard('cardReminders')" title="View deadline reminders"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
+      (f ? '<div class="ap-stat s-cal" onclick="highlightCard('cardMeeting')" title="View meeting details"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
   }
 
   document.getElementById('apCount').textContent =

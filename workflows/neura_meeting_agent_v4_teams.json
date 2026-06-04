@@ -450,7 +450,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const edits = $('Apply Edits').item.json;\nconst reminders = edits.deadline_reminders || [];\nif (reminders.length === 0) return [{ json: { status: 'no_reminders' } }];\nreturn reminders.map(r => ({ json: r }));"
+        "jsCode": "const edits = $('Apply Edits').item.json;\nconst reminders = edits.deadline_reminders || [];\nif (reminders.length === 0) return [{ json: { status: 'no_reminders' } }];\n\n// Group by owner + date — same person same day = one event\nconst byOwnerDate = {};\nreminders.forEach(r => {\n  const key = r.owner_name + '|' + r.deadline;\n  if (!byOwnerDate[key]) byOwnerDate[key] = { owner_name: r.owner_name, deadline: r.deadline, items: [] };\n  byOwnerDate[key].items.push(r);\n});\n\nreturn Object.values(byOwnerDate).map(group => {\n  const hasCritical = group.items.some(i => i.priority === 'critical');\n  const count = group.items.length;\n  const taskLines = group.items.map(i =>\n    '<b>' + (i.title || 'DEADLINE') + '</b> [' + (i.priority || 'high').toUpperCase() + ']' +\n    (i.reminder_note ? '<br><i>' + i.reminder_note + '</i>' : '')\n  ).join('<br><br>');\n  const title = count > 1\n    ? '\\u23f0 DEADLINES: ' + group.owner_name + ' \\u2014 ' + count + ' tasks due ' + group.deadline\n    : '\\u23f0 ' + (group.items[0].title || 'DEADLINE');\n  return { json: {\n    owner_name: group.owner_name,\n    earliest_deadline: group.deadline,\n    event_title: title,\n    event_body: '<b>Sprint 7 Deadline Reminder &mdash; ' + group.owner_name + ' &mdash; ' + group.deadline + '</b><br><br>' + taskLines + '<br><br><i>NEURA AI Meeting Agent v4 | Futurice</i>',\n    priority: hasCritical ? 'critical' : 'high',\n    item_count: count\n  }};\n});"
       },
       "id": "split-reminders-001",
       "name": "Split Deadline Reminders",
@@ -602,7 +602,7 @@
         "nodeCredentialType": "microsoftOAuth2Api",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({subject: '⏰ ' + ($json.title || 'DEADLINE'), start: {dateTime: $json.deadline + 'T09:00:00', timeZone: 'Europe/London'}, end: {dateTime: $json.deadline + 'T09:00:00', timeZone: 'Europe/London'}, body: {contentType: 'HTML', content: '<b>Deadline Reminder — created by NEURA AI Meeting Agent v4</b><br><br>Owner: ' + $json.owner_name + '<br>Priority: <b>' + ($json.priority || 'high').toUpperCase() + '</b><br><br>' + ($json.reminder_note || '') + '<br><br><i>NEURA AI Meeting Agent v4 | Futurice</i>'}, isReminderOn: true, reminderMinutesBeforeStart: 1440, categories: ['NEURA AI Agent']}) }}",
+        "jsonBody": "={{ ({subject: $json.event_title, start: {dateTime: $json.earliest_deadline + 'T09:00:00', timeZone: 'Europe/London'}, end: {dateTime: $json.earliest_deadline + 'T09:30:00', timeZone: 'Europe/London'}, body: {contentType: 'HTML', content: $json.event_body}, isReminderOn: true, reminderMinutesBeforeStart: 1440, categories: ['NEURA AI Agent']}) }}",
         "options": {}
       },
       "id": "create-reminders-001",
@@ -618,7 +618,8 @@
           "id": "JpJTuimza9Db1j6c",
           "name": "Futurice M365"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {

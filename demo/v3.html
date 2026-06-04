@@ -3,360 +3,1425 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEURA Meeting Agent v3 — Teams + Email</title>
+  <title>NEURA Meeting Intelligence — Futurice Demo</title>
   <style>
+    /* ─── Fluent Design Tokens ─────────────────────────────────────────────── */
     :root {
-      --bg:           #0d1117;
-      --surface:      #161b22;
-      --surface-in:   #0d1117;
-      --border:       #21262d;
-      --border-muted: #30363d;
-      --text:         #e6edf3;
-      --text-2:       #c9d1d9;
-      --text-3:       #8b949e;
-      --text-4:       #484f58;
-      --accent:       #58a6ff;
-      --accent-bg:    #1f3a5f;
-      --success:      #3fb950;
-      --success-bg:   #1a3728;
-      --warn:         #d29922;
-      --warn-bg:      #2d2616;
-      --danger:       #f85149;
-      --danger-bg:    #3d1a1a;
-      --teams:        #7b83eb;
-      --teams-bg:     #1e1f3a;
-      --teams-border: #4a4f8a;
-      --step-border:  #21262d;
+      --bg:              #f3f2f1;
+      --surface:         #ffffff;
+      --surface-in:      #faf9f8;
+      --border:          #edebe9;
+      --border-muted:    #e1dfdd;
+      --text:            #323130;
+      --text-2:          #323130;
+      --text-3:          #605e5c;
+      --text-4:          #8a8886;
+
+      /* Outlook blue */
+      --accent:          #0078d4;
+      --accent-dark:     #106ebe;
+      --accent-bg:       #deecf9;
+      --accent-light:    #eff6fc;
+
+      /* Teams purple */
+      --teams:           #5b5fc7;
+      --teams-dark:      #4b4fa3;
+      --teams-bg:        #f0efff;
+      --teams-border:    #c7c6f4;
+
+      /* Success green */
+      --success:         #107c10;
+      --success-bg:      #dff6dd;
+      --success-border:  #92c353;
+
+      /* Warning orange */
+      --warn:            #ca5010;
+      --warn-dark:       #a33f00;
+      --warn-bg:         #fed9cc;
+      --warn-border:     #f4b886;
+
+      /* Danger red */
+      --danger:          #a4262c;
+      --danger-dark:     #8b1d1d;
+      --danger-bg:       #fde7e9;
+      --danger-border:   #f1b6ba;
+
+      --shadow-sm:       0 1.6px 3.6px rgba(0,0,0,.11), 0 .3px .9px rgba(0,0,0,.09);
+      --shadow-md:       0 3.2px 7.2px rgba(0,0,0,.13), 0 .6px 1.8px rgba(0,0,0,.10);
+      --radius:          4px;
+      --radius-lg:       8px;
     }
-    body.light {
-      --bg:           #ffffff;
-      --surface:      #f6f8fa;
-      --surface-in:   #ffffff;
-      --border:       #d0d7de;
-      --border-muted: #d8dee4;
-      --text:         #1f2328;
-      --text-2:       #1f2328;
-      --text-3:       #57606a;
-      --text-4:       #8c959f;
-      --accent:       #0969da;
-      --accent-bg:    #ddf4ff;
-      --success:      #1a7f37;
-      --success-bg:   #dafbe1;
-      --warn:         #9a6700;
-      --warn-bg:      #fff8c5;
-      --danger:       #cf222e;
-      --danger-bg:    #ffebe9;
-      --teams:        #5b5fc7;
-      --teams-bg:     #f0effc;
-      --teams-border: #8b8ee8;
-      --step-border:  #d0d7de;
+
+    /* ─── Dark mode overrides ─────────────────────────────────────────────── */
+    body.dark {
+      --bg:              #1b1a19;
+      --surface:         #252423;
+      --surface-in:      #1b1a19;
+      --border:          #3b3a39;
+      --border-muted:    #484644;
+      --text:            #f3f2f1;
+      --text-2:          #d2d0ce;
+      --text-3:          #a19f9d;
+      --text-4:          #6d6b69;
+      --accent:          #479ef5;
+      --accent-dark:     #2899f5;
+      --accent-bg:       #1a3a5c;
+      --accent-light:    #1a2e42;
+      --teams:           #9ea2f2;
+      --teams-dark:      #7f84e8;
+      --teams-bg:        #1e1d3a;
+      --teams-border:    #3d3d6b;
+      --success:         #54b054;
+      --success-bg:      #1a3d1a;
+      --success-border:  #2d6b2d;
+      --warn:            #f4a261;
+      --warn-dark:       #e8823b;
+      --warn-bg:         #3d2408;
+      --warn-border:     #7a4020;
+      --danger:          #f1707b;
+      --danger-dark:     #e84855;
+      --danger-bg:       #3d1a1e;
+      --danger-border:   #7a3040;
     }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
 
-    /* HEADER */
-    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border)}
-    .logo-wrap{display:flex;align-items:center;gap:8px}
-    .logo-neura{font-size:20px;font-weight:700;color:var(--accent)}
-    .logo-sep{color:var(--text-4);font-size:16px}
-    .logo-futurice{font-size:14px;color:var(--text-3);font-weight:500}
-    .v3-chip{background:linear-gradient(135deg,#5b5fc7,#7b83eb);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;letter-spacing:.5px}
-    .header-right{display:flex;align-items:center;gap:8px}
-    .badge{background:#1f6feb;color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.5px}
-    .icon-btn{background:none;border:1px solid var(--border-muted);color:var(--text-3);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-    .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
-    .v2-link{font-size:12px;color:var(--text-4);text-decoration:none;padding:4px 8px;border-radius:4px;border:1px solid var(--border)}
-    .v2-link:hover{color:var(--accent);border-color:var(--accent)}
+    /* ─── Reset & Base ────────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* CONFIG MODAL */
-    .cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center}
-    .cfg-overlay.open{display:flex}
-    .cfg-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:520px;max-width:90vw}
-    .cfg-box h3{font-size:15px;color:var(--text);margin-bottom:4px}
-    .cfg-box p{font-size:13px;color:var(--text-3);margin-bottom:16px}
-    .cfg-row{display:flex;gap:10px;margin-bottom:10px}
-    .cfg-input{background:var(--surface-in);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;flex:1;font-family:monospace}
-    .cfg-input:focus{outline:none;border-color:var(--accent)}
-    .cfg-save{background:#238636;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
-    .cfg-hint{font-size:12px;color:var(--text-4);margin-top:10px}
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .2s, color .2s;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* HERO */
-    .hero{text-align:center;padding:56px 40px 28px}
-    .hero h1{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:14px}
-    .hero h1 .accent{color:var(--accent)}
-    .hero h1 .teams-color{color:var(--teams)}
-    .hero p{font-size:17px;color:var(--text-3);max-width:580px;margin:0 auto 16px;line-height:1.7}
-    .capability-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:32px}
-    .chip{background:var(--surface);border:1px solid var(--border);color:var(--text-3);font-size:12px;padding:5px 12px;border-radius:20px}
-    .chip.teams{border-color:var(--teams-border);color:var(--teams);background:var(--teams-bg)}
-    .chip.danger{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
-    .chip.success{border-color:var(--success);color:var(--success);background:var(--success-bg)}
-    .start-btn{background:linear-gradient(135deg,#1f6feb,#5b5fc7);color:#fff;border:none;padding:16px 48px;font-size:17px;font-weight:700;border-radius:10px;cursor:pointer;transition:all .2s}
-    .start-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,95,199,.4)}
-    .start-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    /* ─── App Bar ─────────────────────────────────────────────────────────── */
+    .app-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #0078d4;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.22);
+    }
+    .app-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-bar-brand {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -.01em;
+    }
+    .app-bar-sep {
+      color: rgba(255,255,255,.45);
+      font-size: 14px;
+      font-weight: 300;
+    }
+    .app-bar-partner {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,.85);
+    }
+    .live-chip {
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.30);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: 2px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .app-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bar-btn {
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.20);
+      color: rgba(255,255,255,.90);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .bar-btn:hover {
+      background: rgba(255,255,255,.22);
+      border-color: rgba(255,255,255,.40);
+    }
 
-    /* TRANSCRIPT */
-    .transcript-section{max-width:780px;margin:0 auto 20px;padding:0 24px}
-    .transcript-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .transcript-header{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
-    .transcript-header:hover{background:var(--surface-in)}
-    .transcript-title{font-size:13px;font-weight:600;color:var(--text)}
-    .transcript-toggle{font-size:12px;color:var(--text-4)}
-    .transcript-body{padding:0 18px 18px;font-size:12px;color:var(--text-3);line-height:1.9;white-space:pre-line;font-family:monospace;border-top:1px solid var(--border);max-height:240px;overflow-y:auto;display:none}
-    .transcript-body.open{display:block}
+    /* ─── Page wrapper ────────────────────────────────────────────────────── */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
 
-    /* PIPELINE */
-    .pipeline{display:flex;align-items:flex-start;justify-content:center;padding:28px 24px 12px;overflow-x:auto;gap:2px}
-    .step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:88px}
-    .step-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--step-border);background:var(--surface);transition:all .4s;position:relative}
-    .step-icon.active{border-color:var(--accent);background:var(--accent-bg);box-shadow:0 0 20px rgba(88,166,255,.3)}
-    .step-icon.done{border-color:var(--success);background:var(--success-bg)}
-    .step-icon.done::after{content:'✓';position:absolute;bottom:-2px;right:-2px;background:var(--success);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-    .step-icon.waiting{border-color:var(--warn);background:var(--warn-bg);animation:pulse 1.5s infinite}
-    .step-icon.error{border-color:var(--danger);background:var(--danger-bg)}
-    .step-icon.teams-active{border-color:var(--teams);background:var(--teams-bg)}
-    .step-label{font-size:10px;color:var(--text-3);text-align:center;max-width:80px;line-height:1.4;font-weight:500}
-    .step-label.active{color:var(--accent);font-weight:600}
-    .step-label.done{color:var(--success)}
-    .step-label.waiting{color:var(--warn);font-weight:600}
-    .step-label.teams-active{color:var(--teams);font-weight:600}
-    .arrow{color:var(--border-muted);font-size:18px;padding-bottom:24px;flex-shrink:0}
-    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(210,153,34,.4)}50%{box-shadow:0 0 0 8px rgba(210,153,34,0)}}
+    /* ─── Generic card ────────────────────────────────────────────────────── */
+    .ms-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
 
-    /* STATUS */
-    .status-area{text-align:center;padding:0 24px 20px;min-height:52px}
-    .status-msg{font-size:15px;color:var(--text-3);line-height:1.5}
-    .status-msg.active{color:var(--accent)}
-    .status-msg.done{color:var(--success);font-weight:600}
-    .status-msg.waiting{color:var(--warn);font-weight:600}
-    .status-msg.error{color:var(--danger)}
+    /* ─── CONFIG MODAL ────────────────────────────────────────────────────── */
+    .cfg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .cfg-overlay.open { display: flex; }
+    .cfg-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      width: 520px;
+      max-width: 92vw;
+      box-shadow: var(--shadow-md);
+    }
+    .cfg-box h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .cfg-box p {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-bottom: 20px;
+    }
+    .cfg-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .cfg-input {
+      background: var(--surface-in);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 13px;
+      flex: 1;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      transition: border-color .15s;
+    }
+    .cfg-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .cfg-save {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .cfg-save:hover { background: #0e6b0e; }
+    .cfg-hint {
+      font-size: 11px;
+      color: var(--text-4);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
 
-    /* APPROVAL PANEL */
-    .ap{max-width:780px;margin:0 auto 32px;background:var(--surface);border:2px solid var(--warn);border-radius:14px;overflow:hidden;display:none}
-    .ap-head{background:var(--warn-bg);padding:18px 28px;border-bottom:1px solid var(--warn);display:flex;align-items:center;justify-content:space-between}
-    .ap-head-left h2{font-size:17px;color:var(--warn);margin-bottom:3px}
-    .ap-head-left p{font-size:13px;color:var(--text-3)}
-    .ap-count{background:var(--warn);color:#000;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
-    .ap-body{padding:20px 28px}
-
-    /* banners */
-    .esc-banner{background:var(--danger-bg);border:1.5px solid var(--danger);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px}
-    .esc-banner strong{color:var(--danger)}
-    .esc-reason{color:var(--text-2);margin-top:4px;font-size:13px}
-    .ext-warn{background:var(--warn-bg);border:1px solid var(--warn);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--warn);display:none}
-    .summary-box{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:18px}
-    .sec-label{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px}
-
-    /* blockers */
-    .blockers-box{background:var(--danger-bg);border:1px solid var(--danger);border-radius:8px;padding:12px 16px;margin-bottom:16px}
-    .blocker-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(248,81,73,.2)}
-    .blocker-item:last-child{border-bottom:none}
-    .blocker-count{background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:2px}
-    .blocker-text{font-size:13px;color:var(--text-2)}
-    .blocker-owner{font-size:11px;color:var(--text-3);margin-top:2px}
-
-    /* Teams chat items */
-    .teams-section{margin-bottom:20px}
-    .teams-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--teams-border);margin-bottom:10px}
-    .teams-section-title{font-size:13px;font-weight:700;color:var(--teams)}
-    .teams-count-badge{background:var(--teams);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-    .tc{background:var(--teams-bg);border:1px solid var(--teams-border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
-    .tc:hover{border-color:var(--teams)}
-    .tc-head{padding:12px 14px;cursor:pointer}
-    .tc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
-    .tc-icon{font-size:16px}
-    .tc-name{font-weight:600;font-size:14px;color:var(--text)}
-    .teams-badge{background:var(--teams);color:#fff;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700}
-    .tc-email{font-size:12px;color:var(--text-3)}
-    .tc-task{font-size:13px;color:var(--text-2);margin-bottom:4px}
-    .tc-meta{font-size:12px;color:var(--text-3);display:flex;gap:12px;flex-wrap:wrap}
-    .pc{font-weight:700}
-    .pc-critical{color:#f85149}.pc-high{color:#fd7e14}.pc-medium{color:#d29922}.pc-low{color:#6c757d}
-    .tc-actions{padding:0 14px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .edit-toggle-btn{background:none;border:1px solid var(--teams-border);color:var(--teams);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
-    .edit-toggle-btn:hover{background:var(--teams-bg);border-color:var(--teams)}
-    .edited-pill{font-size:10px;background:var(--border-muted);color:var(--text-3);padding:2px 8px;border-radius:10px;font-weight:500}
-    .tc-edit-area{padding:0 14px 12px;border-top:1px solid var(--teams-border);display:none}
-    .tc-edit-area.open{display:block}
-    .edit-textarea{width:100%;min-height:110px;background:var(--surface-in);border:1.5px dashed var(--teams-border);border-radius:6px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:10px 12px;resize:vertical;line-height:1.7;margin-top:10px}
-    .edit-textarea:focus{outline:none;border-color:var(--teams);border-style:solid}
-    .done-edit-btn{background:var(--teams);color:#fff;border:none;font-size:11px;padding:5px 14px;border-radius:4px;cursor:pointer;margin-top:8px;font-weight:600}
-
-    /* External email items */
-    .ext-section{margin-bottom:20px}
-    .ext-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--danger);margin-bottom:10px}
-    .ext-section-title{font-size:13px;font-weight:700;color:var(--danger)}
-    .ext-count-badge{background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-    .ec{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
-    .ec:hover{border-color:var(--danger)}
-    .ec-head{padding:12px 14px;cursor:pointer}
-    .ec-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
-    .ext-badge{background:var(--danger);color:#fff;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700}
-    .ec-name{font-weight:600;font-size:14px;color:var(--text)}
-    .ec-company{font-size:12px;color:var(--text-3)}
-    .ec-meta{font-size:12px;color:var(--text-3)}
-    .subject-input{width:100%;background:var(--surface-in);border:1.5px dashed var(--border-muted);border-radius:5px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:6px 10px;margin-top:5px;margin-bottom:4px}
-    .subject-input:focus{outline:none;border-color:var(--danger);border-style:solid}
-    .ec-actions{padding:0 14px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .ec-edit-btn{background:none;border:1px solid var(--border-muted);color:var(--danger);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
-    .ec-edit-btn:hover{background:var(--danger-bg);border-color:var(--danger)}
-    .edited-pill-red{font-size:10px;background:var(--danger-bg);color:var(--danger);padding:2px 8px;border-radius:10px;font-weight:500;border:1px solid var(--danger)}
-    .ec-edit-area{padding:0 14px 12px;border-top:1px solid var(--border);display:none}
-    .ec-edit-area.open{display:block}
-    .ec-preview{padding:0 14px 12px;border-top:1px solid var(--border);display:none}
-    .ec-preview.open{display:block}
-    .ec-body{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text-2);line-height:1.8;white-space:pre-wrap;font-family:'Segoe UI',Arial,sans-serif;max-height:280px;overflow-y:auto}
-    .ec-toggle{font-size:11px;color:var(--danger);margin-top:5px;display:inline-block;cursor:pointer}
-
-    /* Meeting / Calendar section */
-    .mtg-section{margin-bottom:20px}
-    .mtg-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--accent);margin-bottom:10px}
-    .mtg-section-title{font-size:13px;font-weight:700;color:var(--accent)}
-    .mtg-box{background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:12px}
-    .mtg-field-row{display:flex;flex-direction:column;margin-bottom:10px}
-    .mtg-field-label{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-    .mtg-input{background:var(--surface-in);border:1.5px dashed var(--accent);border-radius:5px;color:var(--text);font-size:14px;font-family:'Segoe UI',Arial,sans-serif;padding:7px 10px;font-weight:600}
-    .mtg-input:focus{outline:none;border-color:var(--accent);border-style:solid}
-    .mtg-textarea{background:var(--surface-in);border:1.5px dashed var(--accent);border-radius:5px;color:var(--text);font-size:13px;font-family:'Segoe UI',Arial,sans-serif;padding:7px 10px;resize:vertical;min-height:60px;line-height:1.6}
-    .mtg-textarea:focus{outline:none;border-color:var(--accent);border-style:solid}
-    .cal-free-badge{display:inline-flex;align-items:center;gap:5px;background:var(--success-bg);border:1px solid var(--success);border-radius:6px;color:var(--success);font-size:12px;font-weight:600;padding:5px 12px;margin-top:6px}
-    .cal-conflict-banner{background:var(--danger-bg);border:1.5px solid var(--danger);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--danger)}
-    .time-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-    .time-opt{background:var(--surface-in);border:2px solid var(--border-muted);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;position:relative}
-    .time-opt:hover{border-color:var(--teams)}
-    .time-opt.selected{border-color:var(--teams);background:var(--teams-bg)}
-    .time-opt.selected::after{content:'✓';position:absolute;top:6px;right:8px;background:var(--teams);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-    .time-opt-label{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
-    .time-opt-display{font-size:12px;color:var(--text-3)}
-    .time-opt.keep-original{border-color:var(--border-muted)}
-    .time-opt.keep-original.selected{border-color:var(--warn);background:var(--warn-bg)}
-    .time-opt.keep-original.selected::after{background:var(--warn)}
-    .time-changed-pill{font-size:10px;background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:500;border:1px solid var(--accent);margin-left:8px}
-    .conflict-required-note{font-size:12px;color:var(--danger);margin-top:8px;font-weight:600}
-
-    /* Deadline reminders */
-    .rem-section{margin-bottom:20px}
-    .rem-section-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--accent);margin-bottom:10px}
-    .rem-section-title{font-size:13px;font-weight:700;color:var(--accent)}
-    .rem-count-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-    .rem-item{background:var(--surface-in);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;border-left:3px solid var(--accent)}
-    .rem-item.critical{border-left-color:#f85149}
-    .rem-item.high{border-left-color:#fd7e14}
-    .rem-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
-    .rem-meta{font-size:12px;color:var(--text-3)}
-    .rem-note{font-size:12px;color:var(--text-4);margin-top:3px}
-
-    /* approval footer */
-    .ap-foot{padding:4px 28px 22px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .btn-approve{background:#238636;color:#fff;border:none;padding:14px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s}
-    .btn-approve:hover{background:#2ea043;transform:translateY(-1px)}
-    .btn-approve:disabled{opacity:.4;cursor:not-allowed;transform:none}
-    .btn-reject{background:transparent;color:var(--danger);border:1.5px solid var(--danger);padding:14px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s}
-    .btn-reject:hover{background:var(--danger-bg)}
-    .btn-reject:disabled{opacity:.4;cursor:not-allowed}
-    .ap-note{margin-left:auto;font-size:12px;color:var(--text-3)}
-    .ap-conflict-warn{font-size:12px;color:var(--danger);font-weight:600}
-
-    /* DONE */
-    .done-section{max-width:780px;margin:0 auto 60px;text-align:center;display:none;padding:0 24px}
-    .done-icon{font-size:56px;margin-bottom:14px}
-    .done-title{font-size:26px;font-weight:700;color:var(--success);margin-bottom:8px}
-    .done-sub{font-size:15px;color:var(--text-3);margin-bottom:24px;line-height:1.6}
-    .done-sub strong{color:var(--text)}
-    .done-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:420px;margin:0 auto 28px}
-    .done-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
-    .done-card.teams-card{border-color:var(--teams-border)}
-    .done-card.email-card{border-color:var(--danger)}
-    .done-card.cal-card{border-color:var(--accent)}
-    .done-card.reminder-card{border-color:var(--warn-bg)}
-    .done-card-num{font-size:28px;font-weight:700}
-    .done-card.teams-card .done-card-num{color:var(--teams)}
-    .done-card.email-card .done-card-num{color:var(--danger)}
-    .done-card.cal-card .done-card-num{color:var(--accent)}
-    .done-card.reminder-card .done-card-num{color:var(--warn)}
-    .done-card-label{font-size:11px;color:var(--text-3);margin-top:3px}
-
-    /* sent list */
-    .sent-list{max-width:700px;margin:0 auto;text-align:left}
-    .sent-list-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-    .sent-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
-    .sent-item:hover{border-color:var(--accent)}
-    .sent-item.teams-item:hover{border-color:var(--teams)}
-    .sent-item.email-item:hover{border-color:var(--danger)}
-    .sent-item.cal-item{background:var(--accent-bg);border-color:var(--accent)}
-    .sent-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-    .sent-item-to{font-size:13px;font-weight:600;color:var(--text)}
-    .sent-item-badge{font-size:10px;background:var(--surface-in);color:var(--text-3);padding:2px 7px;border-radius:8px;border:1px solid var(--border)}
-    .sent-item-subject{font-size:13px;color:var(--accent);margin-bottom:2px}
-    .sent-item-hint{font-size:11px;color:var(--text-4)}
-
-    /* REJECTED */
-    .rejected-section{max-width:480px;margin:0 auto 60px;text-align:center;display:none;padding:0 24px}
-
-    /* CONFIRM */
-    .confirm-panel{max-width:460px;margin:80px auto;text-align:center;display:none;padding:0 24px}
-    .confirm-icon{font-size:64px;margin-bottom:18px}
-    .confirm-title{font-size:26px;font-weight:700;margin-bottom:10px}
-    .confirm-title.approved{color:var(--success)}.confirm-title.rejected{color:var(--danger)}
-    .confirm-msg{font-size:15px;color:var(--text-3);line-height:1.6}
-
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
-    .modal-overlay.open{display:flex}
-    .modal{background:var(--surface-in);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;max-height:84vh;overflow-y:auto;position:relative}
-    .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-3);font-size:22px;cursor:pointer;z-index:1}
-    .modal-close:hover{color:var(--text)}
+    /* ─── PREVIEW MODAL ───────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      max-width: 640px;
+      width: 100%;
+      max-height: 84vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow-md);
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: var(--text-4);
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .modal-close:hover { background: var(--bg); color: var(--text); }
 
     /* Teams chat modal */
-    .teams-modal-bar{background:var(--teams-bg);border-bottom:1px solid var(--teams-border);padding:14px 20px;display:flex;align-items:center;gap:12px}
-    .teams-modal-icon{width:40px;height:40px;border-radius:50%;background:var(--teams);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0}
-    .teams-modal-sender{font-size:14px;font-weight:600;color:var(--text)}
-    .teams-modal-sub{font-size:12px;color:var(--text-3)}
-    .teams-modal-body{padding:20px}
-    .teams-chat-bubble{background:var(--surface);border:1px solid var(--teams-border);border-radius:12px;border-top-left-radius:2px;padding:14px 16px;font-size:14px;color:var(--text-2);line-height:1.8;white-space:pre-wrap}
-    .teams-routing{padding:10px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-4)}
+    .teams-modal-bar {
+      background: var(--teams-bg);
+      border-bottom: 1px solid var(--teams-border);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .teams-modal-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--teams);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .teams-modal-sender { font-size: 14px; font-weight: 600; color: var(--text); }
+    .teams-modal-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .teams-modal-body { padding: 20px; }
+    .teams-chat-bubble {
+      background: var(--surface-in);
+      border: 1px solid var(--teams-border);
+      border-radius: 0 12px 12px 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .teams-routing {
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-4);
+    }
 
     /* Email modal */
-    .email-chrome{border-radius:12px;overflow:hidden}
-    .email-chrome-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px}
-    .email-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#dc3545,#fd7e14);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
-    .email-sender-name{font-size:14px;font-weight:600;color:var(--text)}
-    .email-sender-meta{font-size:12px;color:var(--text-3)}
-    .email-fields{padding:10px 20px;border-bottom:1px solid var(--border)}
-    .email-field-row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--border)}
-    .email-field-row:last-child{border-bottom:none}
-    .email-field-key{font-size:11px;color:var(--text-3);min-width:60px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-    .email-field-val{font-size:13px;color:var(--text)}
-    .email-subject{padding:14px 20px;font-size:16px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);line-height:1.4}
-    .email-body-content{padding:18px 20px;font-size:14px;color:var(--text-2);line-height:1.9;white-space:pre-line}
-    .email-routing{padding:10px 20px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-4)}
+    .email-chrome { border-radius: var(--radius-lg); overflow: hidden; }
+    .email-chrome-bar {
+      background: var(--surface-in);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .email-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--danger) 0%, var(--warn) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .email-sender-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .email-sender-meta { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .email-fields {
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .email-field-row {
+      display: flex;
+      gap: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .email-field-row:last-child { border-bottom: none; }
+    .email-field-key {
+      font-size: 11px;
+      color: var(--text-4);
+      min-width: 64px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding-top: 1px;
+    }
+    .email-field-val { font-size: 13px; color: var(--text); }
+    .email-subject {
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+    }
+    .email-body-content {
+      padding: 18px 20px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.9;
+      white-space: pre-line;
+    }
+    .email-routing {
+      padding: 10px 20px;
+      background: var(--surface-in);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-4);
+    }
 
     /* Cal modal */
-    .cal-body{padding:22px}
-    .cal-field{margin-bottom:14px}
-    .cal-label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;font-weight:600}
-    .cal-value{font-size:14px;color:var(--text-2);line-height:1.6;white-space:pre-line}
-    .cal-teams-box{margin-top:16px;background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;padding:12px 14px}
+    .cal-body { padding: 24px; }
+    .cal-field { margin-bottom: 16px; }
+    .cal-label {
+      font-size: 11px;
+      color: var(--text-4);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .cal-value {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .cal-teams-box {
+      margin-top: 16px;
+      background: var(--accent-light);
+      border: 1px solid var(--accent-bg);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+    }
 
-    /* FOOTER */
-    .footer{text-align:center;padding:24px;color:var(--text-4);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+    /* ─── CONFIRM PANEL ───────────────────────────────────────────────────── */
+    .confirm-panel {
+      max-width: 460px;
+      margin: 80px auto;
+      text-align: center;
+      display: none;
+      padding: 48px 32px;
+    }
+    .confirm-icon { font-size: 64px; margin-bottom: 20px; }
+    .confirm-title { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+    .confirm-title.approved { color: var(--success); }
+    .confirm-title.rejected { color: var(--danger); }
+    .confirm-msg { font-size: 15px; color: var(--text-3); line-height: 1.6; }
+
+    /* ─── HERO CARD ───────────────────────────────────────────────────────── */
+    .hero-card {
+      margin: 24px 0 16px;
+      padding: 32px 40px 28px;
+      text-align: center;
+      border-top: 3px solid var(--accent);
+    }
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 10px;
+      letter-spacing: -.02em;
+    }
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text-3);
+      max-width: 520px;
+      margin: 0 auto 20px;
+      line-height: 1.6;
+    }
+    .capability-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border-muted);
+      background: var(--surface-in);
+      color: var(--text-3);
+    }
+    .chip.teams {
+      background: var(--teams-bg);
+      border-color: var(--teams-border);
+      color: var(--teams);
+    }
+    .chip.blue {
+      background: var(--accent-light);
+      border-color: var(--accent-bg);
+      color: var(--accent);
+    }
+    .chip.green {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success);
+    }
+    .chip.orange {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn);
+    }
+    .chip.danger {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger);
+    }
+    .start-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 36px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s, transform .1s;
+      box-shadow: var(--shadow-sm);
+      letter-spacing: .01em;
+    }
+    .start-btn:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 4px 12px rgba(0,120,212,.30);
+      transform: translateY(-1px);
+    }
+    .start-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ─── TRANSCRIPT ──────────────────────────────────────────────────────── */
+    .transcript-section {
+      margin-bottom: 16px;
+    }
+    .transcript-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .transcript-header {
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background .12s;
+    }
+    .transcript-header:hover { background: var(--surface-in); }
+    .transcript-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .transcript-toggle {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 16px;
+      flex-shrink: 0;
+    }
+    .transcript-body {
+      padding: 0 20px 18px;
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.9;
+      white-space: pre-line;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      border-top: 1px solid var(--border);
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+    }
+    .transcript-body.open { display: block; }
+
+    /* ─── PIPELINE STEPPER ────────────────────────────────────────────────── */
+    .pipeline-card {
+      margin-bottom: 12px;
+      padding: 16px 20px 14px;
+    }
+    .pipeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow-x: auto;
+      gap: 0;
+    }
+    .ms-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 72px;
+    }
+    .step-connector {
+      width: 28px;
+      height: 2px;
+      background: var(--border-muted);
+      margin-top: 15px;
+      flex-shrink: 0;
+      border-radius: 1px;
+      transition: background .4s;
+    }
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      border: 2px solid var(--border-muted);
+      background: var(--surface);
+      transition: all .35s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .step-icon.active {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      animation: stepPulse 1.8s ease-in-out infinite;
+    }
+    .step-icon.done {
+      border-color: var(--success);
+      background: var(--success-bg);
+      font-size: 0;
+    }
+    .step-icon.done::after {
+      content: '✓';
+      font-size: 14px;
+      color: var(--success);
+      font-weight: 700;
+    }
+    .step-icon.waiting {
+      border-color: var(--warn);
+      background: var(--warn-bg);
+      animation: stepPulseWarn 1.8s ease-in-out infinite;
+    }
+    .step-icon.error {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+    .step-icon.teams-active {
+      border-color: var(--teams);
+      background: var(--teams-bg);
+      animation: stepPulseTeams 1.8s ease-in-out infinite;
+    }
+    .step-label {
+      font-size: 10px;
+      color: var(--text-4);
+      text-align: center;
+      max-width: 72px;
+      line-height: 1.4;
+      font-weight: 500;
+      transition: color .3s;
+    }
+    .step-label.active   { color: var(--accent); font-weight: 700; }
+    .step-label.done     { color: var(--success); font-weight: 600; }
+    .step-label.waiting  { color: var(--warn); font-weight: 700; }
+    .step-label.teams-active { color: var(--teams); font-weight: 700; }
+    .step-label.error    { color: var(--danger); font-weight: 600; }
+
+
+    .step-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-3);
+      line-height: 1;
+      transition: color .3s;
+    }
+    .step-icon.active .step-num   { color: var(--accent); }
+    .step-icon.waiting .step-num  { color: var(--warn); }
+    .step-icon.teams-active .step-num { color: var(--teams); }
+    .step-icon.error .step-num    { color: var(--danger); }
+    .step-icon.done .step-num     { display: none; }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,120,212,.25); }
+      50%       { box-shadow: 0 0 0 6px rgba(0,120,212,.00); }
+    }
+    @keyframes stepPulseWarn {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(202,80,16,.30); }
+      50%       { box-shadow: 0 0 0 6px rgba(202,80,16,.00); }
+    }
+    @keyframes stepPulseTeams {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(91,95,199,.30); }
+      50%       { box-shadow: 0 0 0 6px rgba(91,95,199,.00); }
+    }
+
+    /* ─── STATUS ──────────────────────────────────────────────────────────── */
+    .status-area {
+      text-align: center;
+      padding: 12px 24px 16px;
+      min-height: 52px;
+    }
+    .status-msg {
+      font-size: 13px;
+      color: var(--text-4);
+      line-height: 1.5;
+    }
+    .status-msg.active  { color: var(--accent); }
+    .status-msg.done    { color: var(--success); font-weight: 600; }
+    .status-msg.waiting { color: var(--warn); font-weight: 600; }
+    .status-msg.error   { color: var(--danger); font-weight: 600; }
+
+    /* ─── APPROVAL PANEL ──────────────────────────────────────────────────── */
+    .ap {
+      margin: 0 0 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      display: none;
+    }
+    .ap-head {
+      background: var(--warn);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .ap-head-left h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .ap-head-left p {
+      font-size: 12px;
+      color: rgba(255,255,255,.80);
+    }
+    .ap-count {
+      background: rgba(255,255,255,.22);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.30);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .ap-body { padding: 20px 28px; }
+
+    /* Banners */
+    .esc-banner {
+      background: var(--danger-bg);
+      border: 1.5px solid var(--danger-border);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+    .esc-banner strong { color: var(--danger); }
+    .esc-reason { color: var(--text-2); margin-top: 4px; font-size: 13px; }
+    .ext-warn {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-bg);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--accent);
+      display: none;
+    }
+
+    /* Summary box */
+    .summary-box {
+      background: var(--surface-in);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-4);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    /* Blockers */
+    .blockers-box {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .blocker-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(164,38,44,.15);
+    }
+    .blocker-item:last-child { border-bottom: none; }
+    .blocker-count {
+      background: var(--danger);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .blocker-text { font-size: 13px; color: var(--text-2); }
+    .blocker-owner { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+    /* Teams Chat items */
+    .teams-section { margin-bottom: 20px; }
+    .teams-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 9px;
+      border-bottom: 2px solid var(--teams-border);
+      margin-bottom: 10px;
+    }
+    .teams-section-title { font-size: 13px; font-weight: 700; color: var(--teams); }
+    .teams-count-badge {
+      background: var(--teams);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .tc {
+      background: var(--teams-bg);
+      border: 1px solid var(--teams-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .tc:hover { border-color: var(--teams); }
+    .tc-head { padding: 12px 14px; cursor: default; }
+    .tc-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .tc-icon { font-size: 15px; }
+    .tc-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .teams-badge {
+      background: var(--teams);
+      color: #fff;
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .tc-email { font-size: 12px; color: var(--text-4); margin-bottom: 6px; }
+    .tc-task { font-size: 13px; color: var(--text-2); margin-bottom: 3px; }
+    .tc-meta {
+      font-size: 12px;
+      color: var(--text-3);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pc { font-weight: 700; }
+    .pc-critical { color: var(--danger); }
+    .pc-high     { color: var(--warn); }
+    .pc-medium   { color: #ca8000; }
+    .pc-low      { color: var(--text-4); }
+    .tc-actions {
+      padding: 0 14px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .edit-toggle-btn {
+      background: none;
+      border: 1px solid var(--teams-border);
+      color: var(--teams);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .12s, border-color .12s;
+    }
+    .edit-toggle-btn:hover {
+      background: var(--surface);
+      border-color: var(--teams);
+    }
+    .edited-pill {
+      font-size: 10px;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid var(--accent-bg);
+    }
+    .tc-edit-area {
+      padding: 0 14px 12px;
+      border-top: 1px solid var(--teams-border);
+      display: none;
+    }
+    .tc-edit-area.open { display: block; }
+    .edit-textarea {
+      width: 100%;
+      min-height: 110px;
+      background: var(--surface);
+      border: 1.5px solid var(--teams-border);
+      border-radius: var(--radius-lg);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 10px 12px;
+      resize: vertical;
+      line-height: 1.7;
+      margin-top: 10px;
+      transition: border-color .15s;
+    }
+    .edit-textarea:focus {
+      outline: none;
+      border-color: var(--teams);
+      box-shadow: 0 0 0 1px var(--teams);
+    }
+    .done-edit-btn {
+      background: var(--teams);
+      color: #fff;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 6px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background .12s;
+    }
+    .done-edit-btn:hover { background: var(--teams-dark); }
+
+    /* External email items */
+    .ext-section { margin-bottom: 20px; }
+    .ext-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 9px;
+      border-bottom: 2px solid var(--danger-border);
+      margin-bottom: 10px;
+    }
+    .ext-section-title { font-size: 13px; font-weight: 700; color: var(--danger); }
+    .ext-count-badge {
+      background: var(--danger);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .ec {
+      background: var(--surface-in);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .ec:hover { border-color: var(--danger-border); }
+    .ec-head { padding: 12px 14px; cursor: default; }
+    .ec-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .ext-badge {
+      background: var(--danger);
+      color: #fff;
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .ec-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .ec-company { font-size: 12px; color: var(--text-4); margin-bottom: 4px; }
+    .ec-meta { font-size: 12px; color: var(--text-3); }
+    .subject-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border-muted);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 7px 10px;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      transition: border-color .15s;
+    }
+    .subject-input:focus {
+      outline: none;
+      border-color: var(--danger);
+      box-shadow: 0 0 0 1px var(--danger);
+    }
+    .ec-actions {
+      padding: 0 14px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ec-edit-btn {
+      background: none;
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .ec-edit-btn:hover { background: var(--danger-bg); }
+    .edited-pill-red {
+      font-size: 10px;
+      background: var(--danger-bg);
+      color: var(--danger);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid var(--danger-border);
+    }
+    .ec-edit-area {
+      padding: 0 14px 12px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .ec-edit-area.open { display: block; }
+
+    /* Meeting / Calendar section */
+    .mtg-section { margin-bottom: 20px; }
+    .mtg-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 9px;
+      border-bottom: 2px solid var(--accent-bg);
+      margin-bottom: 10px;
+    }
+    .mtg-section-title { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .mtg-box {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-bg);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .mtg-field-row { display: flex; flex-direction: column; margin-bottom: 12px; }
+    .mtg-field-label {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 5px;
+    }
+    .mtg-input {
+      background: var(--surface);
+      border: 1.5px solid var(--accent-bg);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      padding: 8px 10px;
+      font-weight: 600;
+      transition: border-color .15s;
+    }
+    .mtg-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .mtg-textarea {
+      background: var(--surface);
+      border: 1.5px solid var(--accent-bg);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 8px 10px;
+      resize: vertical;
+      min-height: 64px;
+      line-height: 1.6;
+      transition: border-color .15s;
+    }
+    .mtg-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .cal-free-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: var(--radius);
+      color: var(--success);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      margin-top: 6px;
+    }
+    .cal-conflict-banner {
+      background: var(--danger-bg);
+      border: 1.5px solid var(--danger-border);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--danger);
+      font-weight: 600;
+    }
+    .time-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .time-opt {
+      background: var(--surface);
+      border: 2px solid var(--border-muted);
+      border-radius: var(--radius-lg);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      position: relative;
+    }
+    .time-opt:hover { border-color: var(--teams); background: var(--teams-bg); }
+    .time-opt.selected {
+      border-color: var(--teams);
+      background: var(--teams-bg);
+    }
+    .time-opt.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: var(--teams);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .time-opt-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .time-opt-display { font-size: 12px; color: var(--text-3); }
+    .time-opt.keep-original { border-color: var(--border-muted); }
+    .time-opt.keep-original.selected {
+      border-color: var(--warn);
+      background: var(--warn-bg);
+    }
+    .time-opt.keep-original.selected::after { background: var(--warn); }
+    .time-changed-pill {
+      font-size: 10px;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid var(--accent-bg);
+      margin-left: 8px;
+    }
+    .conflict-required-note {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    /* Deadline reminders */
+    .rem-section { margin-bottom: 20px; }
+    .rem-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 9px;
+      border-bottom: 2px solid var(--accent-bg);
+      margin-bottom: 10px;
+    }
+    .rem-section-title { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .rem-count-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .rem-item {
+      background: var(--surface-in);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      margin-bottom: 6px;
+    }
+    .rem-item.critical { border-left-color: var(--danger); }
+    .rem-item.high     { border-left-color: var(--warn); }
+    .rem-item.medium   { border-left-color: #ca8000; }
+    .rem-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .rem-meta  { font-size: 12px; color: var(--text-3); }
+    .rem-note  { font-size: 12px; color: var(--text-4); margin-top: 3px; }
+
+    /* Approval footer */
+    .ap-foot {
+      padding: 4px 28px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-approve {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-approve:hover { background: #0e6b0e; transform: translateY(-1px); }
+    .btn-approve:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .btn-reject {
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid var(--danger-border);
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-reject:hover { background: var(--danger-bg); }
+    .btn-reject:disabled { opacity: .4; cursor: not-allowed; }
+    .ap-note { margin-left: auto; font-size: 12px; color: var(--text-4); }
+    .ap-conflict-warn { font-size: 12px; color: var(--danger); font-weight: 700; }
+
+    /* ─── DONE SECTION ────────────────────────────────────────────────────── */
+    .done-section {
+      margin: 0 0 60px;
+      text-align: center;
+      display: none;
+    }
+    .done-card-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 40px 32px 36px;
+      margin-bottom: 16px;
+    }
+    .done-icon { font-size: 52px; margin-bottom: 16px; }
+    .done-title { font-size: 26px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+    .done-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; line-height: 1.65; }
+    .done-sub strong { color: var(--text); }
+    .done-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+    .done-card {
+      background: var(--surface-in);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      text-align: center;
+    }
+    .done-card.teams-card    { border-top: 3px solid var(--teams); }
+    .done-card.email-card    { border-top: 3px solid var(--danger); }
+    .done-card.reminder-card { border-top: 3px solid var(--warn); }
+    .done-card.cal-card      { border-top: 3px solid var(--accent); }
+    .done-card-num { font-size: 28px; font-weight: 700; line-height: 1; }
+    .done-card.teams-card    .done-card-num { color: var(--teams); }
+    .done-card.email-card    .done-card-num { color: var(--danger); }
+    .done-card.reminder-card .done-card-num { color: var(--warn); }
+    .done-card.cal-card      .done-card-num { color: var(--accent); }
+    .done-card-label { font-size: 11px; color: var(--text-4); margin-top: 4px; line-height: 1.3; }
+
+    /* Sent list */
+    .sent-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 20px 24px;
+      text-align: left;
+    }
+    .sent-list-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sent-item {
+      background: var(--surface-in);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      margin-bottom: 7px;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .sent-item:hover { border-color: var(--accent-bg); box-shadow: var(--shadow-sm); }
+    .sent-item.teams-item:hover  { border-color: var(--teams-border); }
+    .sent-item.email-item:hover  { border-color: var(--danger-border); }
+    .sent-item.cal-item {
+      background: var(--accent-light);
+      border-color: var(--accent-bg);
+    }
+    .sent-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .sent-item-to { font-size: 13px; font-weight: 600; color: var(--text); }
+    .sent-item-badge {
+      font-size: 10px;
+      background: var(--surface);
+      color: var(--text-4);
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-muted);
+    }
+    .sent-item-subject { font-size: 13px; color: var(--accent); margin-bottom: 2px; }
+    .sent-item-hint { font-size: 11px; color: var(--text-4); }
+
+    /* ─── REJECTED SECTION ────────────────────────────────────────────────── */
+    .rejected-section {
+      max-width: 480px;
+      margin: 0 auto 60px;
+      text-align: center;
+      display: none;
+      padding: 0 24px;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 20px 24px;
+      color: var(--text-4);
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      letter-spacing: .01em;
+    }
   </style>
 </head>
 <body>
 
-<!-- CONFIG MODAL -->
+<!-- ── CONFIG MODAL ────────────────────────────────────────────────────────── -->
 <div class="cfg-overlay" id="cfgOverlay" onclick="if(event.target===this)closeCfg()">
   <div class="cfg-box">
-    <h3>⚙ Setup</h3>
+    <h3>Setup</h3>
     <p>Enter your n8n credentials — saved locally in the browser.</p>
-    <div class="cfg-row"><input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" /></div>
-    <div class="cfg-row"><input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID for v3 (from n8n URL)" /></div>
-    <button class="cfg-save" onclick="saveConfig()">Save & Close</button>
-    <div class="cfg-hint">n8n: localhost:5678 · proxy: python3 proxy.py · webhook path: neura-demo-trigger-v3</div>
+    <div class="cfg-row">
+      <input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" />
+    </div>
+    <div class="cfg-row">
+      <input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID for v3 (from n8n URL)" />
+    </div>
+    <button class="cfg-save" onclick="saveConfig()">Save &amp; Close</button>
+    <div class="cfg-hint">n8n: localhost:5678 &nbsp;·&nbsp; proxy: python3 proxy.py &nbsp;·&nbsp; webhook path: neura-demo-trigger-v3</div>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- ── PREVIEW MODAL ───────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -364,49 +1429,101 @@
   </div>
 </div>
 
-<!-- CONFIRM (email redirect) -->
+<!-- ── CONFIRM PANEL (email redirect) ─────────────────────────────────────── -->
 <div class="confirm-panel" id="confirmPanel">
   <div class="confirm-icon" id="confirmIcon">✅</div>
   <div class="confirm-title" id="confirmTitle">Approved!</div>
   <div class="confirm-msg" id="confirmMsg">Processing...</div>
 </div>
 
+<!-- ── MAIN UI ─────────────────────────────────────────────────────────────── -->
 <div id="mainUI">
-  <div class="header">
-    <div class="logo-wrap">
-      <span class="logo-neura">NEURA</span>
-      <span class="logo-sep">×</span>
-      <span class="logo-futurice">Futurice</span>
-      <span class="v3-chip">v3</span>
-    </div>
-    <div class="header-right">
-      <a class="v2-link" href="index.html">← v2</a>
-      <span class="badge">LIVE PROTOTYPE</span>
-      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
-      <button class="icon-btn" onclick="openCfg()" title="Settings">⚙</button>
-    </div>
-  </div>
 
-  <div class="hero">
-    <h1>Meeting <span class="accent">Intelligence</span><br><span class="teams-color">Teams</span> + Email</h1>
-    <p>GPT-4o processes the meeting, checks blocker history, sends Teams Chat notifications to internal team, and drafts formal emails for external parties — all after your one-click approval.</p>
-    <div class="capability-chips">
-      <span class="chip teams">💬 Teams Chat for internals</span>
-      <span class="chip danger">✉ Formal emails for externals</span>
-      <span class="chip success">🔍 Recurring blocker detection</span>
-      <span class="chip">📅 Auto meeting scheduler</span>
-      <span class="chip">👤 Human-in-the-loop edit</span>
+  <!-- App Bar -->
+  <header class="app-bar">
+    <div class="app-bar-left">
+      <span class="app-bar-brand">NEURA Meeting Intelligence</span>
+      <span class="app-bar-sep">×</span>
+      <span class="app-bar-partner">Futurice</span>
+      <span class="live-chip">Live Demo</span>
     </div>
-    <button class="start-btn" id="startBtn" onclick="startDemo()">▶ Start Demo</button>
-  </div>
+    <div class="app-bar-right">
+      <button class="bar-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light mode">🌙</button>
+      <button class="bar-btn" onclick="openCfg()" title="Settings">⚙</button>
+    </div>
+  </header>
 
-  <div class="transcript-section">
-    <div class="transcript-box">
-      <div class="transcript-header" onclick="toggleTranscript()">
-        <span class="transcript-title">📋 Meeting Transcript — Robot Arm Integration Review · Sprint 7 · June 3 2026 · 6 participants (2 external)</span>
-        <span class="transcript-toggle" id="transcriptToggle">▼ collapse</span>
+  <!-- Page content -->
+  <div class="page">
+
+    <!-- Hero Card -->
+    <div class="ms-card hero-card">
+      <div class="hero-eyebrow">Futurice × NEURA Robotics — AI Meeting Automation</div>
+      <h1 class="hero-title">From transcript to action in 30 seconds</h1>
+      <p class="hero-sub">GPT-4o reads your sprint meeting, extracts every commitment, detects recurring blockers, and automatically sends Teams notifications, formal emails, calendar invites and Planner tasks — all pending your one-click approval.</p>
+      <div class="capability-chips">
+        <span class="chip teams">💬 Teams Chat</span>
+        <span class="chip blue">✉ External Emails</span>
+        <span class="chip green">📅 Calendar + Planner Tasks</span>
+        <span class="chip orange">🔍 Recurring Blocker Detection</span>
+        <span class="chip" style="border-color:var(--teams-border);color:var(--teams);background:var(--teams-bg)">👤 Human-in-the-loop</span>
       </div>
-      <div class="transcript-body open" id="transcriptBody">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
+      <button class="start-btn" id="startBtn" onclick="startDemo()">▶&nbsp; Start Demo</button>
+    </div>
+
+    <!-- Pipeline Stepper Card -->
+    <div class="ms-card pipeline-card">
+      <div class="pipeline">
+        <div class="ms-step">
+          <div class="step-icon" id="icon-read"><span class="step-num">1</span></div>
+          <div class="step-label" id="lbl-read">Transcript</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-ai"><span class="step-num">2</span></div>
+          <div class="step-label" id="lbl-ai">AI Reads</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-history"><span class="step-num">3</span></div>
+          <div class="step-label" id="lbl-history">Checks History</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-draft"><span class="step-num">4</span></div>
+          <div class="step-label" id="lbl-draft">Drafts + Cal Check</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-hitl"><span class="step-num">5</span></div>
+          <div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-send"><span class="step-num">6</span></div>
+          <div class="step-label" id="lbl-send">Teams + Emails</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="ms-step">
+          <div class="step-icon" id="icon-cal"><span class="step-num">7</span></div>
+          <div class="step-label" id="lbl-cal">Calendar + Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div class="status-area" style="padding:6px 0 10px">
+      <div class="status-msg" id="statusMsg">Click Start Demo to see AI meeting automation in action.</div>
+    </div>
+
+    <!-- Transcript Card -->
+    <div class="transcript-section">
+      <div class="transcript-box">
+        <div class="transcript-header" onclick="toggleTranscript()">
+          <span class="transcript-title">📋 Meeting Transcript — Robot Arm Integration Review &middot; Sprint 7</span>
+          <span class="transcript-toggle" id="transcriptToggle">▶ show transcript</span>
+        </div>
+        <div class="transcript-body" id="transcriptBody">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
 
 Felix Wagner: I need to lead with something critical. The IMU sensor calibration drift is back. We discussed this in Sprint 5 and it was marked as resolved. It is not. Build 2.6 still shows 2.1 millimetre precision errors. I flagged this in the last two sprints. Jonas — I need your calibration constants before I can close the firmware patch.
 
@@ -431,83 +1548,70 @@ Jonas Mueller: I can prepare the full 3.1 spec sheet and send it to Dr. Chen by 
 Dr. Sarah Chen: If I receive the 3.1 spec by June 7th, I can deliver the validated simulation models by June 12th.
 
 Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13th. Thomas must attend. If the docs slip again, June 13th becomes an executive escalation call. Everyone is accountable to these dates.</div>
-    </div>
-  </div>
-
-  <div class="pipeline">
-    <div class="step"><div class="step-icon" id="icon-read">📋</div><div class="step-label" id="lbl-read">Transcript</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-ai">🤖</div><div class="step-label" id="lbl-ai">AI Reads</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-history">🔍</div><div class="step-label" id="lbl-history">Checks History</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-draft">💬📅</div><div class="step-label" id="lbl-draft">Drafts + Cal Check</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-hitl">👤</div><div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-send">📤</div><div class="step-label" id="lbl-send">Teams + Emails</div></div>
-    <div class="arrow">→</div>
-    <div class="step"><div class="step-icon" id="icon-cal">✅</div><div class="step-label" id="lbl-cal">Calendar + Done</div></div>
-  </div>
-
-  <div class="status-area">
-    <div class="status-msg" id="statusMsg">Click Start Demo to see AI meeting automation in action.</div>
-  </div>
-
-  <!-- APPROVAL PANEL -->
-  <div class="ap" id="approvalPanel">
-    <div class="ap-head">
-      <div class="ap-head-left">
-        <h2>👤 Review, Edit &amp; Approve</h2>
-        <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
       </div>
-      <span class="ap-count" id="apCount"></span>
     </div>
-    <div class="ap-body">
-      <div class="esc-banner" id="escBanner" style="display:none">
-        <strong>⚠ ESCALATION REQUIRED</strong>
-        <div class="esc-reason" id="escReason"></div>
+
+
+
+    <!-- Approval Panel -->
+    <div class="ap" id="approvalPanel">
+      <div class="ap-head">
+        <div class="ap-head-left">
+          <h2>👤 Review, Edit &amp; Approve</h2>
+          <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
+        </div>
+        <span class="ap-count" id="apCount"></span>
       </div>
-      <div class="ext-warn" id="extWarn"></div>
-      <div class="summary-box">
-        <div class="sec-label">What happened in this meeting</div>
-        <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.6"></p>
+      <div class="ap-body">
+        <div class="esc-banner" id="escBanner" style="display:none">
+          <strong>⚠ ESCALATION REQUIRED</strong>
+          <div class="esc-reason" id="escReason"></div>
+        </div>
+        <div class="ext-warn" id="extWarn"></div>
+        <div class="summary-box">
+          <div class="sec-label">What happened in this meeting</div>
+          <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
+        </div>
+        <div id="apBlockers"></div>
+        <div id="apTeamsSection"></div>
+        <div id="apEmailSection"></div>
+        <div id="apMeeting"></div>
+        <div id="apReminders"></div>
       </div>
-      <div id="apBlockers"></div>
-      <div id="apTeamsSection"></div>
-      <div id="apEmailSection"></div>
-      <div id="apMeeting"></div>
-      <div id="apReminders"></div>
+      <div class="ap-foot">
+        <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
+        <button class="btn-reject" id="rejectBtn" onclick="submitApproval(false)">✗ Don't Send</button>
+        <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
+        <span class="ap-note" id="apNote"></span>
+      </div>
     </div>
-    <div class="ap-foot">
-      <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
-      <button class="btn-reject" id="rejectBtn" onclick="submitApproval(false)">✗ Don't Send</button>
-      <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
-      <span class="ap-note" id="apNote"></span>
+
+    <!-- Done Section -->
+    <div class="done-section" id="doneSection">
+      <div class="done-card-wrap">
+        <div class="done-icon">✅</div>
+        <div class="done-title">All done!</div>
+        <div class="done-sub" id="doneSub"></div>
+        <div class="done-cards" id="doneCards"></div>
+      </div>
+      <div class="sent-list" id="sentList" style="display:none">
+        <div class="sent-list-title">📬 What was sent — click to preview</div>
+        <div id="sentListItems"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- DONE -->
-  <div class="done-section" id="doneSection">
-    <div class="done-icon">✅</div>
-    <div class="done-title">All done!</div>
-    <div class="done-sub" id="doneSub"></div>
-    <div class="done-cards" id="doneCards"></div>
-    <div class="sent-list" id="sentList" style="display:none">
-      <div class="sent-list-title">📬 What was sent — click to preview</div>
-      <div id="sentListItems"></div>
+    <!-- Rejected Section -->
+    <div class="rejected-section" id="rejectedSection">
+      <div style="font-size:52px;margin-bottom:16px">❌</div>
+      <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
+      <div style="font-size:14px;color:var(--text-3);line-height:1.6">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
     </div>
-  </div>
 
-  <!-- REJECTED -->
-  <div class="rejected-section" id="rejectedSection">
-    <div style="font-size:52px;margin-bottom:14px">❌</div>
-    <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
-    <div style="font-size:14px;color:var(--text-3)">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
-  </div>
-</div>
+  </div><!-- /.page -->
 
-<div class="footer">NEURA Meeting Intelligence v3 · Teams Chat + External Email · GPT-4o + Microsoft Graph + n8n · Built by Futurice</div>
+  <div class="footer">NEURA Meeting Intelligence &nbsp;·&nbsp; Teams Chat + External Email &nbsp;·&nbsp; GPT-4o + Microsoft Graph + n8n &nbsp;·&nbsp; Built by Futurice</div>
+
+</div><!-- /#mainUI -->
 
 <script>
 const N8N_DIRECT   = 'http://127.0.0.1:5678';
@@ -1225,7 +2329,7 @@ function showDone() {
   ).join('');
 
   const calAvailNote = calCheck
-    ? '<div class="sent-item" style="border-color:' + (calCheck.is_free ? 'var(--success)' : 'var(--warn)') + ';cursor:default;margin-bottom:7px">' +
+    ? '<div class="sent-item" style="border-color:' + (calCheck.is_free ? 'var(--success-border)' : 'var(--warn-border)') + ';cursor:default;margin-bottom:7px">' +
         '<div class="sent-item-top"><span class="sent-item-to" style="color:' + (calCheck.is_free ? 'var(--success)' : 'var(--warn)') + '">' +
           (calCheck.is_free ? '✅ Calendar was free' : '⚠ Calendar conflict resolved') + ' — ' + escHtml(calCheck.title || '') + '</span>' +
           '<span class="sent-item-badge">' + escHtml(calCheck.availability_note || '') + '</span></div>' +

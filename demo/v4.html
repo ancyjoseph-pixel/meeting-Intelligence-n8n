@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEURA Meeting Intelligence</title>
+  <style>
+    :root {
+      --neura:        #FF6200;
+      --neura-dark:   #e55500;
+      --neura-bg:     #fff5ef;
+      --neura-border: #ffcfb3;
+      --header-bg:    #0c0c18;
+      --header-mid:   #18122e;
+
+      --bg:          #f4f4f6;
+      --surface:     #ffffff;
+      --surface-in:  #faf9f8;
+      --border:      #e8e6e4;
+      --border-s:    #d2d0ce;
+      --text:        #1a1a1a;
+      --text-2:      #605e5c;
+      --text-3:      #8a8886;
+      --text-4:      #a19f9d;
+
+      --blue:        #0078d4;
+      --blue-dark:   #106ebe;
+      --blue-bg:     #deecf9;
+      --blue-bg2:    #eff6fc;
+
+      --teams:       #5b5fc7;
+      --teams-dark:  #4b4fa3;
+      --teams-bg:    #f0efff;
+      --teams-border:#b3b5e4;
+
+      --green:       #107c10;
+      --green-dark:  #0b6a0b;
+      --green-bg:    #dff6dd;
+
+      --orange:      #ca5010;
+      --orange-bg:   #fed9cc;
+      --orange-light:#fff4ce;
+
+      --danger:      #a4262c;
+      --danger-dark: #751b20;
+      --danger-bg:   #fde7e9;
+      --danger-border:#f1707a;
+
+      --warn-bg:     #fed9cc;
+      --warn-border: #e07050;
+
+      --success-bg:    #dff6dd;
+      --success-border:#57a300;
+
+      --accent-light:#eff6fc;
+      --accent-bg:   #deecf9;
+
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.07);
+      --shadow-md:  0 2px 10px rgba(0,0,0,.09);
+      --shadow-lg:  0 6px 24px rgba(0,0,0,.12);
+      --radius:     4px;
+      --radius-lg:  8px;
+      --radius-xl:  12px;
+      --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      --sidebar-w: 264px;
+      --topbar-h:  52px;
+    }
+    body.dark {
+      --bg:          #1b1a19;
+      --surface:     #252423;
+      --surface-in:  #1b1a19;
+      --border:      #3b3a39;
+      --border-s:    #484644;
+      --text:        #f3f2f1;
+      --text-2:      #c8c6c4;
+      --text-3:      #a19f9d;
+      --text-4:      #605e5c;
+      --blue-bg:     #052d4e;
+      --blue-bg2:    #0a3d6b;
+      --teams-bg:    #1e1d4f;
+      --teams-border:#4a4f8a;
+      --green-bg:    #042604;
+      --orange-bg:   #3d1a00;
+      --orange-light:#3d2e00;
+      --danger-bg:   #3d0006;
+      --danger-border:#8a1a1f;
+      --warn-bg:     #3d1a00;
+      --success-bg:  #042604;
+      --accent-light:#052d4e;
+      --accent-bg:   #052d4e;
+      --neura-bg:    #2a1500;
+      --neura-border:#663300;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:var(--font); font-size:14px; background:var(--bg); color:var(--text); }
+
+    /* ── App shell ── */
+    .app-shell { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+    .app-body  { display:flex; flex:1; overflow:hidden; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height:var(--topbar-h); flex-shrink:0;
+      background:linear-gradient(135deg, var(--header-bg) 0%, var(--header-mid) 100%);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 20px;
+      box-shadow:0 2px 12px rgba(0,0,0,.4);
+      z-index:10;
+      border-bottom:1px solid rgba(255,98,0,.22);
+    }
+    .topbar-brand { display:flex; align-items:center; gap:10px; }
+    .neura-mark {
+      width:30px; height:30px;
+      background:var(--neura);
+      border-radius:6px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; font-weight:900; color:#fff;
+      flex-shrink:0;
+      box-shadow:0 0 14px rgba(255,98,0,.45);
+    }
+    .topbar-product { font-size:15px; font-weight:700; color:#fff; letter-spacing:-.02em; }
+    .topbar-sep     { color:rgba(255,255,255,.3); font-size:13px; }
+    .topbar-partner { font-size:13px; color:rgba(255,255,255,.65); font-weight:500; }
+    .topbar-live {
+      background:rgba(255,98,0,.18); color:#ff8533;
+      font-size:9px; font-weight:700; letter-spacing:.9px; text-transform:uppercase;
+      padding:3px 9px; border-radius:20px; border:1px solid rgba(255,98,0,.35);
+    }
+    .topbar-actions { display:flex; align-items:center; gap:6px; }
+    .topbar-transcript-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.85);
+      font-size:12px; font-weight:600; font-family:var(--font);
+      padding:5px 13px; border-radius:20px; cursor:pointer;
+      transition:background .15s, border-color .15s, color .15s;
+    }
+    .topbar-transcript-btn:hover  { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.3); color:#fff; }
+    .topbar-transcript-btn.active { background:rgba(255,98,0,.2); border-color:rgba(255,98,0,.5); color:#ff8533; }
+    .topbar-btn {
+      background:none; border:none; color:rgba(255,255,255,.7);
+      width:34px; height:34px; border-radius:var(--radius); cursor:pointer;
+      font-size:14px; display:flex; align-items:center; justify-content:center;
+      transition:background .12s;
+    }
+    .topbar-btn:hover { background:rgba(255,255,255,.12); color:#fff; }
+
+    /* ── Transcript Drawer ── */
+    .transcript-drawer {
+      flex-shrink:0;
+      background:var(--surface);
+      border-bottom:2px solid var(--neura);
+      max-height:0;
+      overflow:hidden;
+      transition:max-height .35s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 4px 16px rgba(0,0,0,.1);
+      z-index:9;
+    }
+    .transcript-drawer.open { max-height:310px; }
+    .transcript-drawer-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:9px 20px;
+      background:var(--surface-in);
+      border-bottom:1px solid var(--border);
+    }
+    .transcript-drawer-title {
+      font-size:12px; font-weight:600; color:var(--text-2);
+      display:flex; align-items:center; gap:6px;
+    }
+    .transcript-close-btn {
+      background:none; border:none; color:var(--text-3); font-size:16px; cursor:pointer;
+      width:26px; height:26px; border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center;
+      transition:background .12s;
+    }
+    .transcript-close-btn:hover { background:var(--bg); color:var(--text); }
+    .transcript-drawer-body {
+      padding:14px 20px 16px;
+      font-size:12.5px; color:var(--text-2); line-height:1.9;
+      white-space:pre-line; font-family:'Consolas','Courier New',monospace;
+      max-height:230px; overflow-y:auto;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width:var(--sidebar-w); flex-shrink:0;
+      background:var(--surface); border-right:1px solid var(--border);
+      overflow-y:auto; display:flex; flex-direction:column;
+    }
+    .sb-section { padding:20px 16px 0; }
+    .sb-label {
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.1em; color:var(--text-4); padding:0 4px 8px;
+    }
+    .pipeline-steps { padding:8px 0 16px; }
+    .vstep { display:flex; gap:10px; align-items:flex-start; }
+    .vstep-node { display:flex; flex-direction:column; align-items:center; }
+    .vstep-line {
+      width:2px; flex:1; min-height:20px;
+      background:var(--border-s); margin:3px 0; border-radius:1px; transition:background .3s;
+    }
+    .vstep-line.done { background:var(--green); }
+    .vstep-content { padding:0 0 4px; min-width:0; }
+    .step-label { font-size:13px; color:var(--text-3); font-weight:500; padding:2px 0; line-height:1.4; transition:color .3s; }
+    .step-label.active       { color:var(--neura); font-weight:700; }
+    .step-label.done         { color:var(--green); font-weight:600; }
+    .step-label.waiting      { color:var(--orange); font-weight:700; }
+    .step-label.teams-active { color:var(--teams); font-weight:700; }
+    .step-label.error        { color:var(--danger); font-weight:600; }
+    .step-icon {
+      width:26px; height:26px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      border:2px solid var(--border-s); background:var(--surface);
+      font-size:11px; font-weight:700; flex-shrink:0;
+      transition:all .3s; position:relative;
+    }
+    .step-num { font-size:11px; font-weight:700; color:var(--text-3); transition:color .3s; }
+    .step-icon.done { background:var(--green); border-color:var(--green); }
+    .step-icon.done .step-num { display:none; }
+    .step-icon.done::after {
+      content:''; display:block; width:8px; height:5px;
+      border-left:2px solid #fff; border-bottom:2px solid #fff;
+      transform:rotate(-45deg) translateY(-1px);
+    }
+    .step-icon.active { border-color:var(--neura); background:var(--neura-bg); animation:dotPulse 1.6s infinite; }
+    .step-icon.active .step-num { color:var(--neura); }
+    .step-icon.waiting { border-color:var(--orange); background:var(--orange-bg); animation:dotPulseWarn 1.6s infinite; }
+    .step-icon.waiting .step-num { color:var(--orange); }
+    .step-icon.error { border-color:var(--danger); background:var(--danger-bg); }
+    .step-icon.error .step-num { color:var(--danger); }
+    .step-icon.teams-active { border-color:var(--teams); background:var(--teams-bg); animation:dotPulseTeams 1.6s infinite; }
+    .step-icon.teams-active .step-num { color:var(--teams); }
+    @keyframes dotPulse      { 0%,100%{box-shadow:0 0 0 0 rgba(255,98,0,.3)} 50%{box-shadow:0 0 0 5px rgba(255,98,0,0)} }
+    @keyframes dotPulseWarn  { 0%,100%{box-shadow:0 0 0 0 rgba(202,80,16,.3)} 50%{box-shadow:0 0 0 5px rgba(202,80,16,0)} }
+    @keyframes dotPulseTeams { 0%,100%{box-shadow:0 0 0 0 rgba(91,95,199,.3)} 50%{box-shadow:0 0 0 5px rgba(91,95,199,0)} }
+
+    .sb-status { font-size:13px; color:var(--text-3); line-height:1.5; padding:12px 16px; border-top:1px solid var(--border); min-height:48px; }
+    .status-msg.active  { color:var(--neura); font-weight:500; }
+    .status-msg.done    { color:var(--green); font-weight:600; }
+    .status-msg.waiting { color:var(--orange); font-weight:600; }
+    .status-msg.error   { color:var(--danger); font-weight:600; }
+
+    .sb-blockers-wrap { margin:0 12px 12px; background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--radius-lg); padding:12px; display:none; }
+    .sb-blockers-title { font-size:11px; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+    .sb-blocker-item { display:flex; gap:6px; align-items:flex-start; padding:4px 0; border-bottom:1px solid rgba(164,38,44,.15); font-size:12px; }
+    .sb-blocker-item:last-child { border-bottom:none; }
+    .sb-blocker-count { background:var(--danger); color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:10px; flex-shrink:0; margin-top:1px; }
+    .sb-blocker-desc  { color:var(--text); line-height:1.4; }
+
+    /* ── Main panel ── */
+    .main-panel { flex:1; overflow-y:auto; background:var(--bg); }
+    .main-inner { max-width:1020px; margin:0 auto; padding:24px 28px 64px; }
+
+    /* ── Hero ── */
+    .hero-area {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-top:3px solid var(--neura);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-md);
+      padding:36px 40px 30px;
+      text-align:center;
+      margin-bottom:20px;
+      position:relative; overflow:hidden;
+    }
+    .hero-area::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:130px;
+      background:radial-gradient(ellipse at 50% 0%, rgba(255,98,0,.06) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .hero-eyebrow { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--neura); margin-bottom:10px; }
+    .hero-title { font-size:30px; font-weight:800; color:var(--text); line-height:1.15; margin-bottom:12px; letter-spacing:-.03em; }
+    .hero-sub { font-size:14px; color:var(--text-3); max-width:580px; margin:0 auto 24px; line-height:1.7; }
+    .capability-chips { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:26px; }
+    .chip { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:500; padding:5px 13px; border-radius:20px; border:1px solid var(--border-s); background:var(--surface-in); color:var(--text-3); }
+    .chip.teams  { background:var(--teams-bg); border-color:var(--teams-border); color:var(--teams); }
+    .chip.blue   { background:var(--blue-bg);  border-color:var(--blue); color:var(--blue); }
+    .chip.green  { background:var(--green-bg); border-color:var(--success-border); color:var(--green); }
+    .chip.orange { background:var(--orange-bg); border-color:var(--warn-border); color:var(--orange); }
+    .start-btn {
+      background:var(--neura); color:#fff; border:none;
+      padding:12px 40px; font-size:15px; font-weight:700; font-family:var(--font);
+      border-radius:var(--radius); cursor:pointer;
+      box-shadow:0 4px 14px rgba(255,98,0,.3);
+      transition:background .12s, box-shadow .15s, transform .1s;
+      letter-spacing:.01em;
+    }
+    .start-btn:hover { background:var(--neura-dark); box-shadow:0 6px 20px rgba(255,98,0,.4); transform:translateY(-1px); }
+    .start-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    /* ── Approval panel ── */
+    .ap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); overflow:hidden; margin-bottom:20px; display:none; }
+    .ap-head { background:var(--orange); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .ap-head-left h2 { font-size:16px; font-weight:700; color:#fff; margin-bottom:2px; }
+    .ap-head-left p  { font-size:12px; color:rgba(255,255,255,.8); }
+    .ap-count { background:rgba(255,255,255,.22); color:#fff; border:1px solid rgba(255,255,255,.3); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; white-space:nowrap; }
+    .ap-body { padding:22px 28px; }
+
+    .ap-stats { display:grid !important; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px; }
+    .ap-stat { background:var(--surface-in); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 12px; cursor:pointer; transition:transform .15s, box-shadow .15s; }
+    .ap-stat:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+    .ap-stat-num   { font-size:26px; font-weight:700; line-height:1; margin-bottom:3px; }
+    .ap-stat-label { font-size:11px; color:var(--text-2); font-weight:600; margin-top:4px; }
+    .ap-stat.s-teams { background:var(--teams-bg); border-color:var(--teams-border); }
+    .ap-stat.s-email { background:var(--danger-bg); border-color:var(--danger-border); }
+    .ap-stat.s-cal   { background:var(--blue-bg);   border-color:var(--border); }
+    .ap-stat.s-rem   { background:var(--orange-bg); border-color:var(--warn-border); }
+    .ap-stat.s-teams .ap-stat-num { color:var(--teams); }
+    .ap-stat.s-email .ap-stat-num { color:var(--danger); }
+    .ap-stat.s-cal   .ap-stat-num { color:var(--blue); }
+    .ap-stat.s-rem   .ap-stat-num { color:var(--orange); }
+
+    .summary-box { background:var(--surface-in) !important; border-left:3px solid var(--neura) !important; border-top:none !important; border-right:none !important; border-bottom:none !important; border-radius:0 var(--radius) var(--radius) 0 !important; padding:12px 16px !important; margin-bottom:16px !important; }
+    .sec-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:var(--text-4); margin-bottom:6px; }
+
+    .esc-banner { background:var(--danger-bg); border:1.5px solid var(--danger-border); border-radius:var(--radius); padding:11px 14px; margin-bottom:14px; font-size:13px; display:none; }
+    .esc-banner strong { color:var(--danger); }
+    .esc-reason { color:var(--text-2); margin-top:3px; font-size:13px; }
+    .ext-warn   { background:var(--blue-bg2); border:1px solid var(--blue); border-radius:var(--radius); padding:9px 14px; margin-bottom:14px; font-size:13px; color:var(--blue-dark); display:none; }
+    .blockers-box { display:none; }
+
+    /* ── Content grid ── */
+    .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px; margin-bottom:24px; align-items:start; }
+    .content-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); min-height:80px; transition:box-shadow .3s; }
+    .purple-card { border-top:3px solid var(--teams); }
+    .red-card    { border-top:3px solid var(--danger); }
+    .blue-card   { border-top:3px solid var(--blue); }
+    .orange-card { border-top:3px solid var(--orange); }
+    .purple-card.card-highlight { box-shadow:0 0 0 3px var(--teams), var(--shadow-md) !important; }
+    .red-card.card-highlight    { box-shadow:0 0 0 3px var(--danger), var(--shadow-md) !important; }
+    .blue-card.card-highlight   { box-shadow:0 0 0 3px var(--blue), var(--shadow-md) !important; }
+    .orange-card.card-highlight { box-shadow:0 0 0 3px var(--orange), var(--shadow-md) !important; }
+
+    .content-card .teams-section,.content-card .ext-section,.content-card .mtg-section,.content-card .rem-section { border:none !important; border-radius:0 !important; box-shadow:none !important; margin:0 !important; background:transparent !important; }
+    .content-card .teams-section-header { background:var(--teams-bg) !important; padding:12px 16px !important; border-bottom:1px solid var(--teams-border) !important; }
+    .content-card .teams-section-title  { font-size:13px !important; font-weight:700 !important; }
+    .content-card .ext-section-header   { background:var(--danger-bg) !important; padding:12px 16px !important; border-bottom:1px solid var(--danger-border) !important; }
+    .content-card .ext-section-title    { font-size:13px !important; font-weight:700 !important; }
+    .content-card .mtg-section-header   { background:var(--blue-bg) !important; padding:12px 16px !important; border-bottom:1px solid var(--border) !important; }
+    .content-card .mtg-section-title    { font-size:13px !important; font-weight:700 !important; color:var(--blue-dark) !important; }
+    .content-card .rem-section-header   { background:var(--orange-bg) !important; padding:12px 16px !important; border-bottom:1px solid var(--warn-border) !important; }
+    .content-card .rem-section-title    { font-size:13px !important; font-weight:700 !important; color:var(--orange) !important; }
+    .content-card .mtg-box  { background:var(--surface) !important; border:none !important; padding:14px 16px !important; }
+    .content-card .rem-item { border-bottom:1px solid var(--border) !important; border-left:none !important; border-radius:0 !important; padding:9px 16px !important; }
+    .content-card .rem-item:last-child { border-bottom:none !important; }
+    .content-card .rem-item.critical { background:rgba(164,38,44,.04); }
+    .content-card .rem-item.high     { background:rgba(202,80,16,.03); }
+    .content-card .tc { background:var(--surface) !important; }
+    .content-card .tc:hover { background:var(--teams-bg) !important; opacity:.7; }
+    .content-card .ec { background:var(--surface) !important; }
+    .content-card .ec:hover { background:var(--danger-bg) !important; opacity:.7; }
+
+    #apTeamsSection > .teams-section,#apEmailSection > .ext-section,#apMeeting > .mtg-section,#apReminders > .rem-section { border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px; }
+    .action-section { border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:14px; }
+
+    /* Teams section */
+    .teams-section { margin-bottom:0; }
+    .teams-section-header { display:flex; align-items:center; gap:8px; padding:11px 16px; background:var(--surface-in); border-bottom:1px solid var(--border); }
+    .teams-section-title { font-size:12px; font-weight:700; color:var(--teams); }
+    .teams-count-badge { background:var(--teams); color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px; }
+    .tc { background:var(--surface) !important; border:none !important; border-bottom:1px solid var(--border) !important; border-radius:0 !important; margin:0 !important; }
+    .tc:last-child { border-bottom:none !important; }
+    .tc:hover { background:var(--surface-in) !important; }
+    .tc-head  { padding:11px 16px; cursor:pointer; display:flex; align-items:center; gap:0; }
+    .tc-top   { display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap; }
+    .tc-icon  { display:none; }
+    .tc-name  { font-weight:600; font-size:13px; color:var(--text); }
+    .teams-badge { background:var(--teams); color:#fff; font-size:9px; padding:1px 6px; border-radius:3px; font-weight:700; }
+    .tc-email { font-size:11px; color:var(--text-4); margin-left:auto; padding-left:12px; }
+    .tc-task  { font-size:13px; color:var(--text); }
+    .tc-meta  { display:flex; gap:10px; font-size:11px; color:var(--text-3); flex-wrap:wrap; margin-top:1px; }
+    .pc { font-weight:700; }
+    .pc-critical { color:var(--danger); }
+    .pc-high     { color:var(--orange); }
+    .pc-medium   { color:#ca8f00; }
+    .pc-low      { color:var(--text-3); }
+    .tc-foot { display:flex; align-items:center; gap:8px; padding:8px 0 4px; border-top:1px solid var(--border); margin-top:8px; }
+    .tc-tasks { display:none; border-top:1px solid var(--border); padding:10px 16px 12px; background:var(--surface-in); }
+    .tc-tasks.open { display:block; }
+    .edit-toggle-btn { background:none; border:1px solid var(--teams-border); color:var(--teams); font-size:11px; padding:3px 10px; border-radius:var(--radius); cursor:pointer; font-family:var(--font); font-weight:600; transition:background .1s; }
+    .edit-toggle-btn:hover { background:var(--teams-bg); }
+    .edited-pill { font-size:10px; background:var(--border); color:var(--text-3); padding:2px 8px; border-radius:10px; font-weight:500; }
+    .tc-edit-area { display:none; padding:0 16px 12px; border-top:1px solid var(--border); }
+    .tc-edit-area.open { display:block; }
+    .edit-textarea { width:100%; min-height:100px; background:var(--surface-in); border:1.5px dashed var(--teams-border); border-radius:var(--radius); color:var(--text); font-size:13px; font-family:var(--font); padding:10px 12px; resize:vertical; line-height:1.7; margin-top:10px; }
+    .edit-textarea:focus { outline:none; border-color:var(--teams); border-style:solid; }
+    .done-edit-btn { background:var(--teams); color:#fff; border:none; font-size:11px; padding:5px 14px; border-radius:var(--radius); cursor:pointer; margin-top:8px; font-weight:600; font-family:var(--font); }
+
+    /* External email section */
+    .ext-section { margin-bottom:0; }
+    .ext-section-header { display:flex; align-items:center; gap:8px; padding:11px 16px; background:var(--surface-in); border-bottom:1px solid var(--border); }
+    .ext-section-title { font-size:12px; font-weight:700; color:var(--danger); }
+    .ext-count-badge   { background:var(--danger); color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px; }
+    .ec { background:var(--surface) !important; border:none !important; border-bottom:1px solid var(--border) !important; border-radius:0 !important; margin:0 !important; }
+    .ec:last-child { border-bottom:none !important; }
+    .ec:hover { background:var(--surface-in) !important; }
+    .ec-head { padding:11px 16px; }
+    .ec-top  { display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
+    .ext-badge { background:var(--danger); color:#fff; font-size:9px; padding:1px 6px; border-radius:3px; font-weight:700; }
+    .ec-name    { font-weight:600; font-size:13px; color:var(--text); }
+    .ec-company { font-size:11px; color:var(--text-3); }
+    .ec-meta    { font-size:12px; color:var(--text-3); }
+    .subject-input { width:100%; background:var(--surface-in); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:13px; font-family:var(--font); padding:6px 10px; margin-top:5px; margin-bottom:4px; }
+    .subject-input:focus { outline:none; border-color:var(--danger); }
+    .ec-actions { padding:6px 16px 10px; display:flex; align-items:center; gap:8px; border-top:1px solid var(--border); margin-top:4px; }
+    .ec-edit-btn { background:none; border:1px solid var(--border-s); color:var(--danger); font-size:11px; padding:3px 10px; border-radius:var(--radius); cursor:pointer; font-family:var(--font); font-weight:600; transition:all .1s; }
+    .ec-edit-btn:hover { background:var(--danger-bg); border-color:var(--danger); }
+    .edited-pill-red { font-size:10px; background:var(--danger-bg); color:var(--danger); padding:2px 8px; border-radius:10px; font-weight:500; border:1px solid var(--danger); }
+    .ec-edit-area { padding:0 16px 12px; border-top:1px solid var(--border); display:none; }
+    .ec-edit-area.open { display:block; }
+    .ec-body { margin-top:10px; background:var(--surface-in); border:1px solid var(--border); border-radius:var(--radius); padding:14px; font-size:13px; color:var(--text-2); line-height:1.8; white-space:pre-wrap; font-family:var(--font); max-height:260px; overflow-y:auto; }
+
+    /* Meeting section */
+    .mtg-section { margin-bottom:0; }
+    .mtg-section-header { display:flex; align-items:center; gap:8px; padding:11px 16px; background:var(--surface-in); border-bottom:1px solid var(--border); }
+    .mtg-section-title { font-size:12px; font-weight:700; color:var(--blue); }
+    .mtg-box      { background:var(--blue-bg2); border:none; padding:14px 16px; }
+    .mtg-field-row   { display:flex; flex-direction:column; margin-bottom:10px; }
+    .mtg-field-label { font-size:11px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+    .mtg-input    { background:var(--surface); border:1.5px dashed var(--blue); border-radius:var(--radius); color:var(--text); font-size:14px; font-family:var(--font); padding:7px 10px; font-weight:600; }
+    .mtg-input:focus { outline:none; border-style:solid; }
+    .mtg-textarea { background:var(--surface); border:1.5px dashed var(--blue); border-radius:var(--radius); color:var(--text); font-size:13px; font-family:var(--font); padding:7px 10px; resize:vertical; min-height:56px; line-height:1.6; }
+    .mtg-textarea:focus { outline:none; border-style:solid; }
+    .cal-free-badge { display:inline-flex; align-items:center; gap:5px; background:var(--green-bg); border:1px solid var(--success-border); border-radius:var(--radius); color:var(--green); font-size:12px; font-weight:600; padding:5px 12px; margin-top:6px; }
+    .cal-conflict-banner { background:var(--danger-bg); border:1.5px solid var(--danger-border); border-radius:var(--radius); padding:9px 14px; margin-bottom:10px; font-size:13px; color:var(--danger); }
+    .time-options { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .time-opt { background:var(--surface); border:2px solid var(--border-s); border-radius:var(--radius); padding:9px 12px; cursor:pointer; transition:all .12s; position:relative; }
+    .time-opt:hover { border-color:var(--blue); }
+    .time-opt.selected { border-color:var(--blue); background:var(--blue-bg2); }
+    .time-opt.selected::after { content:'✓'; position:absolute; top:5px; right:8px; background:var(--blue); color:#fff; font-size:9px; font-weight:700; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .time-opt.keep-original.selected { border-color:var(--orange); background:var(--orange-light); }
+    .time-opt.keep-original.selected::after { background:var(--orange); }
+    .time-opt-label  { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+    .time-opt-display{ font-size:12px; color:var(--text-3); }
+    .time-changed-pill { font-size:10px; background:var(--blue-bg); color:var(--blue); padding:2px 8px; border-radius:10px; font-weight:500; border:1px solid var(--blue); margin-left:8px; }
+    .conflict-required-note { font-size:12px; color:var(--danger); margin-top:8px; font-weight:600; }
+
+    /* Reminders section */
+    .rem-section { margin-bottom:0; }
+    .rem-section-header { display:flex; align-items:center; gap:8px; padding:11px 16px; background:var(--surface-in); border-bottom:1px solid var(--border); }
+    .rem-section-title { font-size:12px; font-weight:700; color:var(--orange); }
+    .rem-count-badge   { background:var(--orange); color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px; }
+    .rem-item { background:var(--surface); border:none; border-bottom:1px solid var(--border); border-left:3px solid var(--orange); border-radius:0; padding:10px 16px; margin:0; }
+    .rem-item:last-child { border-bottom:none; }
+    .rem-item.critical { border-left-color:var(--danger); }
+    .rem-item.high     { border-left-color:var(--orange); }
+    .rem-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .rem-meta  { font-size:12px; color:var(--text-3); }
+    .rem-note  { font-size:12px; color:var(--text-4); margin-top:2px; }
+
+    /* Approval footer */
+    .ap-foot { padding:16px 24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; border-top:1px solid var(--border); }
+    .btn-approve { background:var(--green); color:#fff; border:none; padding:10px 28px; font-size:14px; font-weight:700; font-family:var(--font); border-radius:var(--radius); cursor:pointer; transition:background .12s; }
+    .btn-approve:hover    { background:var(--green-dark); }
+    .btn-approve:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-reject { background:transparent; color:var(--danger); border:1.5px solid var(--danger); padding:10px 24px; font-size:14px; font-weight:700; font-family:var(--font); border-radius:var(--radius); cursor:pointer; transition:background .12s; }
+    .btn-reject:hover    { background:var(--danger-bg); }
+    .btn-reject:disabled { opacity:.4; cursor:not-allowed; }
+    .ap-note          { margin-left:auto; font-size:12px; color:var(--text-3); }
+    .ap-conflict-warn { font-size:12px; color:var(--danger); font-weight:600; }
+
+    /* ── Done section (minimal — no card-wrap) ── */
+    .done-section { display:none; margin-bottom:24px; }
+    .done-minimal-banner {
+      display:flex; align-items:center; gap:12px;
+      background:var(--green-bg); border:1px solid var(--success-border);
+      border-radius:var(--radius-lg); padding:13px 18px; margin-bottom:16px;
+    }
+    .done-minimal-check {
+      width:30px; height:30px; background:var(--green); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; color:#fff; font-size:15px; font-weight:700;
+    }
+    .done-minimal-title { font-size:14px; font-weight:700; color:var(--green); }
+    .done-minimal-sub   { font-size:12px; color:var(--text-3); margin-top:2px; }
+
+    .sent-list       { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); overflow:hidden; }
+    .sent-list-title { font-size:13px; font-weight:600; color:var(--text); padding:12px 16px; border-bottom:1px solid var(--border); }
+
+    /* ── Sent grid ── */
+    .sent-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:16px; }
+    .sent-section-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
+    .purple-sent { border-top:3px solid var(--teams); }
+    .red-sent    { border-top:3px solid var(--danger); }
+    .blue-sent   { border-top:3px solid var(--blue); }
+    .orange-sent { border-top:3px solid var(--orange); }
+    .sent-card-head { display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid var(--border); }
+    .purple-sent .sent-card-head { background:var(--teams-bg); }
+    .red-sent    .sent-card-head { background:var(--danger-bg); }
+    .blue-sent   .sent-card-head { background:var(--blue-bg); }
+    .orange-sent .sent-card-head { background:var(--orange-bg); }
+    .sent-card-icon  { font-size:14px; }
+    .sent-card-title { font-size:12px; font-weight:700; color:var(--text); flex:1; }
+    .sent-card-count { font-size:10px; font-weight:700; color:var(--text-3); background:var(--surface); border:1px solid var(--border); padding:2px 7px; border-radius:10px; }
+    .sent-row { padding:10px 14px; border-bottom:1px solid var(--border); position:relative; }
+    .sent-row:last-child { border-bottom:none; }
+    .sent-row.clickable { cursor:pointer; }
+    .sent-row.clickable:hover { background:var(--surface-in); }
+    .sent-row-left { display:flex; align-items:center; gap:7px; margin-bottom:3px; flex-wrap:wrap; }
+    .sent-row-name { font-size:13px; font-weight:600; color:var(--text); }
+    .sent-row-badge { font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; }
+    .sent-row-badge.purple { background:var(--teams-bg); color:var(--teams); border:1px solid var(--teams-border); }
+    .sent-row-badge.red    { background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger-border); }
+    .sent-row-badge.blue   { background:var(--blue-bg);  color:var(--blue-dark); border:1px solid var(--border); }
+    .sent-row-badge.orange { background:var(--orange-bg); color:var(--orange); border:1px solid var(--warn-border); }
+    .sent-row-sub   { font-size:12px; color:var(--text-3); line-height:1.4; padding-right:20px; }
+    .sent-row-arrow { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-4); font-size:16px; }
+    .sent-cal-status.free     { color:var(--green); font-size:11px; font-weight:600; }
+    .sent-cal-status.conflict { color:var(--orange); font-size:11px; font-weight:600; }
+
+    /* ── Rejected ── */
+    .rejected-section { display:none; text-align:center; padding:40px 24px; }
+
+    /* ── Confirm panel ── */
+    .confirm-panel { max-width:460px; margin:80px auto; text-align:center; display:none; padding:0 24px; }
+    .confirm-icon  { font-size:64px; margin-bottom:18px; }
+    .confirm-title { font-size:26px; font-weight:700; margin-bottom:10px; }
+    .confirm-title.approved { color:var(--green); }
+    .confirm-title.rejected { color:var(--danger); }
+    .confirm-msg   { font-size:15px; color:var(--text-3); line-height:1.6; }
+
+    /* ── Modal ── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); max-width:620px; width:100%; max-height:84vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-lg); }
+    .modal-close  { position:absolute; top:10px; right:12px; background:none; border:none; color:var(--text-3); font-size:18px; cursor:pointer; z-index:1; width:28px; height:28px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; }
+    .modal-close:hover { background:var(--bg); color:var(--text); }
+    .teams-modal-bar    { background:var(--teams-bg); border-bottom:1px solid var(--teams-border); padding:14px 20px; display:flex; align-items:center; gap:12px; }
+    .teams-modal-icon   { width:38px; height:38px; border-radius:50%; background:var(--teams); display:flex; align-items:center; justify-content:center; font-size:17px; color:#fff; font-weight:700; flex-shrink:0; }
+    .teams-modal-sender { font-size:14px; font-weight:600; color:var(--text); }
+    .teams-modal-sub    { font-size:12px; color:var(--text-3); }
+    .teams-modal-body   { padding:20px; }
+    .teams-chat-bubble  { background:var(--surface-in); border:1px solid var(--teams-border); border-radius:var(--radius-lg); border-top-left-radius:2px; padding:14px 16px; font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-wrap; }
+    .teams-routing      { padding:10px 20px; border-top:1px solid var(--border); font-size:12px; color:var(--text-4); }
+    .email-chrome       { border-radius:var(--radius-lg); overflow:hidden; }
+    .email-chrome-bar   { background:var(--surface-in); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; gap:10px; }
+    .email-avatar       { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--danger),var(--orange)); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; flex-shrink:0; }
+    .email-sender-name  { font-size:14px; font-weight:600; color:var(--text); }
+    .email-sender-meta  { font-size:12px; color:var(--text-3); }
+    .email-fields       { padding:10px 20px; border-bottom:1px solid var(--border); }
+    .email-field-row    { display:flex; gap:10px; padding:4px 0; border-bottom:1px solid var(--border); }
+    .email-field-row:last-child { border-bottom:none; }
+    .email-field-key    { font-size:11px; color:var(--text-3); min-width:60px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .email-field-val    { font-size:13px; color:var(--text); }
+    .email-subject      { padding:14px 20px; font-size:16px; font-weight:700; color:var(--text); border-bottom:1px solid var(--border); line-height:1.4; }
+    .email-body-content { padding:18px 20px; font-size:14px; color:var(--text-2); line-height:1.9; white-space:pre-line; }
+    .email-routing      { padding:10px 20px; background:var(--surface-in); border-top:1px solid var(--border); font-size:11px; color:var(--text-4); }
+    .cal-body  { padding:22px; }
+    .cal-field { margin-bottom:14px; }
+    .cal-label { font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; font-weight:600; }
+    .cal-value { font-size:14px; color:var(--text-2); line-height:1.6; white-space:pre-line; }
+    .cal-teams-box { margin-top:16px; background:var(--blue-bg2); border:1px solid var(--blue); border-radius:var(--radius); padding:12px 14px; }
+
+    /* ── Config modal ── */
+    .cfg-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; display:none; align-items:center; justify-content:center; }
+    .cfg-overlay.open { display:flex; }
+    .cfg-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; width:520px; max-width:90vw; box-shadow:var(--shadow-lg); }
+    .cfg-box h3 { font-size:16px; color:var(--text); margin-bottom:4px; font-weight:700; }
+    .cfg-box p  { font-size:13px; color:var(--text-3); margin-bottom:16px; }
+    .cfg-row   { display:flex; gap:10px; margin-bottom:10px; }
+    .cfg-input { background:var(--bg); border:1px solid var(--border-s); border-radius:var(--radius); padding:8px 12px; color:var(--text); font-size:13px; flex:1; font-family:monospace; }
+    .cfg-input:focus { outline:none; border-color:var(--neura); }
+    .cfg-save  { background:var(--green); color:#fff; border:none; padding:8px 18px; border-radius:var(--radius); cursor:pointer; font-size:13px; font-weight:600; font-family:var(--font); }
+    .cfg-hint  { font-size:12px; color:var(--text-4); margin-top:10px; }
+
+    .ap-columns { display:block; }
+    .ap-col     { display:block; }
+
+    @media (max-width:700px) { :root { --sidebar-w:0px; } .sidebar { display:none; } }
+    @media (max-width:800px) { .content-grid { grid-template-columns:1fr; } .sent-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Config modal -->
+<div class="cfg-overlay" id="cfgOverlay" onclick="if(event.target===this)closeCfg()">
+  <div class="cfg-box">
+    <h3>⚙ Setup</h3>
+    <p>Enter your n8n credentials — saved locally in the browser.</p>
+    <div class="cfg-row"><input class="cfg-input" id="cfgApiKey" placeholder="n8n API Key (Settings → API)" /></div>
+    <div class="cfg-row"><input class="cfg-input" id="cfgWorkflowId" placeholder="Workflow ID (from n8n URL)" /></div>
+    <button class="cfg-save" onclick="saveConfig()">Save &amp; Close</button>
+    <div class="cfg-hint">n8n: localhost:5678 · proxy: python3 proxy.py · webhook: neura-demo-trigger-v3</div>
+  </div>
+</div>
+
+<!-- Preview modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Confirm panel (email redirect) -->
+<div class="confirm-panel" id="confirmPanel">
+  <div class="confirm-icon" id="confirmIcon">✅</div>
+  <div class="confirm-title" id="confirmTitle">Approved!</div>
+  <div class="confirm-msg" id="confirmMsg">Processing...</div>
+</div>
+
+<div class="app-shell" id="mainUI">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="neura-mark">N</div>
+      <span class="topbar-product">NEURA Meeting Intelligence</span>
+      <span class="topbar-sep">×</span>
+      <span class="topbar-partner">Futurice</span>
+      <span class="topbar-live">Live Demo</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-transcript-btn" id="transcriptPillBtn" onclick="toggleTranscriptDrawer()">
+        <svg width="13" height="11" viewBox="0 0 13 11" fill="currentColor" style="flex-shrink:0">
+          <rect width="13" height="2" rx="1"/>
+          <rect y="4.5" width="9" height="2" rx="1"/>
+          <rect y="9" width="11" height="2" rx="1"/>
+        </svg>
+        Transcript
+      </button>
+      <button class="topbar-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light">🌙</button>
+      <button class="topbar-btn" onclick="openCfg()" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- Transcript Drawer -->
+  <div class="transcript-drawer" id="transcriptDrawer">
+    <div class="transcript-drawer-header">
+      <div class="transcript-drawer-title">
+        📋 Meeting Transcript — Robot Arm Integration Review · Sprint 7 · June 3 2026 · 6 participants (2 external)
+      </div>
+      <button class="transcript-close-btn" onclick="closeTranscriptDrawer()">✕</button>
+    </div>
+    <div class="transcript-drawer-body">Maria Schmidt: Good morning. Sprint 7 integration review. Before we begin, I want to welcome Dr. Sarah Chen from Siemens PLM who is joining us for the first time today.
+
+Felix Wagner: I need to lead with something critical. The IMU sensor calibration drift is back. We discussed this in Sprint 5 and it was marked as resolved. It is not. Build 2.6 still shows 2.1 millimetre precision errors. I flagged this in the last two sprints. Jonas — I need your calibration constants before I can close the firmware patch.
+
+Jonas Mueller: I have isolated the root cause — temperature coefficient variance in the April MEMS batch. I can deliver corrected calibration constants to Felix by Wednesday June 8th. I also need to raise the power consumption issue — build 2.6 is drawing 318 watts at peak. We are 38 watts over the 280-watt target. I flagged this in the build 2.4 review three weeks ago but it was deprioritised.
+
+Anna Richter: QA cannot start integration testing until I have Felix's patched firmware and Jonas's calibration constants. My test harness is ready and completely idle. If I receive all inputs by end of June 9th, I can complete the full test cycle and present results at the QA sprint review on June 11th.
+
+Maria Schmidt: Thomas — this is the third consecutive sprint where we have been blocked waiting for the Bosch REST API documentation. We missed the Sprint 6 integration milestone entirely because of this. I need a definitive answer today.
+
+Thomas Becker: Maria, I take full responsibility. Bosch had an internal re-scoping of the Business IoT division. That re-scoping is now complete. I personally commit to delivering the complete REST API documentation and hardware interface specification by Friday June 6th. I will run a technical walkthrough call the week of June 9th.
+
+Maria Schmidt: Thomas, this is the third time. I need that commitment in formal written confirmation to the full project team by close of business today. Felix — if the Bosch docs arrive June 6th, what is your timeline?
+
+Felix Wagner: Bosch API docs by June 6th plus Jonas's calibration constants by June 8th — I can deliver the complete firmware integration and patch by June 10th. That is my firm commitment.
+
+Dr. Sarah Chen: I have an immediate concern. The NEURA specification documents I received reference revision 3.1 of the gripper interface, but all of our simulation models were built against revision 2.8. Before I can validate or deliver anything, NEURA must provide the revision 3.1 mechanical specification.
+
+Felix Wagner: We are on revision 3.1. Jonas, you own the mechanical interface spec.
+
+Jonas Mueller: I can prepare the full 3.1 spec sheet and send it to Dr. Chen by Sunday June 7th.
+
+Dr. Sarah Chen: If I receive the 3.1 spec by June 7th, I can deliver the validated simulation models by June 12th.
+
+Maria Schmidt: I am scheduling a mandatory Bosch Integration Review for June 13th. Thomas must attend. If the docs slip again, June 13th becomes an executive escalation call. Everyone is accountable to these dates.</div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">AI Processing Steps</div>
+        <div class="pipeline-steps">
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-read"><span class="step-num">1</span></div>
+              <div class="vstep-line" id="line-read"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-read">Transcript Loaded</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-ai"><span class="step-num">2</span></div>
+              <div class="vstep-line" id="line-ai"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-ai">AI Reads Meeting</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-history"><span class="step-num">3</span></div>
+              <div class="vstep-line" id="line-history"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-history">Checks Blocker History</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-draft"><span class="step-num">4</span></div>
+              <div class="vstep-line" id="line-draft"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-draft">Drafts Actions + Cal Check</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-hitl"><span class="step-num">5</span></div>
+              <div class="vstep-line" id="line-hitl"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-hitl">Your Review &amp; Edit</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-send"><span class="step-num">6</span></div>
+              <div class="vstep-line" id="line-send"></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-send">Teams + Emails Sent</div></div>
+          </div>
+
+          <div class="vstep">
+            <div class="vstep-node">
+              <div class="step-icon" id="icon-cal"><span class="step-num">7</span></div>
+            </div>
+            <div class="vstep-content"><div class="step-label" id="lbl-cal">Calendar + Planner Done</div></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="sb-status">
+        <div class="status-msg" id="statusMsg">Click Start Demo to begin.</div>
+      </div>
+      <div class="sb-blockers-wrap" id="sidebarBlockers" style="display:none"></div>
+    </aside>
+
+    <!-- Main panel -->
+    <main class="main-panel">
+      <div class="main-inner">
+
+        <!-- Hero -->
+        <div class="hero-area" id="heroArea">
+          <div class="hero-eyebrow">Futurice × NEURA Robotics — AI Meeting Automation</div>
+          <h1 class="hero-title">Meeting Intelligence</h1>
+          <p class="hero-sub">AI reads your sprint meeting, extracts every commitment and deadline, detects recurring blockers, and automatically prepares Teams notifications, external emails, calendar invites and Planner tasks for your one-click approval.</p>
+          <div class="capability-chips">
+            <span class="chip teams">💬 Teams Chat</span>
+            <span class="chip">✉ External Emails</span>
+            <span class="chip green">📅 Calendar + Planner</span>
+            <span class="chip orange">🔍 Blocker Detection</span>
+            <span class="chip teams">👤 Human-in-the-loop</span>
+          </div>
+          <button class="start-btn" id="startBtn" onclick="startDemo()">▶&nbsp; Start Demo</button>
+        </div>
+
+        <!-- Approval panel -->
+        <div class="ap" id="approvalPanel">
+          <div class="ap-head">
+            <div class="ap-head-left">
+              <h2>👤 Review, Edit &amp; Approve</h2>
+              <p>The AI has done its work. Nothing has been sent yet. Edit any item, then approve.</p>
+            </div>
+            <span class="ap-count" id="apCount"></span>
+          </div>
+          <div class="ap-body">
+            <div class="esc-banner" id="escBanner" style="display:none">
+              <strong>⚠ ESCALATION REQUIRED</strong>
+              <div class="esc-reason" id="escReason"></div>
+            </div>
+            <div class="ext-warn" id="extWarn"></div>
+            <div class="summary-box">
+              <div class="sec-label">What happened in this meeting</div>
+              <p id="apSummary" style="font-size:14px;color:var(--text-2);line-height:1.65"></p>
+            </div>
+            <div id="apStats" class="ap-stats" style="display:none"></div>
+            <div id="apBlockers" style="display:none"></div>
+            <div class="content-grid">
+              <div class="content-card purple-card" id="cardTeams"><div id="apTeamsSection"></div></div>
+              <div class="content-card red-card"    id="cardEmail"><div id="apEmailSection"></div></div>
+              <div class="content-card blue-card"   id="cardMeeting"><div id="apMeeting"></div></div>
+              <div class="content-card orange-card" id="cardReminders"><div id="apReminders"></div></div>
+            </div>
+          </div>
+          <div class="ap-foot">
+            <button class="btn-approve" id="approveBtn" onclick="submitApproval(true)">✅ Approve &amp; Send All</button>
+            <button class="btn-reject"  id="rejectBtn"  onclick="submitApproval(false)">✗ Don't Send</button>
+            <span class="ap-conflict-warn" id="apConflictWarn" style="display:none">Select a meeting time first</span>
+            <span class="ap-note" id="apNote"></span>
+          </div>
+        </div>
+
+        <!-- Done section -->
+        <div class="done-section" id="doneSection">
+          <div class="done-minimal-banner">
+            <div class="done-minimal-check">✓</div>
+            <div>
+              <div class="done-minimal-title">All delivered</div>
+              <div class="done-minimal-sub" id="doneMinimalSub"></div>
+            </div>
+          </div>
+          <div class="sent-list" id="sentList" style="display:none">
+            <div class="sent-list-title">📬 What was sent — click to preview</div>
+            <div id="sentListItems"></div>
+          </div>
+        </div>
+
+        <!-- Rejected section -->
+        <div class="rejected-section" id="rejectedSection">
+          <div style="font-size:48px;margin-bottom:14px">❌</div>
+          <div style="font-size:20px;font-weight:700;color:var(--danger);margin-bottom:8px">Nothing sent</div>
+          <div style="font-size:14px;color:var(--text-3);line-height:1.6">You rejected the distribution. No Teams messages, no emails, no calendar event.</div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+const N8N_DIRECT   = 'http://127.0.0.1:5678';
+const WEBHOOK_PATH = '/webhook/neura-demo-trigger-v3';
+let API_KEY     = localStorage.getItem('n8n_api_key_v3') || localStorage.getItem('n8n_api_key') || '';
+let WORKFLOW_ID = localStorage.getItem('n8n_workflow_id_v3') || '';
+
+// Theme
+(function(){
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const b = document.getElementById('themeBtn'); if (b) b.textContent = '🌑';
+    });
+  }
+})();
+function toggleTheme() {
+  const l = document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = l ? '🌑' : '🌙';
+  localStorage.setItem('theme', l ? 'light' : 'dark');
+}
+
+function openCfg() {
+  document.getElementById('cfgApiKey').value = API_KEY;
+  document.getElementById('cfgWorkflowId').value = WORKFLOW_ID;
+  document.getElementById('cfgOverlay').classList.add('open');
+}
+function closeCfg() { document.getElementById('cfgOverlay').classList.remove('open'); }
+function saveConfig() {
+  API_KEY = document.getElementById('cfgApiKey').value.trim();
+  WORKFLOW_ID = document.getElementById('cfgWorkflowId').value.trim();
+  localStorage.setItem('n8n_api_key_v3', API_KEY);
+  localStorage.setItem('n8n_workflow_id_v3', WORKFLOW_ID);
+  closeCfg();
+  setStatus('Settings saved', 'done');
+}
+
+// Transcript drawer
+function toggleTranscriptDrawer() {
+  const drawer = document.getElementById('transcriptDrawer');
+  const btn    = document.getElementById('transcriptPillBtn');
+  const isOpen = drawer.classList.toggle('open');
+  btn.classList.toggle('active', isOpen);
+}
+function closeTranscriptDrawer() {
+  document.getElementById('transcriptDrawer').classList.remove('open');
+  document.getElementById('transcriptPillBtn').classList.remove('active');
+}
+
+// Email redirect handler
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(window.location.search);
+  const action = p.get('action'), n8nUrl = p.get('n8n');
+  if (action && n8nUrl) {
+    document.getElementById('mainUI').style.display = 'none';
+    const panel = document.getElementById('confirmPanel');
+    panel.style.display = 'block';
+    const ok = action === 'approve';
+    document.getElementById('confirmIcon').textContent = ok ? '✅' : '❌';
+    const t = document.getElementById('confirmTitle');
+    t.textContent = ok ? 'Approved!' : 'Rejected';
+    t.className = 'confirm-title ' + (ok ? 'approved' : 'rejected');
+    document.getElementById('confirmMsg').textContent = ok
+      ? 'Approval sent. Teams Chat notifications are being delivered and external emails are being sent.'
+      : 'Rejected. No Teams messages, no emails, no calendar event was created.';
+    fetch(decodeURIComponent(n8nUrl)).catch(() => {});
+    return;
+  }
+  async function tryRestore() {
+    try {
+      const res = await fetch('/hitl');
+      const data = await res.json();
+      if (data && data.approve_url) {
+        approvalData = data;
+        n8nApproveUrl = data.approve_url;
+        n8nRejectUrl  = data.reject_url;
+        setStep('read', 'done');
+        setStep('ai', 'done');
+        setStep('history', 'done');
+        setStep('draft', 'done', 'Actions Ready');
+        setStep('hitl', 'waiting', 'Your Review & Edit');
+        setStatus('AI has finished — review and edit below, then approve or reject.', 'waiting');
+        showApprovalPanel(data);
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('startBtn').textContent = '▶ Start Demo';
+      }
+    } catch(e) {}
+  }
+  tryRestore();
+});
+
+function setStep(id, state, label) {
+  const icon = document.getElementById('icon-' + id);
+  const lbl  = document.getElementById('lbl-' + id);
+  if (icon) icon.className = 'step-icon ' + state;
+  if (lbl)  { lbl.className = 'step-label ' + state; if (label) lbl.textContent = label; }
+}
+function setStatus(msg, cls) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + (cls || '');
+}
+
+let pollTimer = null;
+let n8nApproveUrl = null, n8nRejectUrl = null, approvalData = null;
+
+async function startDemo() {
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  document.getElementById('doneSection').style.display = 'none';
+  document.getElementById('rejectedSection').style.display = 'none';
+  document.getElementById('approvalPanel').style.display = 'none';
+  setStep('read', 'done', 'Transcript');
+  setStep('ai', 'active', 'AI Reads');
+  setStatus('AI is reading the meeting transcript, identifying every commitment, blocker, and action item...', 'active');
+  fetch('/demo/start', { method: 'POST' }).catch(() => {});
+  fetch('/hitl/clear', { method: 'POST' }).catch(() => {});
+  setTimeout(() => {
+    setStep('history', 'active', 'Checks History');
+    setStatus('Checking blocker history, looking for recurring issues across previous sprints...', 'active');
+  }, 6000);
+  setTimeout(() => {
+    setStep('ai', 'done', 'AI Reads');
+    setStep('history', 'done', 'History Checked');
+    setStep('draft', 'active', 'Drafting...');
+    setStatus('Writing Teams Chat notifications, drafting external emails, checking calendar availability, queuing deadline reminders...', 'active');
+  }, 13000);
+  pollTimer = setInterval(pollHitl, 1500);
+}
+
+async function pollHitl() {
+  try {
+    const res = await fetch('/hitl');
+    const data = await res.json();
+    if (data && data.approve_url) {
+      clearInterval(pollTimer); pollTimer = null;
+      approvalData = data;
+      n8nApproveUrl = data.approve_url;
+      n8nRejectUrl  = data.reject_url;
+      setStep('draft', 'done', 'Actions Ready');
+      setStep('hitl', 'waiting', 'Your Review & Edit');
+      setStatus('AI has finished. Review, edit, then approve — nothing sent yet.', 'waiting');
+      showApprovalPanel(data);
+      const btn = document.getElementById('startBtn');
+      if (btn) { btn.disabled = false; btn.textContent = '▶ Start Demo'; }
+    }
+  } catch(e) {}
+}
+
+window._editedData = { items: {}, emails: {}, meeting: null };
+function initEditedData() { window._editedData = { items: {}, emails: {}, meeting: null }; }
+
+window._hasConflict = false;
+window._conflictResolved = false;
+
+function updateApproveBtn() {
+  const btn  = document.getElementById('approveBtn');
+  const warn = document.getElementById('apConflictWarn');
+  if (window._hasConflict && !window._conflictResolved) {
+    btn.disabled = true; warn.style.display = 'inline';
+  } else {
+    btn.disabled = false; warn.style.display = 'none';
+  }
+}
+
+function highlightCard(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.remove('card-highlight');
+  void card.offsetWidth;
+  card.classList.add('card-highlight');
+  setTimeout(() => card.classList.remove('card-highlight'), 1600);
+}
+
+function showApprovalPanel(data) {
+  initEditedData();
+  window._hasConflict = false;
+  window._conflictResolved = false;
+
+  const internalItems  = data.internal_items || [];
+  const externalEmails = data.external_emails || [];
+  const reminders      = data.deadline_reminders || [];
+  const f              = data.follow_up_meeting;
+  const externals      = data.external_participants || [];
+  const blockers       = data.blockers || [];
+  const calCheck       = data.calendar_check || null;
+
+  // Stats bar
+  const statsEl = document.getElementById('apStats');
+  if (statsEl) {
+    const nMsgs = Object.keys(internalItems.reduce((m,i) => { m[i.owner_email]=1; return m; }, {})).length || internalItems.length;
+    statsEl.style.display = '';
+    statsEl.innerHTML =
+      '<div class="ap-stat s-teams" data-card="cardTeams"><div class="ap-stat-num">' + nMsgs + '</div><div class="ap-stat-label">Teams Messages</div></div>' +
+      '<div class="ap-stat s-email" data-card="cardEmail"><div class="ap-stat-num">' + externalEmails.length + '</div><div class="ap-stat-label">External Emails</div></div>' +
+      '<div class="ap-stat s-rem"   data-card="cardReminders"><div class="ap-stat-num">' + reminders.length + '</div><div class="ap-stat-label">Deadline Reminders</div></div>' +
+      (f ? '<div class="ap-stat s-cal" data-card="cardMeeting"><div class="ap-stat-num">1</div><div class="ap-stat-label">Meeting Scheduled</div></div>' : '');
+    statsEl.querySelectorAll('.ap-stat[data-card]').forEach(el => {
+      el.addEventListener('click', () => highlightCard(el.getAttribute('data-card')));
+    });
+  }
+
+  document.getElementById('apCount').textContent = internalItems.length + ' chats · ' + externalEmails.length + ' emails · ' + reminders.length + ' reminders';
+  document.getElementById('apSummary').textContent = data.meeting_summary || '';
+
+  if (data.escalation_required) {
+    document.getElementById('escBanner').style.display = 'block';
+    document.getElementById('escReason').textContent = data.escalation_reason || '';
+  } else {
+    document.getElementById('escBanner').style.display = 'none';
+  }
+
+  if (data.has_external && externals.length) {
+    const w = document.getElementById('extWarn');
+    w.style.display = 'block';
+    w.innerHTML = '<strong>External participants:</strong> ' + externals.join(', ') + ' — formal emails require your approval before sending.';
+  } else {
+    document.getElementById('extWarn').style.display = 'none';
+  }
+
+  if (blockers.length > 0) {
+    let html = '<div class="blockers-box" style="margin-bottom:16px">';
+    html += '<div class="sec-label" style="color:var(--danger);margin-bottom:8px">🔴 Recurring Blockers Detected (' + blockers.length + ')</div>';
+    blockers.forEach(b => {
+      html += '<div class="blocker-item"><span class="blocker-count">' + b.occurrences + '×</span>';
+      html += '<div><div class="blocker-text">' + escHtml(b.description) + '</div>';
+      html += '<div class="blocker-owner">Owner: ' + escHtml(b.owner) + (b.escalation_needed ? ' &nbsp;· <span style="color:var(--danger)">Escalation needed</span>' : '') + '</div></div></div>';
+    });
+    html += '</div>';
+    document.getElementById('apBlockers').innerHTML = html;
+  } else {
+    document.getElementById('apBlockers').innerHTML = '';
+  }
+
+  const sidebarB = document.getElementById('sidebarBlockers');
+  if (sidebarB) {
+    if (blockers.length > 0) {
+      let sb = '<div class="sb-blockers-title">⚠ Recurring Blockers</div>';
+      blockers.forEach(b => {
+        sb += '<div class="sb-blocker-item"><span class="sb-blocker-count">' + b.occurrences + '×</span>';
+        sb += '<span class="sb-blocker-desc">' + escHtml(b.description) + (b.escalation_needed ? ' <b style="color:var(--danger)">↑ escalate</b>' : '') + '</span></div>';
+      });
+      sidebarB.innerHTML = sb; sidebarB.style.display = '';
+    } else {
+      sidebarB.innerHTML = ''; sidebarB.style.display = 'none';
+    }
+  }
+
+  // Teams Chat
+  if (internalItems.length > 0) {
+    const ownerMap = {};
+    internalItems.forEach((item, i) => {
+      const key = item.owner_email;
+      if (!ownerMap[key]) ownerMap[key] = { owner_name: item.owner_name, owner_email: item.owner_email, tasks: [], indices: [] };
+      ownerMap[key].tasks.push(item); ownerMap[key].indices.push(i);
+    });
+    const groupedOwners = Object.values(ownerMap);
+    window._groupedOwners = groupedOwners;
+
+    let html = '<div class="teams-section">';
+    html += '<div class="teams-section-header"><span class="teams-section-title">💬 Teams Chat Notifications</span><span class="teams-count-badge">' + groupedOwners.length + ' messages · ' + internalItems.length + ' tasks</span></div>';
+    groupedOwners.forEach((person, gi) => {
+      const defaultMsg = buildTeamsMessageGrouped(person, data);
+      const topPriority = person.tasks.reduce((p, t) => {
+        const order = {critical:0,high:1,medium:2,low:3};
+        return (order[t.priority]||3) < (order[p]||3) ? t.priority : p;
+      }, 'medium');
+      html += '<div class="tc" id="tc-g-' + gi + '">';
+      html += '<div class="tc-head" onclick="toggleTcTasks(' + gi + ')">';
+      html += '<div class="tc-top"><span class="tc-icon">💬</span><span class="tc-name">' + escHtml(person.owner_name) + '</span><span class="teams-badge">TEAMS CHAT</span>';
+      html += ' <span style="font-size:11px;color:var(--teams);background:var(--teams-bg);border:1px solid var(--teams-border);padding:2px 8px;border-radius:10px;font-weight:600">' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span>';
+      html += ' <span class="pc pc-' + topPriority + '" style="font-size:11px">' + topPriority.toUpperCase() + '</span>';
+      html += '<span style="margin-left:auto;color:var(--text-4);font-size:11px" id="tc-arrow-' + gi + '">▶</span></div>';
+      html += '<div class="tc-email" style="padding:0 16px 8px">' + escHtml(person.owner_email) + '</div>';
+      html += '</div>';
+      html += '<div class="tc-tasks" id="tc-tasks-' + gi + '">';
+      person.tasks.forEach((task, ti) => {
+        html += '<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0 2px;' + (ti > 0 ? 'border-top:1px solid var(--border);margin-top:4px' : '') + '">';
+        html += '<span style="font-size:11px;font-weight:700;color:var(--text-4);min-width:16px;padding-top:2px">' + (ti + 1) + '.</span>';
+        html += '<div style="flex:1"><div class="tc-task">' + escHtml(task.task) + '</div>';
+        html += '<div class="tc-meta"><span>Due: ' + escHtml(task.deadline) + '</span><span class="pc pc-' + (task.priority||'medium').toLowerCase() + '">' + escHtml((task.priority||'medium').toUpperCase()) + '</span>' + (task.depends_on ? '<span>Depends on: ' + escHtml(task.depends_on) + '</span>' : '') + '</div></div></div>';
+      });
+      html += '<div class="tc-foot">';
+      html += '<button class="edit-toggle-btn" id="tc-g-edit-btn-' + gi + '" onclick="toggleTcEditG(' + gi + ');event.stopPropagation()">✏️ Edit message</button>';
+      html += '<span class="edited-pill" id="tc-g-edited-pill-' + gi + '" style="display:none">(edited)</span></div>';
+      html += '<div class="tc-edit-area" id="tc-g-edit-area-' + gi + '">';
+      html += '<textarea class="edit-textarea" id="tc-g-textarea-' + gi + '" oninput="onTcEditG(' + gi + ')">' + escHtml(defaultMsg) + '</textarea>';
+      html += '<button class="done-edit-btn" onclick="closeTcEditG(' + gi + ')">✓ Done</button></div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    document.getElementById('apTeamsSection').innerHTML = html;
+  } else {
+    window._groupedOwners = [];
+    document.getElementById('apTeamsSection').innerHTML = '';
+  }
+
+  // External emails
+  if (externalEmails.length > 0) {
+    let html = '<div class="ext-section">';
+    html += '<div class="ext-section-header"><span class="ext-section-title">✉ Formal Emails — External Parties</span><span class="ext-count-badge">' + externalEmails.length + '</span></div>';
+    externalEmails.forEach((ext, i) => {
+      const urgCls = ext.urgency === 'critical' ? '#f85149' : ext.urgency === 'high' ? '#fd7e14' : '#d29922';
+      html += '<div class="ec" id="ec-' + i + '">';
+      html += '<div class="ec-head">';
+      html += '<div class="ec-top"><span style="font-size:16px">✉</span><span class="ec-name">' + escHtml(ext.recipient_name) + '</span><span class="ext-badge">EXTERNAL · ' + escHtml(ext.company) + '</span></div>';
+      html += '<div class="ec-company">' + escHtml(ext.recipient_email) + '</div>';
+      html += '<input type="text" class="subject-input" id="ec-subj-' + i + '" value="' + escAttr(ext.subject) + '" oninput="onEmailSubjEdit(' + i + ')" onclick="event.stopPropagation()" placeholder="Subject..." />';
+      html += '<div class="ec-meta">Commitment: ' + escHtml(ext.commitment_date) + ' &nbsp;· <span style="color:' + urgCls + ';font-weight:700">' + escHtml((ext.urgency||'high').toUpperCase()) + '</span></div>';
+      html += '</div>';
+      html += '<div class="ec-actions">';
+      html += '<button class="ec-edit-btn" id="ec-edit-btn-' + i + '" onclick="toggleEcBodyEdit(' + i + ')">✏️ Edit body</button>';
+      html += '<span class="edited-pill-red" id="ec-edited-pill-' + i + '" style="display:none">(edited)</span></div>';
+      html += '<div class="ec-edit-area" id="ec-edit-area-' + i + '">';
+      html += '<textarea class="edit-textarea" style="border-color:var(--danger);min-height:160px" id="ec-body-ta-' + i + '" oninput="onEmailBodyEdit(' + i + ')">' + escHtml(ext.body || '') + '</textarea>';
+      html += '<button class="done-edit-btn" style="background:var(--danger)" onclick="closeEcBodyEdit(' + i + ')">✓ Done</button>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    document.getElementById('apEmailSection').innerHTML = html;
+  } else {
+    document.getElementById('apEmailSection').innerHTML = '';
+  }
+
+  // Calendar
+  if (f) {
+    const hasConflict = calCheck && calCheck.is_free === false;
+    window._hasConflict = hasConflict;
+    window._conflictResolved = false;
+
+    let html = '<div class="mtg-section">';
+    html += '<div class="mtg-section-header"><span class="mtg-section-title">📅 Teams Meeting + Calendar Invite</span><span id="mtg-time-changed-pill" style="display:none" class="time-changed-pill">(time changed)</span></div>';
+    html += '<div class="mtg-box">';
+    html += '<div class="mtg-field-row"><div class="mtg-field-label">Meeting title</div><input type="text" class="mtg-input" id="mtg-title-input" value="' + escAttr(f.title) + '" oninput="onMtgTitleEdit()" /></div>';
+    html += '<div class="mtg-field-row"><div class="mtg-field-label">Agenda</div><textarea class="mtg-textarea" id="mtg-agenda-ta" oninput="onMtgAgendaEdit()">' + escHtml(f.agenda || '') + '</textarea></div>';
+    html += '<div style="font-size:13px;color:var(--text-3);margin-bottom:8px">Proposed: <strong>' + escHtml(f.date) + '</strong> at <strong>' + escHtml(f.time) + '</strong> · ' + escHtml(String(f.duration_minutes)) + ' min</div>';
+
+    if (!hasConflict && calCheck && calCheck.is_free === true) {
+      html += '<div class="cal-free-badge">✅ ' + escHtml(calCheck.date || f.date) + ' at ' + escHtml(calCheck.time || f.time) + ' — Calendar is free</div>';
+    }
+    if (hasConflict) {
+      const conflicts = (calCheck.conflict_subjects || []).join(', ') || 'existing event';
+      html += '<div class="cal-conflict-banner">⚠ Conflict on ' + escHtml(calCheck.date || f.date) + ' ' + escHtml(calCheck.time || f.time) + ': ' + escHtml(conflicts) + '</div>';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:6px">Choose a time:</div>';
+      html += '<div class="time-options" id="time-options-grid">';
+      const suggested = calCheck.suggested_times || [];
+      suggested.slice(0, 4).forEach((opt, oi) => {
+        html += '<div class="time-opt" id="time-opt-' + oi + '" onclick="selectTimeOpt(' + oi + ',false)">';
+        html += '<div class="time-opt-label">' + escHtml(opt.label || ('Option ' + (oi+1))) + '</div>';
+        html += '<div class="time-opt-display">' + escHtml(opt.display || (opt.date + ' ' + opt.time)) + '</div></div>';
+      });
+      const keepIdx = suggested.slice(0, 4).length;
+      html += '<div class="time-opt keep-original" id="time-opt-' + keepIdx + '" onclick="selectTimeOpt(' + keepIdx + ',true)">';
+      html += '<div class="time-opt-label">Keep original time</div>';
+      html += '<div class="time-opt-display">' + escHtml(f.date) + ' at ' + escHtml(f.time) + ' (override conflict)</div></div>';
+      html += '</div><div class="conflict-required-note" id="conflict-required-note">You must select a time before approving.</div>';
+    }
+    html += '</div></div>';
+    document.getElementById('apMeeting').innerHTML = html;
+    window._suggestedTimesCount = (calCheck && calCheck.suggested_times ? Math.min(calCheck.suggested_times.length, 4) : 0);
+    window._calCheckData = calCheck;
+    window._followUpMeeting = f;
+  } else {
+    document.getElementById('apMeeting').innerHTML = '';
+    window._hasConflict = false;
+    window._conflictResolved = true;
+  }
+
+  // Reminders
+  if (reminders.length > 0) {
+    const pc = {critical:'#f85149', high:'#fd7e14', medium:'#d29922', low:'#6c757d'};
+    let html = '<div class="rem-section">';
+    html += '<div class="rem-section-header"><span class="rem-section-title">⏰ Deadline Reminders</span><span class="rem-count-badge">' + reminders.length + ' calendar events</span></div>';
+    reminders.forEach(r => {
+      const pColor = pc[(r.priority||'high').toLowerCase()] || '#fd7e14';
+      html += '<div class="rem-item ' + (r.priority||'high').toLowerCase() + '">';
+      html += '<div class="rem-title">' + escHtml(r.title) + '</div>';
+      html += '<div class="rem-meta">Owner: <strong>' + escHtml(r.owner_name) + '</strong> · Deadline: <strong>' + escHtml(r.deadline) + '</strong> · <span style="color:' + pColor + ';font-weight:700">' + escHtml((r.priority||'high').toUpperCase()) + '</span></div>';
+      if (r.reminder_note) html += '<div class="rem-note">' + escHtml(r.reminder_note) + '</div>';
+      html += '</div>';
+    });
+    html += '<div style="font-size:12px;color:var(--text-4);margin-top:8px;padding:8px 16px">Each reminder will be created as a calendar event with a 24-hour notification before the deadline.</div>';
+    html += '</div>';
+    document.getElementById('apReminders').innerHTML = html;
+  } else {
+    document.getElementById('apReminders').innerHTML = '';
+  }
+
+  document.getElementById('apNote').textContent = internalItems.length + ' Teams chats · ' + externalEmails.length + ' emails · ' + reminders.length + ' reminders · 1 meeting';
+  window._approvalData = data;
+  updateApproveBtn();
+
+  const panel = document.getElementById('approvalPanel');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+// Teams edit handlers
+function toggleTcTasks(gi) {
+  const tasks = document.getElementById('tc-tasks-' + gi); if (!tasks) return;
+  const open = tasks.classList.toggle('open');
+  const arrow = document.getElementById('tc-arrow-' + gi);
+  if (arrow) arrow.textContent = open ? '▼' : '▶';
+}
+function toggleTcEditG(gi) {
+  const area = document.getElementById('tc-g-edit-area-' + gi);
+  const btn  = document.getElementById('tc-g-edit-btn-' + gi);
+  const open = area.classList.toggle('open');
+  btn.textContent = open ? '✓ Done editing' : '✏️ Edit message';
+}
+function closeTcEditG(gi) {
+  document.getElementById('tc-g-edit-area-' + gi).classList.remove('open');
+  document.getElementById('tc-g-edit-btn-' + gi).textContent = '✏️ Edit message';
+}
+function onTcEditG(gi) {
+  const ta   = document.getElementById('tc-g-textarea-' + gi);
+  const pill = document.getElementById('tc-g-edited-pill-' + gi);
+  const person = (window._groupedOwners || [])[gi]; if (!person) return;
+  const original = buildTeamsMessageGrouped(person, window._approvalData || {});
+  const changed = ta.value !== original;
+  if (changed) { person.indices.forEach(i => { window._editedData.items[i] = ta.value; }); pill.style.display = 'inline'; }
+  else { person.indices.forEach(i => { delete window._editedData.items[i]; }); pill.style.display = 'none'; }
+}
+
+// Email edit handlers
+function toggleEcBodyEdit(i) {
+  const area = document.getElementById('ec-edit-area-' + i);
+  const btn  = document.getElementById('ec-edit-btn-' + i);
+  const open = area.classList.toggle('open');
+  btn.textContent = open ? '✓ Done editing' : '✏️ Edit body';
+}
+function closeEcBodyEdit(i) {
+  document.getElementById('ec-edit-area-' + i).classList.remove('open');
+  document.getElementById('ec-edit-btn-' + i).textContent = '✏️ Edit body';
+}
+function onEmailSubjEdit(i) {
+  const inp  = document.getElementById('ec-subj-' + i);
+  const pill = document.getElementById('ec-edited-pill-' + i);
+  const ext  = ((window._approvalData || {}).external_emails || [])[i];
+  if (!window._editedData.emails[i]) window._editedData.emails[i] = {};
+  window._editedData.emails[i].subject = inp.value;
+  const bodyTa = document.getElementById('ec-body-ta-' + i);
+  const subjChanged = inp.value !== (ext ? ext.subject : '');
+  const bodyChanged = bodyTa && bodyTa.value !== (ext ? ext.body : '');
+  pill.style.display = (subjChanged || bodyChanged) ? 'inline' : 'none';
+}
+function onEmailBodyEdit(i) {
+  const ta   = document.getElementById('ec-body-ta-' + i);
+  const pill = document.getElementById('ec-edited-pill-' + i);
+  const ext  = ((window._approvalData || {}).external_emails || [])[i];
+  if (!window._editedData.emails[i]) window._editedData.emails[i] = {};
+  window._editedData.emails[i].body = ta.value;
+  const subjInp = document.getElementById('ec-subj-' + i);
+  const subjChanged = subjInp && subjInp.value !== (ext ? ext.subject : '');
+  const bodyChanged = ta.value !== (ext ? ext.body : '');
+  pill.style.display = (subjChanged || bodyChanged) ? 'inline' : 'none';
+}
+
+// Meeting edit handlers
+function onMtgTitleEdit() {
+  const inp = document.getElementById('mtg-title-input');
+  if (!window._editedData.meeting) window._editedData.meeting = Object.assign({}, window._followUpMeeting);
+  window._editedData.meeting.title = inp.value;
+}
+function onMtgAgendaEdit() {
+  const ta = document.getElementById('mtg-agenda-ta');
+  if (!window._editedData.meeting) window._editedData.meeting = Object.assign({}, window._followUpMeeting);
+  window._editedData.meeting.agenda = ta.value;
+}
+
+function selectTimeOpt(idx, isKeepOriginal) {
+  const totalOpts = window._suggestedTimesCount + 1;
+  for (let i = 0; i < totalOpts; i++) {
+    const el = document.getElementById('time-opt-' + i);
+    if (el) el.classList.remove('selected');
+  }
+  const selected = document.getElementById('time-opt-' + idx);
+  if (selected) selected.classList.add('selected');
+
+  const f = window._followUpMeeting || {};
+  const calCheck = window._calCheckData || {};
+  const suggested = (calCheck.suggested_times || []).slice(0, 4);
+
+  if (isKeepOriginal) {
+    window._editedData.meeting = Object.assign({}, f);
+  } else {
+    const opt = suggested[idx];
+    if (opt) {
+      const base = window._editedData.meeting ? window._editedData.meeting : Object.assign({}, f);
+      window._editedData.meeting = Object.assign({}, base, { date: opt.date, time: opt.time });
+    }
+  }
+  window._conflictResolved = true;
+  const pill = document.getElementById('mtg-time-changed-pill');
+  if (pill && !isKeepOriginal) pill.style.display = 'inline';
+  const note = document.getElementById('conflict-required-note');
+  if (note) note.style.display = 'none';
+  updateApproveBtn();
+}
+
+// Build Teams messages
+function buildTeamsMessage(item, data) {
+  const f = data.follow_up_meeting;
+  return 'NEURA Meeting Intelligence\n' +
+    '────────────────────────────────────\n' +
+    '📋 Action item assigned to you\n' +
+    '────────────────────────────────────\n\n' +
+    'Task: ' + item.task + '\n' +
+    'Deadline: ' + item.deadline + '\n' +
+    'Priority: ' + (item.priority || 'medium').toUpperCase() +
+    (item.depends_on ? '\nDepends on: ' + item.depends_on : '') +
+    (f ? '\n\nFollow-up review: ' + f.date + ' at ' + f.time : '') +
+    '\n\n[In production: delivered as Teams Chat direct message]\n— NEURA Meeting Intelligence · Powered by Futurice';
+}
+function buildTeamsMessageGrouped(person, data) {
+  const f = data.follow_up_meeting;
+  const tasks = person.tasks || [];
+  const pLabel = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };
+  const lines = tasks.map((t, i) =>
+    (i + 1) + '. [' + (pLabel[t.priority] || (t.priority || 'medium').toUpperCase()) + '] ' + t.task +
+    '\n   Due: ' + t.deadline +
+    (t.depends_on ? '\n   Depends on: ' + t.depends_on : '')
+  ).join('\n\n');
+  return 'NEURA Meeting Intelligence\n' +
+    '────────────────────────────────────\n' +
+    tasks.length + ' action item' + (tasks.length > 1 ? 's' : '') + ' assigned to you\n' +
+    '────────────────────────────────────\n\n' +
+    lines +
+    (f ? '\n\nFollow-up review: ' + f.date + ' at ' + f.time : '') +
+    '\n\n[In production: delivered as Teams Chat direct message]\n— NEURA Meeting Intelligence · Powered by Futurice';
+}
+
+function escHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Submit approval
+async function submitApproval(approved) {
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('rejectBtn').disabled = true;
+
+  if (!approved) {
+    try { await fetch('/hitl/reject', { method: 'POST' }); } catch(e) {}
+    document.getElementById('approvalPanel').style.display = 'none';
+    document.getElementById('rejectedSection').style.display = 'block';
+    setStep('hitl', 'error', 'Rejected');
+    setStatus('Nothing was sent.', '');
+    const rejBtn = document.getElementById('startBtn');
+    if (rejBtn) { rejBtn.disabled = false; rejBtn.textContent = '▶ Start Demo'; }
+    return;
+  }
+
+  const data = window._approvalData || approvalData || {};
+  const internalItems  = data.internal_items || [];
+  const externalEmails = data.external_emails || [];
+  const f = data.follow_up_meeting;
+
+  const finalItems = internalItems.map((item, i) => {
+    if (window._editedData.items[i] !== undefined) return Object.assign({}, item, { edited_message: window._editedData.items[i] });
+    return item;
+  });
+  const finalEmails   = externalEmails.map((ext, i) => Object.assign({}, ext, window._editedData.emails[i] || {}));
+  const finalMeeting  = window._editedData.meeting ? Object.assign({}, f, window._editedData.meeting) : (f || null);
+
+  document.querySelector('.ap-head h2').textContent = '⏳ Sending now...';
+  document.querySelector('.ap-head p').textContent  = 'Sending Teams notifications and external emails...';
+  document.getElementById('apCount').style.display  = 'none';
+  setStep('hitl', 'done', 'Approved');
+  setStep('send', 'active', 'Sending...');
+  setStatus('Sending via Microsoft Graph API...', 'active');
+
+  let approveOk = false, approveError = '';
+  try {
+    const res  = await fetch('/hitl/approve', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ edited_items: finalItems, edited_emails: finalEmails, edited_meeting: finalMeeting })
+    });
+    const json = await res.json();
+    approveOk = json.ok === true; approveError = json.error || '';
+  } catch(e) { approveError = e.message; }
+
+  if (!approveOk) {
+    document.getElementById('approveBtn').disabled = false;
+    document.getElementById('rejectBtn').disabled  = false;
+    const msg = approveError === 'no_pending_run'
+      ? '⚠ No pending run found — start the demo first, then approve when the panel appears.'
+      : '⚠ Could not reach n8n: ' + (approveError || 'unknown error') + ' — check proxy terminal.';
+    setStatus(msg, 'error');
+    return;
+  }
+
+  setTimeout(() => {
+    setStep('send', 'done', 'All Sent');
+    setStep('cal', 'active', 'Creating...');
+    setStatus('Creating Teams calendar event and deadline reminders...', 'active');
+  }, 3500);
+
+  setTimeout(() => {
+    setStep('cal', 'done', 'Calendar Done');
+    setStatus('Everything delivered.', 'done');
+    document.getElementById('approvalPanel').style.display = 'none';
+    showDone();
+  }, 7500);
+}
+
+// Show done
+function showDone() {
+  const data      = window._approvalData || approvalData || {};
+  const internals = data.internal_items || [];
+  const externals = data.external_emails || [];
+  const reminders = data.deadline_reminders || [];
+  const f         = data.follow_up_meeting;
+  const calCheck  = data.calendar_check;
+
+  const sub = document.getElementById('doneMinimalSub');
+  if (sub) {
+    const calNote = calCheck ? (calCheck.is_free ? ' · calendar was free' : ' · calendar conflict resolved') : '';
+    sub.textContent = internals.length + ' Teams · ' + externals.length + ' emails · ' + reminders.length + ' reminders' + (f ? ' · ' + f.title + ' scheduled' : '') + calNote;
+  }
+
+  const groupedOwnersDone = window._groupedOwners || [];
+
+  function sentCard(accentClass, icon, title, count, rowsHtml) {
+    return '<div class="sent-section-card ' + accentClass + '">' +
+      '<div class="sent-card-head"><span class="sent-card-icon">' + icon + '</span>' +
+      '<span class="sent-card-title">' + title + '</span>' +
+      '<span class="sent-card-count">' + count + '</span></div>' +
+      '<div class="sent-card-rows">' + rowsHtml + '</div></div>';
+  }
+
+  const teamsRows = groupedOwnersDone.map((person, gi) =>
+    '<div class="sent-row clickable" onclick="openTeamsModal(' + gi + ')">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(person.owner_name) + '</span>' +
+      '<span class="sent-row-badge purple">' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</span></div>' +
+      '<div class="sent-row-sub">' + person.tasks.slice(0,2).map(t => escHtml(t.task)).join(' · ') + (person.tasks.length > 2 ? ' +' + (person.tasks.length-2) + ' more' : '') + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>'
+  ).join('');
+
+  const emailRows = externals.map((ext, i) =>
+    '<div class="sent-row clickable" onclick="openEmailModal(' + i + ')">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(ext.recipient_name) + '</span>' +
+      '<span class="sent-row-badge red">' + escHtml(ext.company) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(ext.subject) + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>'
+  ).join('');
+
+  const reminderRows = reminders.map(r =>
+    '<div class="sent-row">' +
+      '<div class="sent-row-left"><span class="sent-row-name" style="font-size:12px">' + escHtml(r.title.replace('DEADLINE: ','')) + '</span>' +
+      '<span class="sent-row-badge orange">' + escHtml(r.deadline) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(r.owner_name) + (r.reminder_note ? ' · ' + escHtml(r.reminder_note) : '') + '</div>' +
+    '</div>'
+  ).join('');
+
+  const calStatus = calCheck
+    ? '<div class="sent-cal-status ' + (calCheck.is_free ? 'free' : 'conflict') + '">' + (calCheck.is_free ? '✅ Calendar was free' : '⚠ Conflict resolved') + '</div>'
+    : '';
+  const meetingRow = f ?
+    '<div class="sent-row clickable" onclick="openCalModal()">' +
+      '<div class="sent-row-left"><span class="sent-row-name">' + escHtml(f.title) + '</span>' +
+      '<span class="sent-row-badge blue">' + escHtml(f.date) + '</span></div>' +
+      '<div class="sent-row-sub">' + escHtml(f.time) + ' · ' + escHtml(String(f.duration_minutes)) + ' min' + (calStatus ? ' · ' + (calCheck.is_free ? '✅ free' : '⚠ conflict resolved') : '') + '</div>' +
+      '<span class="sent-row-arrow">›</span></div>' : '';
+
+  const grid =
+    '<div class="sent-grid">' +
+    (teamsRows    ? sentCard('purple-sent', '💬', 'Teams Chat',         groupedOwnersDone.length + ' messages', teamsRows)   : '') +
+    (emailRows    ? sentCard('red-sent',    '✉',  'External Emails',    externals.length + ' emails',           emailRows)   : '') +
+    (meetingRow   ? sentCard('blue-sent',   '📅', 'Teams Meeting',      '1 meeting',                            meetingRow)  : '') +
+    (reminderRows ? sentCard('orange-sent', '⏰', 'Deadline Reminders', reminders.length + ' reminders',        reminderRows): '') +
+    '</div>';
+
+  document.getElementById('sentListItems').innerHTML = grid;
+  document.getElementById('sentList').style.display  = 'block';
+  document.getElementById('doneSection').style.display = 'block';
+  document.getElementById('doneSection').scrollIntoView({ behavior: 'smooth' });
+  const doneBtn = document.getElementById('startBtn');
+  if (doneBtn) { doneBtn.disabled = false; doneBtn.textContent = '▶ Start Demo'; }
+}
+
+// Modals
+function openTeamsModal(gi) {
+  const data   = window._approvalData || {};
+  const person = (window._groupedOwners || [])[gi]; if (!person) return;
+  const firstIdx = person.indices[0];
+  const edited   = person.indices.some(i => window._editedData && window._editedData.items[i] !== undefined);
+  const msg = edited ? (window._editedData.items[firstIdx] || buildTeamsMessageGrouped(person, data)) : buildTeamsMessageGrouped(person, data);
+  document.getElementById('modalContent').innerHTML =
+    '<div class="teams-modal-bar">' +
+      '<div class="teams-modal-icon">💬</div>' +
+      '<div><div class="teams-modal-sender">NEURA Meeting Intelligence' + (edited ? ' <span style="font-size:11px;color:var(--orange)">(edited)</span>' : '') + '</div>' +
+      '<div class="teams-modal-sub">Teams Chat · via AncyJoseph@Futurice.onmicrosoft.com</div></div>' +
+    '</div>' +
+    '<div class="teams-modal-body">' +
+      '<div style="font-size:12px;color:var(--text-3);margin-bottom:8px">Direct Message to: <strong style="color:var(--text)">' + escHtml(person.owner_name) + '</strong> &lt;' + escHtml(person.owner_email) + '&gt; · ' + person.tasks.length + ' task' + (person.tasks.length > 1 ? 's' : '') + '</div>' +
+      '<div class="teams-chat-bubble">' + escHtml(msg) + '</div>' +
+    '</div>' +
+    '<div class="teams-routing">📤 Routed to AncyJoseph@Futurice.onmicrosoft.com · In production: Teams Chat DM to ' + escHtml(person.owner_email) + '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEmailModal(i) {
+  const data   = window._approvalData || {};
+  const ext    = (data.external_emails || [])[i]; if (!ext) return;
+  const edits  = (window._editedData && window._editedData.emails[i]) || {};
+  const finalSubject = edits.subject !== undefined ? edits.subject : ext.subject;
+  const finalBody    = edits.body    !== undefined ? edits.body    : ext.body;
+  const edited = edits.subject !== undefined || edits.body !== undefined;
+  const urgColors = {critical:'#f85149',high:'#fd7e14',medium:'#d29922'};
+  document.getElementById('modalContent').innerHTML =
+    '<div class="email-chrome">' +
+      '<div class="email-chrome-bar">' +
+        '<div class="email-avatar">AI</div>' +
+        '<div><div class="email-sender-name">NEURA Meeting Intelligence' + (edited ? ' <span style="font-size:11px;color:var(--orange)">(edited)</span>' : '') + '</div>' +
+        '<div class="email-sender-meta">via AncyJoseph@Futurice.onmicrosoft.com</div></div>' +
+      '</div>' +
+      '<div class="email-fields">' +
+        '<div class="email-field-row"><span class="email-field-key">To</span><span class="email-field-val">' + escHtml(ext.recipient_name) + ' &lt;' + escHtml(ext.recipient_email) + '&gt; · ' + escHtml(ext.company) + '</span></div>' +
+        '<div class="email-field-row"><span class="email-field-key">Urgency</span><span class="email-field-val" style="color:' + (urgColors[ext.urgency]||'#fd7e14') + ';font-weight:700">' + escHtml((ext.urgency||'high').toUpperCase()) + '</span></div>' +
+        '<div class="email-field-row"><span class="email-field-key">Commit by</span><span class="email-field-val">' + escHtml(ext.commitment_date) + '</span></div>' +
+      '</div>' +
+      '<div class="email-subject">' + escHtml(finalSubject || '') + '</div>' +
+      '<div class="email-body-content">' + escHtml(finalBody || '') + '</div>' +
+      '<div class="email-routing">📤 Routed to AncyJoseph@Futurice.onmicrosoft.com · In production: ' + escHtml(ext.recipient_email) + '</div>' +
+    '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openCalModal() {
+  const data  = window._approvalData || {};
+  const f     = data.follow_up_meeting; if (!f) return;
+  const final = window._editedData.meeting ? Object.assign({}, f, window._editedData.meeting) : f;
+  document.getElementById('modalContent').innerHTML =
+    '<div class="cal-body">' +
+      '<h3 style="color:var(--text);font-size:16px;margin-bottom:18px">📅 Teams Calendar Event</h3>' +
+      cf('Meeting Title', final.title) +
+      cf('Date & Time', final.date + ' at ' + final.time + ' (' + final.duration_minutes + ' minutes)') +
+      cf('Agenda', final.agenda) +
+      cf('Attendees', (final.attendees || []).join('\n')) +
+      '<div class="cal-teams-box">' +
+        '<div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px;letter-spacing:.5px">MICROSOFT TEAMS</div>' +
+        '<div style="font-size:14px;color:var(--text)">Calendar event created in your Outlook calendar with Teams join link.</div>' +
+        '<div style="font-size:13px;color:var(--text-3);margin-top:4px">Open the event in Outlook or Teams to find the meeting link.</div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function cf(label, value) {
+  return '<div class="cal-field"><div class="cal-label">' + escHtml(label) + '</div><div class="cal-value">' + escHtml(value || '') + '</div></div>';
+}
+</script>
+</body>
+</html>
